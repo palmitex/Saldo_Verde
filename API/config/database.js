@@ -9,7 +9,7 @@ const pool = mysql.createPool({
     database: 'saldo_verde',
     waitForConnections: true,
     connectionLimit: 10, 
-    queryLimit: 0
+    queueLimit: 0
 });
 
 async function getConnection(){
@@ -109,5 +109,38 @@ async function compare(senha, hash) {
     }
 }
 
+// Função para registrar log de atividade
+async function logActivity(userId, acao, descricao) {
+    try {
+        // Preparar dados para o log
+        const logData = {
+            usuario_id: userId,
+            acao,
+            descricao,
+            criado_em: new Date()
+        };
+        
+        // Inserir registro de log
+        return await create('logs', logData);
+    } catch (err) {
+        console.error('Erro ao registrar log de atividade: ', err);
+        // Não lança exceção para não interromper o fluxo principal
+    }
+}
+
+// Função para executar consultas SQL personalizadas
+async function query(sql, params = []) {
+    const connection = await getConnection();
+    try {
+        const [rows] = await connection.execute(sql, params);
+        return rows;
+    } catch (err) {
+        console.error('Erro ao executar consulta: ', err);
+        throw err;
+    } finally {
+        connection.release();
+    }
+}
+
 // Exportações
-export { create, readAll, read, update, deleteRecord, compare };
+export { create, readAll, read, update, deleteRecord, compare, logActivity, query };
