@@ -1,0 +1,137 @@
+.header {
+    background-color: #55c065;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 10px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: box-shadow 0,3s ease;
+}
+
+.header:hover {
+    box-shadow: 0 4px 12px rgba (0, 0, 0, 0.15);
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    height: 60px;
+}
+
+.Logo {
+    height: auto;
+    width: 400px;
+    object-fit: contain;
+    transition: width 0.3s ease;
+  }
+
+.nav {
+    display: flex;
+    gap: 20px;
+    position: relative;
+    left: 150px;
+    align-items: center;
+}
+
+.nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.nav a::after {
+    content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: #E8EC67;
+  transition: width 0.3s ease;
+}
+
+.nav a:hover::after {
+    width: 100%;
+  }
+
+.nav a:hover {
+    color: #3A7D44;
+    transform: translateY(-2px);
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+    position: relative;
+    left: 500px;
+}
+
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn.entrar {
+    background-color: #3A7D44;
+    color: white;
+}
+
+.btn.criar {
+    background-color:#3A7D44;
+    color: white;
+}
+
+.menu-toggle {
+    display: none;
+    background: none;
+    font-size: 24px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .nav {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 10px 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .nav.active {
+        display: flex;
+    }
+
+    .menu-toggle {
+        display: block;
+    }
+
+    @keyframes slideDown {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}
