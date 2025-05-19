@@ -58,7 +58,7 @@
   }
 
 .nav a:hover {
-    color: #3A7D44;
+    color: #0da740;
     transform: translateY(-2px);
 }
 
@@ -84,13 +84,13 @@
 }
 
 .btn.entrar {
-    background-color: #3A7D44;
-    color: white;
+    background-color: rgb(253, 224, 71);
+    color: #000;
 }
 
 .btn.criar {
-    background-color:#3A7D44;
-    color: white;
+    background-color: rgb(253, 224, 71);
+    color: #000;
 }
 
 .menu-toggle {

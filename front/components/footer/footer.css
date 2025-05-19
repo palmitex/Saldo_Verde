@@ -1,0 +1,160 @@
+.footer {
+    background-color: #3A7D44;
+    color: #ffffff;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.scroll-top-btn {
+    background-color: #306838;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    margin-left: 50px;
+    margin-right: 50px;
+}
+
+.scroll-top-btn:hover {
+    background-color: #2c8b72;
+}
+
+.social-links a {
+    color: #ffffff;
+    margin: 0 0.75rem;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+
+.social-links a:hover {
+    text-decoration: underline;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+    text-align: left;
+    margin-right: 500px;
+    margin-top: 80px;
+}
+
+.footer-column h4 {
+    margin-bottom: 1rem;
+    font-weight: bold;
+    color: #115c4a;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-column a {
+    position: relative;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.footer-column a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background-color: #E8EC67;
+    transition: width 0.3s ease;
+}
+
+.footer-column a:hover::after {
+    width: 100%;
+}
+
+.footer-column a:hover {
+    color: #0da740;
+    transform: translateY(-2px);
+}
+
+/* Contato */
+.footer-contact {
+    background-color: #306838;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 500px;
+    color: #ffffff;
+}
+
+.footer-contact h4 {
+
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+}
+
+.contact-phone {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+}
+
+.contact-email {
+    margin-bottom: 1.5rem;
+}
+
+.contact-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.contact-button {
+    flex: 1;
+    text-align: center;
+    padding: 0.75rem;
+    border: 1px solid #2c8b72;
+    border-radius: 8px;
+    background-color: transparent;
+    color: #ffffff;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.contact-button:hover {
+    background-color: #2c8b72;
+}
+
+.contact-hours p {
+    margin-top: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.whatsapp-icon {
+    margin-left: 0.5rem;
+}
+
+/* Rodapé inferior */
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1.5rem;
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.footer-main {
+    display: flex;
+    justify-content: center;
+}
