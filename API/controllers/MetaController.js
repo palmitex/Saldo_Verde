@@ -1,5 +1,5 @@
 import { logActivity, query } from '../config/database.js';
-import { criarMeta, listarMetasPorUsuario, buscarMetaPorId, buscarMetasPorUsuario, atualizarMeta, excluirMeta } from '../models/Metas.js';
+import { criarMeta,  buscarMetaPorId, buscarMetasPorUsuario, atualizarMeta, excluirMeta } from '../models/Metas.js';
 
 // Criar uma nova meta
 const criarMetaController = async (req, res) => {

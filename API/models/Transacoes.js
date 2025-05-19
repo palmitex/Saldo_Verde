@@ -1,8 +1,7 @@
-import { create, read, update, deleteRecord, query } from "../config/database.js";
+import { create, read, readAll, update, deleteRecord } from "../config/database.js";
 
 const criarTransacao = async (dados) => {
    try {
-    // Garantir que os dados incluam meta_id (opcional)
     const dadosCompletos = {
       ...dados,
       meta_id: dados.meta_id || null
@@ -14,51 +13,9 @@ const criarTransacao = async (dados) => {
    }
 };
 
-const listarTransacoes = async (usuarioId, filtros = {}) => {
+const listarTransacoes = async () => {
   try {
-    let condicao = `t.usuario_id = ?`;
-    const parametros = [usuarioId];
-
-    // Adicionar filtros
-    if (filtros.tipo) {
-      condicao += ` AND t.tipo = ?`;
-      parametros.push(filtros.tipo);
-    }
-
-    if (filtros.categoria_id) {
-      condicao += ` AND t.categoria_id = ?`;
-      parametros.push(filtros.categoria_id);
-    }
-    
-    if (filtros.meta_id) {
-      condicao += ` AND t.meta_id = ?`;
-      parametros.push(filtros.meta_id);
-    }
-
-    if (filtros.data_inicio) {
-      condicao += ` AND t.data >= ?`;
-      parametros.push(filtros.data_inicio);
-    }
-
-    if (filtros.data_fim) {
-      condicao += ` AND t.data <= ?`;
-      parametros.push(filtros.data_fim);
-    }
-
-    // Consulta com joins para categorias e metas
-    const sql = `
-      SELECT 
-        t.*,
-        c.nome as categoria_nome,
-        m.nome as meta_nome
-      FROM transacoes t
-      LEFT JOIN categorias c ON t.categoria_id = c.id
-      LEFT JOIN metas m ON t.meta_id = m.id
-      WHERE ${condicao}
-      ORDER BY t.data DESC, t.id DESC
-    `;
-
-    return await query(sql, parametros);
+    return await readAll('transacoes');
   } catch (err) {
     console.error('Erro ao listar transações: ', err);
     throw err;
@@ -67,20 +24,36 @@ const listarTransacoes = async (usuarioId, filtros = {}) => {
 
 const buscarTransacaoPorId = async (id) => {
   try {
-    const sql = `
-      SELECT 
-        t.*,
-        c.nome as categoria_nome,
-        m.nome as meta_nome
-      FROM transacoes t
-      LEFT JOIN categorias c ON t.categoria_id = c.id
-      LEFT JOIN metas m ON t.meta_id = m.id
-      WHERE t.id = ?
-    `;
-    const transacoes = await query(sql, [id]);
-    return transacoes[0] || null;
+    return await read('transacoes', `id = ${id}`);
   } catch (err) {
     console.error('Erro ao buscar transação: ', err);
+    throw err;
+  }
+};
+
+const buscarTransacoesPorUsuario = async (usuarioId) => {
+  try {
+    return await read('transacoes', `usuario_id = ${usuarioId}`);
+  } catch (err) {
+    console.error('Erro ao buscar transações do usuário: ', err);
+    throw err;
+  }
+};
+
+const buscarTransacoesPorCategoria = async (categoriaId) => {
+  try {
+    return await read('transacoes', `categoria_id = ${categoriaId}`);
+  } catch (err) {
+    console.error('Erro ao buscar transações por categoria: ', err);
+    throw err;
+  }
+};
+
+const buscarTransacoesPorTipo = async (tipo) => {
+  try {
+    return await read('transacoes', `tipo = '${tipo}'`);
+  } catch (err) {
+    console.error('Erro ao buscar transações por tipo: ', err);
     throw err;
   }
 };
@@ -178,6 +151,9 @@ export {
   criarTransacao,
   listarTransacoes,
   buscarTransacaoPorId,
+  buscarTransacoesPorUsuario,
+  buscarTransacoesPorCategoria,
+  buscarTransacoesPorTipo,
   atualizarTransacao,
   excluirTransacao,
   calcularSaldo,

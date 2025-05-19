@@ -1,18 +1,14 @@
-import { ThemeModeScript } from "flowbite-react";
-import { Geist, Geist_Mono } from "next/font/google";
-import Header from "../components/header/Header"
-import  Footer from "../components/footer/Footer"
+import { Inter } from 'next/font/google';
+
+import { AuthProvider } from '../context/AuthContext';
+import Header from '../components/header/Header';
+import Footer from "../components/footer/Footer"
 
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
 });
 
 export const metadata = {
@@ -22,18 +18,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        <ThemeModeScript />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-<<<<<<< HEAD
-        <Header />
-        <main>{children}</main>
-        <Footer />
-=======
-        <main>{children}</main>
->>>>>>> 11efb0993ab2663af0da1548924aa7709dd6471f
+      <body className={`${inter.variable} font-sans antialiased`}>
+        <AuthProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

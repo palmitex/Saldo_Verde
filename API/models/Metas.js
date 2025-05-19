@@ -1,4 +1,4 @@
-import { create, read, update, deleteRecord, query } from '../config/database.js';
+import { create, read, readAll, update, deleteRecord, query } from '../config/database.js';
 
 const criarMeta = async (metaDados) => {
   try {
@@ -13,78 +13,36 @@ const criarMeta = async (metaDados) => {
   }
 };
 
-const listarMetasPorUsuario = async (usuarioId) => {
+const listarMetas = async () => {
   try {
-    const sql = `
-      SELECT m.*, c.nome as categoria_nome
-      FROM metas m
-      LEFT JOIN categorias c ON m.categoria_id = c.id
-      WHERE m.usuario_id = ?
-      ORDER BY m.prazo ASC
-    `;
-    return await query(sql, [usuarioId]);
+    return await readAll('metas');
   } catch (err) {
-    console.error('Erro ao listar metas: ', err);
+    console.error('Erro ao listar todas as metas: ', err);
     throw err;
   }
 };
 
 const buscarMetaPorId = async (id) => {
   try {
-    const sql = `
-      SELECT m.*, c.nome as categoria_nome
-      FROM metas m
-      LEFT JOIN categorias c ON m.categoria_id = c.id
-      WHERE m.id = ?
-    `;
-    const metas = await query(sql, [id]);
-    return metas[0] || null;
+    return await read('metas', `id = ${id}`);
   } catch (err) {
     console.error('Erro ao buscar meta por ID: ', err);
     throw err;
   }
 };
 
-const buscarMetasPorUsuario = async (usuarioId, filtros = {}) => {
+const buscarMetasPorUsuario = async (usuarioId) => {
   try {
-    let condicao = `m.usuario_id = ${usuarioId}`;
-    const parametros = [usuarioId];
-    
-    if (filtros.prazoMinimo) {
-      condicao += ` AND m.prazo >= ?`;
-      parametros.push(filtros.prazoMinimo);
-    }
-    
-    if (filtros.categoria_id) {
-      condicao += ` AND m.categoria_id = ?`;
-      parametros.push(filtros.categoria_id);
-    }
-    
-    const sql = `
-      SELECT m.*, c.nome as categoria_nome
-      FROM metas m
-      LEFT JOIN categorias c ON m.categoria_id = c.id
-      WHERE ${condicao}
-      ORDER BY m.prazo ASC
-    `;
-    
-    return await query(sql, parametros);
+    return await read('metas', `usuario_id = ${usuarioId}`);
   } catch (err) {
     console.error('Erro ao buscar metas do usuário: ', err);
     throw err;
   }
 };
 
-const buscarMetasPorCategoria = async (usuarioId, categoriaId) => {
+const buscarMetasPorCategoria = async (categoriaId) => {
   try {
-    const sql = `
-      SELECT m.*, c.nome as categoria_nome
-      FROM metas m
-      JOIN categorias c ON m.categoria_id = c.id
-      WHERE m.usuario_id = ? AND m.categoria_id = ?
-      ORDER BY m.prazo ASC
-    `;
-    return await query(sql, [usuarioId, categoriaId]);
+    return await read('metas', `categoria_id = ${categoriaId}`);
   } catch (err) {
     console.error('Erro ao buscar metas por categoria: ', err);
     throw err;
@@ -111,7 +69,7 @@ const excluirMeta = async (id) => {
 
 export { 
   criarMeta, 
-  listarMetasPorUsuario, 
+  listarMetas,
   buscarMetaPorId, 
   buscarMetasPorUsuario, 
   buscarMetasPorCategoria,

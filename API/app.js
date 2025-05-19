@@ -1,6 +1,6 @@
 import express from 'express';
 const app = express();
-const port = 3000;
+const port = 3001;
 import cors from 'cors';
 
 import categoriaRotas from './routes/categoria.js';
@@ -13,6 +13,15 @@ import planejamentoRotas from './routes/planejamento.js'
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Middleware para extrair userId dos parâmetros de consulta
+app.use((req, res, next) => {
+    // Extrair userId do query parameter (usado pelo authFetch no frontend)
+    if (req.query.userId) {
+        req.userId = req.query.userId;
+    }
+    next();
+});
 
 app.use('/categorias', categoriaRotas);
 app.use('/historico', historicoRotas);

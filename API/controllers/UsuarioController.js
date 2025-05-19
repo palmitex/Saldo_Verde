@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+// import jwt from 'jsonwebtoken'; // Remover importação de JWT
 import { compare, logActivity } from '../config/database.js';
 import { criarUsuario, buscarUsuarioPorEmail, buscarUsuarioPorCPF, buscarUsuarioPorId, atualizarUsuario, excluirUsuario } from '../models/Usuario.js';
 
@@ -40,8 +40,8 @@ const cadastrarUsuarioController = async (req, res) => {
       cpf,
       senha_hash: senhaHash,
       pergunta_secreta,
-      resposta_hash: respostaHash,
-      criado_em: new Date()
+      resposta_hash: respostaHash
+      // Remover a linha com criado_em
     };
 
     // Inserir usuário no banco
@@ -94,8 +94,8 @@ const loginController = async (req, res) => {
       });
     }
     
-    // Gerar token JWT
-    const token = jwt.sign({ id: usuario.id }, JWT_SECRET, { expiresIn: '24h' });
+    // Remover Geração de token JWT
+    // const token = jwt.sign({ id: usuario.id }, JWT_SECRET, { expiresIn: '24h' }); 
     
     // Registrar log de atividade
     await logActivity(usuario.id, 'login', 'Usuário realizou login');
@@ -108,8 +108,7 @@ const loginController = async (req, res) => {
       status: 'success',
       message: 'Login realizado com sucesso',
       data: {
-        usuario,
-        token
+        usuario
       }
     });
   } catch (error) {
@@ -124,10 +123,10 @@ const loginController = async (req, res) => {
 // Recuperar senha com pergunta secreta
 const recuperarSenhaController = async (req, res) => {
   try {
-    const { cpf, resposta_secreta, nova_senha } = req.body;
+    const { email, resposta_secreta, nova_senha } = req.body;
 
     // Buscar usuário por CPF
-    const usuario = await buscarUsuarioPorCPF(cpf);
+    const usuario = await buscarUsuarioPorEmail(email);
     if (!usuario) {
       return res.status(404).json({ 
         status: 'error', 
@@ -170,7 +169,14 @@ const recuperarSenhaController = async (req, res) => {
 // Obter perfil do usuário
 const obterPerfilController = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId; // Obter userId da query string
+
+    if (!userId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'O parâmetro userId é obrigatório.'
+      });
+    }
 
     // Buscar usuário por ID
     const usuario = await buscarUsuarioPorId(userId);
@@ -202,8 +208,15 @@ const obterPerfilController = async (req, res) => {
 // Atualizar dados do usuário
 const atualizarPerfilController = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId; // Obter userId da query string
     const { nome, telefone, senha, pergunta_secreta, resposta_secreta } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'O parâmetro userId é obrigatório.'
+      });
+    }
 
     // Verificar se usuário existe
     const usuario = await buscarUsuarioPorId(userId);
@@ -255,7 +268,14 @@ const atualizarPerfilController = async (req, res) => {
 // Excluir conta do usuário
 const excluirContaController = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId; // Obter userId da query string
+
+    if (!userId) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'O parâmetro userId é obrigatório.'
+      });
+    }
 
     // Verificar se usuário existe
     const usuario = await buscarUsuarioPorId(userId);
@@ -289,4 +309,55 @@ const excluirContaController = async (req, res) => {
   }
 };
 
-export { cadastrarUsuarioController, loginController, recuperarSenhaController, obterPerfilController, atualizarPerfilController, excluirContaController };
+// Obter pergunta secreta do usuário (adicionado na resposta anterior, mantido)
+const obterPerguntaSecretaController = async (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'O parâmetro email é obrigatório.'
+      });
+    }
+
+    const usuario = await buscarUsuarioPorEmail(email);
+    if (!usuario) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Usuário não encontrado.'
+      });
+    }
+
+    if (!usuario.pergunta_secreta) {
+        return res.status(404).json({
+            status: 'error',
+            message: 'Usuário não possui pergunta secreta cadastrada.'
+        });
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        pergunta_secreta: usuario.pergunta_secreta
+      }
+    });
+
+  } catch (error) {
+    console.error('Erro ao obter pergunta secreta:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Erro ao obter pergunta secreta.'
+    });
+  }
+};
+
+export {
+  cadastrarUsuarioController,
+  loginController,
+  recuperarSenhaController,
+  obterPerfilController,
+  atualizarPerfilController,
+  excluirContaController,
+  obterPerguntaSecretaController 
+};
