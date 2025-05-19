@@ -1,50 +1,74 @@
-import { readAll, read } from '../config/database.js';
+import Categorias from '../models/Categorias.js';
 import { logActivity } from '../config/database.js';
-import {  excluirCategoria, atualizarCategoria, criarCategoria, verCategoriaEspecifica, verCategorias } from '../models/Categorias.js';
 
 // Criar uma nova categoria
-const criarCategoriaController = async (req, res) => {
+const registrarCategoria = async (req, res) => {
   try {
-    const userId = req.userId;
-    const { nome, tipo } = req.body;
+    console.log('Headers recebidos:', req.headers);
+    console.log('Body recebido:', req.body);
+    console.log('User ID do token:', req.userId);
 
-    // Verificar se já existe uma categoria com mesmo nome e tipo para este usuário
-    const existente = await read('categorias', `usuario_id = ${userId} AND nome = '${nome}' AND tipo = '${tipo}'`);
-    if (existente) {
-      return res.status(400).json({
+    const userId = req.userId;
+    const { nome } = req.body;
+
+    console.log('Dados recebidos:', { userId, nome });
+
+    if (!userId) {
+      console.error('Usuário não autenticado - userId não encontrado');
+      return res.status(401).json({
         status: 'error',
-        message: 'Já existe uma categoria com este nome e tipo'
+        message: 'Usuário não autenticado'
       });
     }
 
-    // Chamar a função do modelo para criar categoria
-    const categoriaId = await criarCategoria(userId, { nome, tipo });
+    if (!nome || nome.trim() === '') {
+      console.error('Nome da categoria não fornecido ou vazio');
+      return res.status(400).json({
+        status: 'error',
+        message: 'Nome da categoria é obrigatório'
+      });
+    }
+
+    const categoriaDados = {
+      usuario_id: parseInt(userId),
+      nome: nome.trim()
+    };
+
+    console.log('Dados da categoria a ser criada:', categoriaDados);
+
+    const categoriaId = await Categorias.criarCategoria(categoriaDados);
     
     // Registrar log de atividade
-    await logActivity(userId, 'criar_categoria', `Usuário criou categoria "${nome}" do tipo ${tipo}`);
+    await logActivity(userId, 'criar_categoria', `Usuário criou categoria ${nome}`);
 
     res.status(201).json({
       status: 'success',
       message: 'Categoria criada com sucesso',
-      data: { id: categoriaId }
+      data: { id: categoriaId, nome: categoriaDados.nome }
     });
   } catch (error) {
-    console.error('Erro ao criar categoria:', error);
+    console.error('Erro detalhado ao criar categoria:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao criar categoria'
+      message: 'Erro ao criar categoria',
+      error: error.message
     });
   }
 };
 
 // Listar categorias do usuário
- const listarCategoriasController = async (req, res) => {
+const listarCategorias = async (req, res) => {
   try {
-    const userId = req.userId;
-    const { tipo } = req.query;
+    const userId = req.query.userId || req.userId;
 
-    // Usar função do modelo para listar categorias
-    const categorias = await verCategorias(userId, tipo);
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
+
+    const categorias = await Categorias.listarCategoriasPorUsuario(userId);
 
     res.status(200).json({
       status: 'success',
@@ -54,21 +78,28 @@ const criarCategoriaController = async (req, res) => {
     console.error('Erro ao listar categorias:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao listar categorias'
+      message: 'Erro ao listar categorias',
+      error: error.message
     });
   }
 };
 
-// Obter detalhes de uma categoria específica
-const obterCategoriaController = async (req, res) => {
+// Obter categoria específica
+const obterCategoria = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId || req.userId;
     const { id } = req.params;
 
-    // Usar função do modelo para obter categoria
-    const categoria = await verCategoriaEspecifica(id, userId);
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
 
-    if (!categoria) {
+    const categoria = await Categorias.buscarCategoriaPorId(id);
+
+    if (!categoria || categoria.usuario_id !== parseInt(userId)) {
       return res.status(404).json({
         status: 'error',
         message: 'Categoria não encontrada'
@@ -83,81 +114,88 @@ const obterCategoriaController = async (req, res) => {
     console.error('Erro ao obter categoria:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao obter categoria'
+      message: 'Erro ao obter categoria',
+      error: error.message
     });
   }
 };
 
-// Atualizar uma categoria
- const atualizarCategoriaController = async (req, res) => {
+// Atualizar categoria
+const atualizarCategoriaController = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId || req.userId;
     const { id } = req.params;
-    const { nome, tipo } = req.body;
+    const { nome } = req.body;
 
-    // Usar função do modelo para atualizar categoria
-    try {
-      await atualizarCategoria(id, userId, { nome, tipo });
-      
-      // Registrar log de atividade
-      await logActivity(userId, 'atualizar_categoria', `Usuário atualizou categoria ID ${id}`);
-
-      res.status(200).json({
-        status: 'success',
-        message: 'Categoria atualizada com sucesso'
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
       });
-    } catch (error) {
-      if (error.message.includes('não encontrada')) {
-        return res.status(404).json({
-          status: 'error',
-          message: error.message
-        });
-      } else if (error.message.includes('Já existe')) {
-        return res.status(400).json({
-          status: 'error',
-          message: error.message
-        });
-      }
-      throw error;
     }
-  } catch (error) {
-    console.error('Erro ao atualizar categoria:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Erro ao atualizar categoria'
-    });
-  }
-};
 
-// Excluir uma categoria
- const excluirCategoriaController = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { id } = req.params;
+    if (!nome || nome.trim() === '') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Nome da categoria é obrigatório'
+      });
+    }
 
-    // Verificar se categoria existe e pertence ao usuário
-    const categoria = await read('categorias', `id = ${id} AND usuario_id = ${userId}`);
-    if (!categoria) {
+    const categoria = await Categorias.buscarCategoriaPorId(id);
+
+    if (!categoria || categoria.usuario_id !== parseInt(userId)) {
       return res.status(404).json({
         status: 'error',
         message: 'Categoria não encontrada'
       });
     }
 
-    // Verificar se existem transações usando esta categoria
-    const transacoes = await readAll('transacoes', `categoria_id = ${id}`, 1);
-    if (transacoes && transacoes.length > 0) {
-      return res.status(400).json({
+    await Categorias.atualizarCategoria(id, { nome: nome.trim() });
+    
+    // Registrar log de atividade
+    await logActivity(userId, 'atualizar_categoria', `Usuário atualizou categoria ${nome}`);
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Categoria atualizada com sucesso',
+      data: { id, nome: nome.trim() }
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar categoria:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Erro ao atualizar categoria',
+      error: error.message
+    });
+  }
+};
+
+// Excluir categoria
+const excluirCategoriaController = async (req, res) => {
+  try {
+    const userId = req.query.userId || req.userId;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
         status: 'error',
-        message: 'Não é possível excluir categoria em uso por transações'
+        message: 'Usuário não autenticado'
       });
     }
 
-    // Usar função do modelo para excluir categoria
-    await excluirCategoria(id, userId);
+    const categoria = await Categorias.buscarCategoriaPorId(id);
+
+    if (!categoria || categoria.usuario_id !== parseInt(userId)) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Categoria não encontrada'
+      });
+    }
+
+    await Categorias.excluirCategoria(id);
     
     // Registrar log de atividade
-    await logActivity(userId, 'excluir_categoria', `Usuário excluiu categoria "${categoria.nome}"`);
+    await logActivity(userId, 'excluir_categoria', `Usuário excluiu categoria ${categoria.nome}`);
 
     res.status(200).json({
       status: 'success',
@@ -167,9 +205,16 @@ const obterCategoriaController = async (req, res) => {
     console.error('Erro ao excluir categoria:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao excluir categoria'
+      message: 'Erro ao excluir categoria',
+      error: error.message
     });
   }
-}; 
+};
 
-export {excluirCategoriaController, atualizarCategoriaController, criarCategoriaController, listarCategoriasController, obterCategoriaController}
+export {
+  registrarCategoria,
+  listarCategorias,
+  obterCategoria,
+  atualizarCategoriaController,
+  excluirCategoriaController
+};

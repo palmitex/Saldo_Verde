@@ -1,46 +1,62 @@
-import { readAll, read, update, deleteRecord, create } from "../config/database.js";
+import { query } from '../config/database.js';
 
-const verCategorias = async () => {
-    try{
-        return await readAll('categorias');
-    } catch(err){
-        console.error('Erro ao listar categoria: ', err)
-        throw err;
+class Categorias {
+  static async criarCategoria(categoria) {
+    try {
+      console.log('Dados recebidos para criar categoria:', categoria);
+      const sql = 'INSERT INTO categorias (usuario_id, nome) VALUES (?, ?)';
+      const [result] = await query(sql, [categoria.usuario_id, categoria.nome]);
+      console.log('Resultado da criação:', result);
+      return result.insertId;
+    } catch (error) {
+      console.error('Erro detalhado ao criar categoria:', error);
+      throw error;
     }
-};
+  }
 
-const verCategoriaEspecifica = async (nome) => {
-    try{
-        return await read('categorias',`nome = ${nome}` )
-    } catch(err){
-        console.error('Erro ao obter categoria especifica: ', err)
-        throw err;
+  static async listarCategoriasPorUsuario(usuarioId) {
+    try {
+      const sql = 'SELECT * FROM categorias WHERE usuario_id = ?';
+      const [rows] = await query(sql, [usuarioId]);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao listar categorias:', error);
+      throw error;
     }
-};
+  }
 
-const criarCategoria = async (metaData) =>{
-    try{
-        return await create('categorias', metaData);
-    } catch(err){
-        console.error('Erro ao criar categoria ')
-    }
-}
-
-const atualizarCategoria = async(nome, nomeData) =>{
-    try{
-        await update('categorias', nomeData, `nome = ${nome}`)
-    } catch(err){
-        console.error('Erro ao atualizar uma categoria', err)
-        throw err;
-    }
-}
-const excluirCategoria = async (nome) =>{
-    try{
-        await deleteRecord('categorias', `nome = ${nome}`);
-    } catch (err){
-        console.error('Erro ao excluir uma categoria: ', err);
-        throw err;
+  static async buscarCategoriaPorId(id) {
+    try {
+      const sql = 'SELECT * FROM categorias WHERE id = ?';
+      const [rows] = await query(sql, [id]);
+      return rows[0];
+    } catch (error) {
+      console.error('Erro ao buscar categoria:', error);
+      throw error;
     }
 }
 
-export { excluirCategoria, atualizarCategoria, criarCategoria, verCategoriaEspecifica, verCategorias}
+  static async atualizarCategoria(id, categoria) {
+    try {
+      const sql = 'UPDATE categorias SET nome = ? WHERE id = ?';
+      await query(sql, [categoria.nome, id]);
+      return true;
+    } catch (error) {
+      console.error('Erro ao atualizar categoria:', error);
+      throw error;
+    }
+}
+
+  static async excluirCategoria(id) {
+    try {
+      const sql = 'DELETE FROM categorias WHERE id = ?';
+      await query(sql, [id]);
+      return true;
+    } catch (error) {
+      console.error('Erro ao excluir categoria:', error);
+      throw error;
+    }
+    }
+}
+
+export default Categorias;

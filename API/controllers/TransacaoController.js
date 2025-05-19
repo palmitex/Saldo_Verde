@@ -1,11 +1,18 @@
-import { criarTransacao, atualizarTransacao } from '../models/Transacoes.js';
-import { logActivity, query, read, deleteRecord } from '../config/database.js';
+import { criarTransacao, listarTransacoes, buscarTransacaoPorId, atualizarTransacao, excluirTransacao, calcularSaldo, obterGastosPorCategoria } from '../models/Transacoes.js';
+import { logActivity, query, read } from '../config/database.js';
 
 // Criar uma nova transação
 const registrarTransacao = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId || req.userId;
     const { tipo, valor, data, categoria_id, descricao, forma_pagamento } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
 
     // Verificar se categoria existe (se fornecida)
     if (categoria_id) {
@@ -50,107 +57,71 @@ const registrarTransacao = async (req, res) => {
 };
 
 // Listar transações com filtros
-const listarTransacoes = async (req, res) => {
+const listarTransacoesController = async (req, res) => {
   try {
-    const userId = req.userId;
+    // Garantir que userId seja um único valor
+    const userId = Array.isArray(req.query.userId) ? req.query.userId[0] : (req.query.userId || req.userId);
+    console.log('Listando transações para usuário:', userId);
+
+    if (!userId) {
+      console.error('Usuário não autenticado');
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
+
     const { 
-      tipo, categoria_id, data_inicio, data_fim, 
-      valor_min, valor_max, limit, offset 
+      tipo, 
+      categoria_id, 
+      data_inicio, 
+      data_fim, 
+      valor_min, 
+      valor_max, 
+      limit, 
+      offset 
     } = req.query;
 
-    // Condição base para consulta
-    let condicao = `t.usuario_id = ?`;
-    const parametros = [userId];
+    console.log('Filtros recebidos:', {
+      tipo,
+      categoria_id,
+      data_inicio,
+      data_fim,
+      valor_min,
+      valor_max,
+      limit,
+      offset
+    });
 
-    // Adicionar filtros à condição
-    if (tipo) {
-      condicao += ` AND t.tipo = ?`;
-      parametros.push(tipo);
-    }
-
-    if (categoria_id) {
-      condicao += ` AND t.categoria_id = ?`;
-      parametros.push(categoria_id);
-    }
-
-    if (data_inicio) {
-      condicao += ` AND t.data >= ?`;
-      parametros.push(data_inicio);
-    }
-
-    if (data_fim) {
-      condicao += ` AND t.data <= ?`;
-      parametros.push(data_fim);
-    }
-
-    if (valor_min) {
-      condicao += ` AND t.valor >= ?`;
-      parametros.push(valor_min);
-    }
-
-    if (valor_max) {
-      condicao += ` AND t.valor <= ?`;
-      parametros.push(valor_max);
-    }
-
-    // Query principal para obter transações
-    let sql = `
-      SELECT 
-        t.id,
-        t.tipo,
-        t.valor,
-        t.data,
-        t.descricao,
-        t.forma_pagamento,
-        t.criado_em,
-        c.nome as categoria_nome,
-        c.id as categoria_id
-      FROM transacoes t
-      LEFT JOIN categorias c ON t.categoria_id = c.id
-      WHERE ${condicao}
-      ORDER BY t.data DESC, t.id DESC
-    `;
-
-    // Adicionar paginação
-    if (limit) {
-      sql += ` LIMIT ?`;
-      parametros.push(parseInt(limit));
-      
-      if (offset) {
-        sql += ` OFFSET ?`;
-        parametros.push(parseInt(offset));
-      }
-    }
+    const filtros = {
+      usuario_id: userId,
+      tipo,
+      categoria_id,
+      data_inicio,
+      data_fim
+    };
 
     // Obter transações
-    const transacoes = await query(sql, parametros);
-
-    // Obter total de registros para paginação
-    const totalSql = `
-      SELECT COUNT(*) as total 
-      FROM transacoes t 
-      WHERE ${condicao}
-    `;
-    
-    const totalResult = await query(totalSql, parametros);
-    const total = totalResult[0].total;
+    const transacoes = await listarTransacoes(filtros);
+    console.log(`Encontradas ${transacoes.length} transações`);
 
     res.status(200).json({
       status: 'success',
       data: {
         transacoes,
         paginacao: {
-          total,
+          total: transacoes.length,
           limit: limit ? parseInt(limit) : null,
           offset: offset ? parseInt(offset) : 0
         }
       }
     });
   } catch (error) {
-    console.error('Erro ao listar transações:', error);
+    console.error('Erro detalhado ao listar transações:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao listar transações'
+      message: 'Erro ao listar transações',
+      error: error.message
     });
   }
 };
@@ -158,30 +129,19 @@ const listarTransacoes = async (req, res) => {
 // Obter detalhes de uma transação específica
 const obterTransacao = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId || req.userId;
     const { id } = req.params;
 
-    // Obter transação
-    const sql = `
-      SELECT 
-        t.id,
-        t.tipo,
-        t.valor,
-        t.data,
-        t.descricao,
-        t.forma_pagamento,
-        t.criado_em,
-        c.nome as categoria_nome,
-        c.id as categoria_id
-      FROM transacoes t
-      LEFT JOIN categorias c ON t.categoria_id = c.id
-      WHERE t.id = ? AND t.usuario_id = ?
-    `;
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
 
-    const transacoes = await query(sql, [id, userId]);
-    const transacao = transacoes[0];
+    const transacao = await buscarTransacaoPorId(id);
 
-    if (!transacao) {
+    if (!transacao || transacao.usuario_id !== parseInt(userId)) {
       return res.status(404).json({
         status: 'error',
         message: 'Transação não encontrada'
@@ -204,13 +164,20 @@ const obterTransacao = async (req, res) => {
 // Atualizar uma transação
 const atualizarTransacaoController = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId || req.userId;
     const { id } = req.params;
     const { tipo, valor, data, categoria_id, descricao, forma_pagamento } = req.body;
 
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
+
     // Verificar se transação existe e pertence ao usuário
-    const transacao = await read('transacoes', `id = ${id} AND usuario_id = ${userId}`);
-    if (!transacao) {
+    const transacao = await buscarTransacaoPorId(id);
+    if (!transacao || transacao.usuario_id !== parseInt(userId)) {
       return res.status(404).json({
         status: 'error',
         message: 'Transação não encontrada'
@@ -230,7 +197,6 @@ const atualizarTransacaoController = async (req, res) => {
 
     // Dados para atualização
     const dadosAtualizados = {};
-    
     if (tipo !== undefined) dadosAtualizados.tipo = tipo;
     if (valor !== undefined) dadosAtualizados.valor = valor;
     if (data !== undefined) dadosAtualizados.data = data;
@@ -258,14 +224,21 @@ const atualizarTransacaoController = async (req, res) => {
 };
 
 // Excluir uma transação
-const excluirTransacao = async (req, res) => {
+const excluirTransacaoController = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId || req.userId;
     const { id } = req.params;
 
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
+
     // Verificar se transação existe e pertence ao usuário
-    const transacao = await read('transacoes', `id = ${id} AND usuario_id = ${userId}`);
-    if (!transacao) {
+    const transacao = await buscarTransacaoPorId(id);
+    if (!transacao || transacao.usuario_id !== parseInt(userId)) {
       return res.status(404).json({
         status: 'error',
         message: 'Transação não encontrada'
@@ -273,7 +246,7 @@ const excluirTransacao = async (req, res) => {
     }
 
     // Excluir transação
-    await deleteRecord('transacoes', `id = ${id}`);
+    await excluirTransacao(id);
     
     // Registrar log de atividade
     await logActivity(userId, 'excluir_transacao', `Usuário excluiu transação ID ${id}`);
@@ -294,26 +267,23 @@ const excluirTransacao = async (req, res) => {
 // Obter saldo atual
 const obterSaldo = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.query.userId || req.userId;
 
-    // Calcular saldo
-    const sql = `
-      SELECT 
-        SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as total_entradas,
-        SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as total_saidas,
-        SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) as saldo
-      FROM transacoes
-      WHERE usuario_id = ?
-    `;
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
 
-    const resultado = await query(sql, [userId]);
+    const saldo = await calcularSaldo(userId);
     
     res.status(200).json({
       status: 'success',
       data: {
-        totalEntradas: parseFloat(resultado[0].total_entradas || 0),
-        totalSaidas: parseFloat(resultado[0].total_saidas || 0),
-        saldo: parseFloat(resultado[0].saldo || 0)
+        totalEntradas: parseFloat(saldo.total_entradas || 0),
+        totalSaidas: parseFloat(saldo.total_saidas || 0),
+        saldo: parseFloat(saldo.saldo || 0)
       }
     });
   } catch (error) {
@@ -325,109 +295,29 @@ const obterSaldo = async (req, res) => {
   }
 };
 
-// Obter saldo mensal
-const obterSaldoMensal = async (req, res) => {
+// Obter gastos por categoria
+const obterGastosPorCategoriaController = async (req, res) => {
   try {
-    const userId = req.userId;
-    const { ano, mes } = req.query;
+    const userId = req.query.userId || req.userId;
+    const { data_inicio, data_fim } = req.query;
 
-    if (!ano || !mes) {
-      return res.status(400).json({
+    if (!userId) {
+      return res.status(401).json({
         status: 'error',
-        message: 'Ano e mês são obrigatórios'
+        message: 'Usuário não autenticado'
       });
     }
 
-    // Calcular saldo mensal
-    const sql = `
-      SELECT 
-        SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as total_entradas,
-        SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as total_saidas,
-        SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) as saldo
-      FROM transacoes
-      WHERE usuario_id = ? AND YEAR(data) = ? AND MONTH(data) = ?
-    `;
+    const periodo = {
+      data_inicio,
+      data_fim
+    };
 
-    const resultado = await query(sql, [userId, ano, mes]);
+    const gastos = await obterGastosPorCategoria(userId, periodo);
     
     res.status(200).json({
       status: 'success',
-      data: {
-        ano: parseInt(ano),
-        mes: parseInt(mes),
-        totalEntradas: parseFloat(resultado[0].total_entradas || 0),
-        totalSaidas: parseFloat(resultado[0].total_saidas || 0),
-        saldo: parseFloat(resultado[0].saldo || 0)
-      }
-    });
-  } catch (error) {
-    console.error('Erro ao obter saldo mensal:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Erro ao obter saldo mensal'
-    });
-  }
-};
-
-// Obter gastos por categoria
-const obterGastosPorCategoria = async (req, res) => {
-  try {
-    const userId = req.userId;
-    const { ano, mes } = req.query;
-
-    // Condição para o período
-    let filtroPeriodo = '';
-    const parametros = [userId];
-    
-    if (ano && mes) {
-      filtroPeriodo = ' AND YEAR(t.data) = ? AND MONTH(t.data) = ?';
-      parametros.push(ano, mes);
-    } else if (ano) {
-      filtroPeriodo = ' AND YEAR(t.data) = ?';
-      parametros.push(ano);
-    }
-    
-    // Consulta SQL para gastos por categoria
-    const sql = `
-      SELECT 
-        c.id,
-        c.nome,
-        SUM(t.valor) as total,
-        COUNT(t.id) as quantidade
-      FROM transacoes t
-      JOIN categorias c ON t.categoria_id = c.id
-      WHERE t.usuario_id = ? AND t.tipo = 'saida'${filtroPeriodo}
-      GROUP BY c.id, c.nome
-      ORDER BY total DESC
-    `;
-
-    const categorias = await query(sql, parametros);
-    
-    // Calcular total de saídas para determinar porcentagens
-    const totalSql = `
-      SELECT SUM(valor) as total_saidas
-      FROM transacoes
-      WHERE usuario_id = ? AND tipo = 'saida'${filtroPeriodo}
-    `;
-    
-    const totalResult = await query(totalSql, parametros);
-    const totalSaidas = parseFloat(totalResult[0].total_saidas || 0);
-    
-    // Calcular porcentagem para cada categoria
-    const resultado = categorias.map(cat => ({
-      id: cat.id,
-      nome: cat.nome,
-      total: parseFloat(cat.total),
-      quantidade: parseInt(cat.quantidade),
-      porcentagem: totalSaidas ? (parseFloat(cat.total) / totalSaidas) * 100 : 0
-    }));
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        categorias: resultado,
-        totalSaidas
-      }
+      data: gastos
     });
   } catch (error) {
     console.error('Erro ao obter gastos por categoria:', error);
@@ -438,4 +328,12 @@ const obterGastosPorCategoria = async (req, res) => {
   }
 };
 
-export {registrarTransacao, listarTransacoes, obterTransacao, atualizarTransacaoController, excluirTransacao, obterSaldo, obterSaldoMensal, obterGastosPorCategoria}; 
+export {
+  registrarTransacao,
+  listarTransacoesController,
+  obterTransacao,
+  atualizarTransacaoController,
+  excluirTransacaoController,
+  obterSaldo,
+  obterGastosPorCategoriaController
+}; 

@@ -16,21 +16,19 @@ function Metas() {
   const [metas, setMetas] = useState([]);
   const auth = useAuth();
   const router = useRouter();
-  const [formMeta, setFormMeta] = useState({
+  const [formData, setFormData] = useState({
     nome: '',
-    descricao: '',
-    valor_alvo: '',
-    prazo: '',
-    categoria_id: ''
+    valor_objetivo: '',
+    valor_inicial: '',
+    prazo: new Date().toISOString().split('T')[0],
+    usuario_id: auth?.user?.id || null
   });
-  const [categorias, setCategorias] = useState([]);
   const [editando, setEditando] = useState(null);
   const [mostrarForm, setMostrarForm] = useState(false);
 
   useEffect(() => {
     if (auth?.user) {
       buscarMetas();
-      buscarCategorias();
     }
   }, [auth?.user]);
 
@@ -41,16 +39,25 @@ function Metas() {
         router.push('/login');
         return;
       }
+      console.log('Buscando metas para usuário:', auth.user.id);
+      const response = await auth.authFetch('http://localhost:3001/metas');
+      console.log('Resposta da API:', response);
       
-      // Use authFetch instead of regular fetch to include authentication
-      const response = await auth.authFetch(`http://localhost:3001/metas/usuario/${auth.user.id}`);
       if (response.ok) {
         const data = await response.json();
-        // Ensure data is an array
-        setMetas(Array.isArray(data) ? data : []);
+        console.log('Dados recebidos:', data);
+        
+        if (data.status === 'success' && Array.isArray(data.data)) {
+          console.log('Metas encontradas:', data.data);
+          setMetas(data.data);
+        } else {
+          console.error('Formato de dados inválido:', data);
+          throw new Error(data.message || 'Formato de dados inválido');
+        }
       } else {
-        console.error(`Erro ao buscar metas: ${response.status} ${response.statusText}`);
-        setMetas([]);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro na resposta:', errorData);
+        throw new Error(errorData.message || 'Erro ao buscar metas');
       }
     } catch (error) {
       console.error('Erro ao buscar metas:', error);
@@ -58,33 +65,10 @@ function Metas() {
     }
   };
 
-  const buscarCategorias = async () => {
-    try {
-      if (!auth?.user) {
-        console.error('Usuário não autenticado');
-        return;
-      }
-      
-      // Use authFetch instead of regular fetch to include authentication
-      const response = await auth.authFetch('http://localhost:3001/categorias');
-      if (response.ok) {
-        const data = await response.json();
-        // Ensure data is always an array
-        setCategorias(Array.isArray(data) ? data : []);
-      } else {
-        console.error(`Erro ao buscar categorias: ${response.status} ${response.statusText}`);
-        setCategorias([]);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar categorias:', error);
-      setCategorias([]);
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormMeta({
-      ...formMeta,
+    setFormData({
+      ...formData,
       [name]: value
     });
   };
@@ -98,25 +82,73 @@ function Metas() {
         router.push('/login');
         return;
       }
+
+      // Validar campos obrigatórios
+      if (!formData.nome || !formData.valor_objetivo || !formData.valor_inicial || !formData.prazo) {
+        alert('Por favor, preencha todos os campos obrigatórios: Nome, Valor Objetivo, Valor Inicial e Prazo');
+        return;
+      }
+
+      // Validar valor objetivo
+      const valorObjetivo = parseFloat(formData.valor_objetivo);
+      if (isNaN(valorObjetivo) || valorObjetivo <= 0) {
+        alert('O valor objetivo deve ser um número positivo');
+        return;
+      }
+
+      // Validar valor inicial
+      const valorInicial = parseFloat(formData.valor_inicial);
+      if (isNaN(valorInicial) || valorInicial < 0) {
+        alert('O valor inicial deve ser um número não negativo');
+        return;
+      }
+
+      // Validar prazo
+      const dataPrazo = new Date(formData.prazo);
+      const hoje = new Date();
+      if (dataPrazo < hoje) {
+        alert('O prazo deve ser uma data futura');
+        return;
+      }
       
       const metaData = {
-        ...formMeta,
-        usuario_id: auth.user.id
+        ...formData,
+        usuario_id: auth.user.id,
+        valor_objetivo: valorObjetivo,
+        valor_inicial: valorInicial,
+        nome: formData.nome.trim()
       };
+      
+      console.log('Dados da meta a ser enviada:', metaData);
       
       let response;
       
       if (editando) {
-        // Atualizar meta existente
+        // Verificar se a meta pertence ao usuário atual
+        const metaAtual = metas.find(m => m.id === editando);
+        if (!metaAtual) {
+          alert('Meta não encontrada.');
+          return;
+        }
+        
+        // Verificar se o usuário é o proprietário da meta antes de tentar atualizar
+        if (String(metaAtual.usuario_id) !== String(auth.user.id)) {
+          alert('Você não tem permissão para editar esta meta');
+          return;
+        }
+        
+        // Simplificar a requisição para usar apenas o método padrão de authFetch
         response = await auth.authFetch(`http://localhost:3001/metas/${editando}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(metaData),
+          body: JSON.stringify({
+            ...metaData,
+            usuario_id: parseInt(auth.user.id) // Garantir que seja número no corpo
+          }),
         });
       } else {
-        // Criar nova meta
         response = await auth.authFetch('http://localhost:3001/metas', {
           method: 'POST',
           headers: {
@@ -126,34 +158,42 @@ function Metas() {
         });
       }
       
+      console.log('Resposta da API:', response);
+      
       if (response.ok) {
-        // Limpar formulário e recarregar metas
-        setFormMeta({
+        const responseData = await response.json();
+        console.log('Dados da resposta:', responseData);
+        
+        setFormData({
           nome: '',
-          descricao: '',
-          valor_alvo: '',
-          prazo: '',
-          categoria_id: ''
+          valor_objetivo: '',
+          valor_inicial: '',
+          prazo: new Date().toISOString().split('T')[0],
+          usuario_id: auth.user.id
         });
         setEditando(null);
         setMostrarForm(false);
-        buscarMetas();
+        
+        // Buscar metas atualizadas
+        await buscarMetas();
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error(`Erro ao salvar meta: ${response.status} ${response.statusText}`, errorData);
+        alert(errorData.message || 'Erro ao salvar meta. Por favor, tente novamente.');
       }
     } catch (error) {
       console.error('Erro ao salvar meta:', error);
+      alert('Erro ao salvar meta. Por favor, tente novamente.');
     }
   };
 
   const handleEditar = (meta) => {
-    setFormMeta({
+    setFormData({
       nome: meta.nome,
-      descricao: meta.descricao,
-      valor_alvo: meta.valor_alvo,
+      valor_objetivo: meta.valor_objetivo,
+      valor_inicial: meta.valor_inicial,
       prazo: meta.prazo ? meta.prazo.split('T')[0] : '',
-      categoria_id: meta.categoria_id
+      usuario_id: meta.usuario_id
     });
     setEditando(meta.id);
     setMostrarForm(true);
@@ -168,7 +208,8 @@ function Metas() {
           return;
         }
         
-        const response = await auth.authFetch(`http://localhost:3001/metas/${id}`, {
+        // Modificar a URL para incluir o userId como parâmetro de consulta
+        const response = await auth.authFetch(`http://localhost:3001/metas/${id}?userId=${auth.user.id}`, {
           method: 'DELETE',
         });
         
@@ -177,9 +218,11 @@ function Metas() {
         } else {
           const errorData = await response.json().catch(() => ({}));
           console.error(`Erro ao excluir meta: ${response.status} ${response.statusText}`, errorData);
+          alert(errorData.message || 'Erro ao excluir meta');
         }
       } catch (error) {
         console.error('Erro ao excluir meta:', error);
+        alert('Erro ao excluir meta: ' + error.message);
       }
     }
   };
@@ -197,12 +240,12 @@ function Metas() {
       
       <button 
         onClick={() => {
-          setFormMeta({
+          setFormData({
             nome: '',
-            descricao: '',
-            valor_alvo: '',
-            prazo: '',
-            categoria_id: ''
+            valor_objetivo: '',
+            valor_inicial: '',
+            prazo: new Date().toISOString().split('T')[0],
+            usuario_id: auth?.user?.id || null
           });
           setEditando(null);
           setMostrarForm(!mostrarForm);
@@ -221,7 +264,7 @@ function Metas() {
             <input
               type="text"
               name="nome"
-              value={formMeta.nome}
+              value={formData.nome}
               onChange={handleInputChange}
               className="w-full border rounded px-3 py-2"
               required
@@ -229,22 +272,25 @@ function Metas() {
           </div>
           
           <div className="mb-4">
-            <label className="block mb-1">Descrição</label>
-            <textarea
-              name="descricao"
-              value={formMeta.descricao}
-              onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
-              rows="3"
-            ></textarea>
-          </div>
-          
-          <div className="mb-4">
-            <label className="block mb-1">Valor Alvo (R$)</label>
+            <label className="block mb-1">Valor Objetivo (R$)</label>
             <input
               type="number"
-              name="valor_alvo"
-              value={formMeta.valor_alvo}
+              name="valor_objetivo"
+              value={formData.valor_objetivo}
+              onChange={handleInputChange}
+              className="w-full border rounded px-3 py-2"
+              min="0"
+              step="0.01"
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block mb-1">Valor Inicial (R$)</label>
+            <input
+              type="number"
+              name="valor_inicial"
+              value={formData.valor_inicial}
               onChange={handleInputChange}
               className="w-full border rounded px-3 py-2"
               min="0"
@@ -258,29 +304,11 @@ function Metas() {
             <input
               type="date"
               name="prazo"
-              value={formMeta.prazo}
+              value={formData.prazo}
               onChange={handleInputChange}
               className="w-full border rounded px-3 py-2"
               required
             />
-          </div>
-          
-          <div className="mb-4">
-            <label className="block mb-1">Categoria</label>
-            <select
-              name="categoria_id"
-              value={formMeta.categoria_id}
-              onChange={handleInputChange}
-              className="w-full border rounded px-3 py-2"
-              required
-            >
-              <option value="">Selecione uma categoria</option>
-              {Array.isArray(categorias) && categorias.map(categoria => (
-                <option key={categoria.id} value={categoria.id}>
-                  {categoria.nome}
-                </option>
-              ))}
-            </select>
           </div>
           
           <button 
@@ -301,16 +329,15 @@ function Metas() {
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-xl font-semibold">{meta.nome}</h2>
-                  <p className="text-gray-700">{meta.descricao}</p>
-                  <p className="font-bold text-green-600">Valor alvo: {formatarMoeda(meta.valor_alvo)}</p>
-                  <p>Prazo: {new Date(meta.prazo).toLocaleDateString()}</p>
-                  {meta.categoria && (
-                    <p className="mt-2">
-                      <span className="bg-gray-200 px-2 py-1 rounded text-sm">
-                        {meta.categoria.nome}
-                      </span>
-                    </p>
-                  )}
+                  <p className="font-bold text-green-600 mt-2">
+                    Valor objetivo: {formatarMoeda(meta.valor_objetivo)}
+                  </p>
+                  <p className="mt-1">
+                    Valor inicial: {formatarMoeda(meta.valor_inicial)}
+                  </p>
+                  <p className="mt-1">
+                    Prazo: {new Date(meta.prazo).toLocaleDateString('pt-BR')}
+                  </p>
                 </div>
                 <div className="flex space-x-2">
                   <button 
@@ -328,20 +355,19 @@ function Metas() {
                 </div>
               </div>
               
-              {meta.progresso && (
-                <div className="mt-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      className="bg-blue-600 h-2.5 rounded-full" 
-                      style={{ width: `${Math.min((meta.progresso / meta.valor_alvo) * 100, 100)}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-right mt-1">
-                    {formatarMoeda(meta.progresso)} de {formatarMoeda(meta.valor_alvo)}
-                    ({Math.round((meta.progresso / meta.valor_alvo) * 100)}%)
-                  </p>
+              <div className="mt-4">
+                <div className="w-full bg-gray-200 rounded-full h-4">
+                  <div 
+                    className="bg-blue-600 h-4 rounded-full transition-all duration-500 ease-in-out" 
+                    style={{ width: `${meta.percentual}%` }}
+                  ></div>
                 </div>
-              )}
+                <div className="flex justify-between mt-2 text-sm text-gray-600">
+                  <span>Progresso: {formatarMoeda(meta.valor_inicial)}</span>
+                  <span>Objetivo: {formatarMoeda(meta.valor_objetivo)}</span>
+                  <span>{meta.percentual.toFixed(1)}%</span>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

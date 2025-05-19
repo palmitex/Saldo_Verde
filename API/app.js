@@ -8,7 +8,6 @@ import historicoRotas from './routes/historico.js';
 import metaRotas from './routes/meta.js';
 import transicaoRotas from './routes/transacao.js';
 import usuarioRotas from './routes/usuario.js';
-import planejamentoRotas from './routes/planejamento.js'
 
 // Middlewares
 app.use(cors());
@@ -16,7 +15,6 @@ app.use(express.json());
 
 // Middleware para extrair userId dos parâmetros de consulta
 app.use((req, res, next) => {
-    // Extrair userId do query parameter (usado pelo authFetch no frontend)
     if (req.query.userId) {
         req.userId = req.query.userId;
     }
@@ -28,7 +26,6 @@ app.use('/historico', historicoRotas);
 app.use('/metas', metaRotas);
 app.use('/transacoes', transicaoRotas);
 app.use('/usuarios', usuarioRotas);
-app.use('/planejamentos', planejamentoRotas);
 
 // Rota raiz
 app.get('/', (req, res) => {
@@ -47,7 +44,7 @@ app.use((req, res) => {
 });
 
 // Middleware de erro global
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     console.error(err.stack);
     res.status(500).json({ 
         status: 'error', 

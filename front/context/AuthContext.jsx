@@ -131,18 +131,76 @@ export const AuthProvider = ({ children }) => {
     return !!user;
   };
 
-  // Função para fazer requisições autenticadas (sem JWT)
+  // Função para fazer requisições autenticadas
   const authFetch = async (url, options = {}) => {
     if (!isAuthenticated()) {
       router.push('/login');
       throw new Error('Usuário não autenticado');
     }
+
+    if (!url) {
+      throw new Error('URL não fornecida');
+    }
+
+    // Garantir que a URL começa com http:// ou https://
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      url = `http://localhost:3001${url.startsWith('/') ? '' : '/'}${url}`;
+    }
     
-    // Adiciona o ID do usuário como parâmetro de consulta para autenticação simples
-    const separator = url.includes('?') ? '&' : '?';
-    const authenticatedUrl = `${url}${separator}userId=${user.id}`;
-    
-    return fetch(authenticatedUrl, options);
+    try {
+      // Verificar se a URL já contém userId
+      const urlObj = new URL(url);
+      if (!urlObj.searchParams.has('userId')) {
+        // Adiciona o ID do usuário como parâmetro de consulta para autenticação simples
+        const separator = url.includes('?') ? '&' : '?';
+        url = `${url}${separator}userId=${user.id}`;
+      }
+      
+      console.log('Fazendo requisição para:', url);
+      
+      // Adiciona headers padrão
+      const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers
+      };
+
+      // Faz a requisição com timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos de timeout
+
+      try {
+        const response = await fetch(url, {
+          ...options,
+          headers,
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        // Se a resposta não for ok, tenta obter a mensagem de erro
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || response.statusText);
+        }
+
+        return response;
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          throw new Error('A requisição demorou muito tempo para responder');
+        }
+        
+        if (fetchError.message === 'Failed to fetch') {
+          throw new Error('Não foi possível conectar ao servidor. Verifique se o servidor está rodando e tente novamente.');
+        }
+        
+        throw fetchError;
+      }
+    } catch (error) {
+      console.error('Erro na requisição:', error);
+      throw error;
+    }
   };
 
   return (

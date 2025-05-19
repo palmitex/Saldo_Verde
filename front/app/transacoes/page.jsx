@@ -47,13 +47,18 @@ function Transacoes() {
         return;
       }
       
-      const response = await auth.authFetch(`http://localhost:3001/transacoes/usuario/${auth.user.id}`);
+      const response = await auth.authFetch(`http://localhost:3001/transacoes?userId=${auth.user.id}`);
       if (response.ok) {
         const data = await response.json();
-        // Ensure data is an array
-        setTransacoes(Array.isArray(data) ? data : []);
+        if (data.status === 'success' && data.data && Array.isArray(data.data.transacoes)) {
+          setTransacoes(data.data.transacoes);
+        } else {
+          console.error('Formato de resposta inválido:', data);
+          setTransacoes([]);
+        }
       } else {
-        console.error(`Erro ao buscar transações: ${response.status} ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`Erro ao buscar transações: ${errorData.message || response.statusText}`);
         setTransacoes([]);
       }
     } catch (error) {
@@ -315,18 +320,20 @@ function Transacoes() {
                 <option value="saida">Saída</option>
               </select>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2">
+                Categoria
+              </label>
               <select
                 name="categoria_id"
                 value={novaTransacaoForm.categoria_id}
                 onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2"
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione uma categoria (opcional)</option>
-                {Array.isArray(categorias) && categorias.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.nome}
+                {categorias.map(categoria => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.nome}
                   </option>
                 ))}
               </select>

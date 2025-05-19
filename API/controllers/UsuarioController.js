@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-// import jwt from 'jsonwebtoken'; // Remover importação de JWT
 import { compare, logActivity } from '../config/database.js';
 import { criarUsuario, buscarUsuarioPorEmail, buscarUsuarioPorCPF, buscarUsuarioPorId, atualizarUsuario, excluirUsuario } from '../models/Usuario.js';
 
@@ -93,9 +92,6 @@ const loginController = async (req, res) => {
         message: 'Senha incorreta' 
       });
     }
-    
-    // Remover Geração de token JWT
-    // const token = jwt.sign({ id: usuario.id }, JWT_SECRET, { expiresIn: '24h' }); 
     
     // Registrar log de atividade
     await logActivity(usuario.id, 'login', 'Usuário realizou login');

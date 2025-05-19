@@ -34,16 +34,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Removendo a segunda exportação padrão
-// Função alternativa sem exportação
-function HomeAlternative() {
-  return (
-    <>
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-3xl font-bold mb-4">Bem-vindo ao Saldo Verde!</h1>
-        <p className="text-lg text-gray-600">Gerencie suas finanças de forma simples e eficiente.</p>
-      </div>
-    </>
-  );
-}

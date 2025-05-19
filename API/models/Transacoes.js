@@ -1,32 +1,89 @@
-import { create, read, readAll, update, deleteRecord } from "../config/database.js";
+import { create, read, readAll, update, deleteRecord, query } from "../config/database.js";
 
 const criarTransacao = async (dados) => {
-   try {
-    const dadosCompletos = {
-      ...dados,
-      meta_id: dados.meta_id || null
-    };
-    return await create('transacoes', dadosCompletos);
-   } catch(err) {
-    console.error('Erro ao criar uma transação: ', err)
+  try {
+    return await create('transacoes', dados);
+  } catch (err) {
+    console.error('Erro ao criar transação:', err);
     throw err;
-   }
+  }
 };
 
-const listarTransacoes = async () => {
+const listarTransacoes = async (filtros = {}) => {
   try {
-    return await readAll('transacoes');
+    const { usuario_id, tipo, categoria_id, data_inicio, data_fim } = filtros;
+    
+    let condicao = '1=1';
+    const parametros = [];
+
+    if (usuario_id) {
+      condicao += ' AND t.usuario_id = ?';
+      parametros.push(parseInt(usuario_id));
+    }
+
+    if (tipo) {
+      condicao += ' AND t.tipo = ?';
+      parametros.push(tipo);
+    }
+
+    if (categoria_id) {
+      condicao += ' AND t.categoria_id = ?';
+      parametros.push(parseInt(categoria_id));
+    }
+
+    if (data_inicio) {
+      condicao += ' AND DATE(t.data) >= ?';
+      parametros.push(data_inicio);
+    }
+
+    if (data_fim) {
+      condicao += ' AND DATE(t.data) <= ?';
+      parametros.push(data_fim);
+    }
+
+    console.log('SQL Query:', `
+      SELECT 
+        t.*,
+        c.nome as categoria_nome
+      FROM transacoes t
+      LEFT JOIN categorias c ON t.categoria_id = c.id
+      WHERE ${condicao}
+      ORDER BY t.data DESC, t.id DESC
+    `);
+    console.log('Parâmetros:', parametros);
+
+    const sql = `
+      SELECT 
+        t.*,
+        c.nome as categoria_nome
+      FROM transacoes t
+      LEFT JOIN categorias c ON t.categoria_id = c.id
+      WHERE ${condicao}
+      ORDER BY t.data DESC, t.id DESC
+    `;
+
+    const resultado = await query(sql, parametros);
+    return resultado;
   } catch (err) {
-    console.error('Erro ao listar transações: ', err);
-    throw err;
+    console.error('Erro detalhado ao listar transações:', err);
+    throw new Error(`Erro ao listar transações: ${err.message}`);
   }
 };
 
 const buscarTransacaoPorId = async (id) => {
   try {
-    return await read('transacoes', `id = ${id}`);
+    const sql = `
+      SELECT 
+        t.*,
+        c.nome as categoria_nome
+      FROM transacoes t
+      LEFT JOIN categorias c ON t.categoria_id = c.id
+      WHERE t.id = ?
+    `;
+    const transacoes = await query(sql, [id]);
+    return transacoes[0] || null;
   } catch (err) {
-    console.error('Erro ao buscar transação: ', err);
+    console.error('Erro ao buscar transação:', err);
     throw err;
   }
 };
@@ -59,55 +116,37 @@ const buscarTransacoesPorTipo = async (tipo) => {
 };
 
 const atualizarTransacao = async (id, dados) => {
-    try {
-        return await update('transacoes', dados, `id = ${id}`);
-    } catch(err) {
-        console.error('Erro ao atualizar uma transação: ', err)
-        throw err;
-    }
+  try {
+    return await update('transacoes', dados, `id = ${id}`);
+  } catch (err) {
+    console.error('Erro ao atualizar transação:', err);
+    throw err;
+  }
 };
 
 const excluirTransacao = async (id) => {
   try {
     return await deleteRecord('transacoes', `id = ${id}`);
   } catch (err) {
-    console.error('Erro ao excluir transação: ', err);
+    console.error('Erro ao excluir transação:', err);
     throw err;
   }
 };
 
-const calcularSaldo = async (usuarioId, periodo = {}) => {
+const calcularSaldo = async (usuario_id) => {
   try {
-    let condicao = `usuario_id = ?`;
-    const parametros = [usuarioId];
-    
-    if (periodo.data_inicio) {
-      condicao += ` AND data >= ?`;
-      parametros.push(periodo.data_inicio);
-    }
-    
-    if (periodo.data_fim) {
-      condicao += ` AND data <= ?`;
-      parametros.push(periodo.data_fim);
-    }
-    
     const sql = `
       SELECT 
         SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as total_entradas,
         SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as total_saidas,
         SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) as saldo
       FROM transacoes
-      WHERE ${condicao}
+      WHERE usuario_id = ?
     `;
-    
-    const resultado = await query(sql, parametros);
-    return {
-      totalEntradas: parseFloat(resultado[0].total_entradas || 0),
-      totalSaidas: parseFloat(resultado[0].total_saidas || 0),
-      saldo: parseFloat(resultado[0].saldo || 0)
-    };
+    const resultado = await query(sql, [usuario_id]);
+    return resultado[0];
   } catch (err) {
-    console.error('Erro ao calcular saldo: ', err);
+    console.error('Erro ao calcular saldo:', err);
     throw err;
   }
 };

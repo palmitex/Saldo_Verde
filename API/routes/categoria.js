@@ -1,13 +1,13 @@
 import express from 'express';
-import { listarCategoriasController, obterCategoriaController, criarCategoriaController, atualizarCategoriaController, excluirCategoriaController} from '../controllers/CategoriaController.js';
+import { listarCategorias, obterCategoria, registrarCategoria, atualizarCategoriaController, excluirCategoriaController } from '../controllers/CategoriaController.js';
 
 const router = express.Router();
 
 
-router.get('/', listarCategoriasController);
-router.get('/:id', obterCategoriaController);
-router.post('/', criarCategoriaController);
+router.get('/', listarCategorias);
+router.get('/:id', obterCategoria);
+router.post('/', registrarCategoria);
 router.put('/:id', atualizarCategoriaController);
 router.delete('/:id', excluirCategoriaController);
 
-export default router; 
+export default router;
