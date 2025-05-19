@@ -39,10 +39,10 @@ export default function Header() {
                         ) : (
                             <>
                                 <Link href="/login">
-                                    <button className="btn entrar">Entrar</button>
+                                    <button className="btn bg-yellow-300">Entrar</button>
                                 </Link>
                                 <Link href="/registro">
-                                    <button className="btn criar">Criar Conta</button>
+                                    <button className="btn bg-yellow-300">Criar Conta</button>
                                 </Link>
                             </>
                         )}
