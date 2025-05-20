@@ -33,7 +33,7 @@ export default function Footer() {
                     <div className="footer-column">
                         <h4>Transparência</h4>
                         <ul>
-                            <li><a href="#">Sobre nós</a></li>
+                            <li><a href="/sobrenos">Sobre nós</a></li>
                             <li><a href="#">Termos e Privacidade</a></li>
                         </ul>
                     </div>
