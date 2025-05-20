@@ -11,7 +11,7 @@ const criarTransacao = async (dados) => {
 
 const listarTransacoes = async (filtros = {}) => {
   try {
-    const { usuario_id, tipo, categoria_id, data_inicio, data_fim } = filtros;
+    const { usuario_id, tipo, categoria_id, data_inicio, data_fim, meta_id } = filtros;
     
     let condicao = '1=1';
     const parametros = [];
@@ -30,6 +30,11 @@ const listarTransacoes = async (filtros = {}) => {
       condicao += ' AND t.categoria_id = ?';
       parametros.push(parseInt(categoria_id));
     }
+    
+    if (meta_id) {
+      condicao += ' AND t.meta_id = ?';
+      parametros.push(parseInt(meta_id));
+    }
 
     if (data_inicio) {
       condicao += ' AND DATE(t.data) >= ?';
@@ -41,23 +46,14 @@ const listarTransacoes = async (filtros = {}) => {
       parametros.push(data_fim);
     }
 
-    console.log('SQL Query:', `
-      SELECT 
-        t.*,
-        c.nome as categoria_nome
-      FROM transacoes t
-      LEFT JOIN categorias c ON t.categoria_id = c.id
-      WHERE ${condicao}
-      ORDER BY t.data DESC, t.id DESC
-    `);
-    console.log('Parâmetros:', parametros);
-
     const sql = `
       SELECT 
         t.*,
-        c.nome as categoria_nome
+        c.nome as categoria_nome,
+        m.nome as meta_nome
       FROM transacoes t
       LEFT JOIN categorias c ON t.categoria_id = c.id
+      LEFT JOIN metas m ON t.meta_id = m.id
       WHERE ${condicao}
       ORDER BY t.data DESC, t.id DESC
     `;

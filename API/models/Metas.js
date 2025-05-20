@@ -32,6 +32,7 @@ const criarMeta = async (metaDados) => {
       valor_objetivo: metaDados.valor_objetivo,
       valor_inicial: metaDados.valor_inicial,
       prazo: metaDados.prazo,
+      categoria_id: metaDados.categoria_id || null,
       criado_em: metaDados.criado_em
     };
 
@@ -79,11 +80,35 @@ const buscarMetasPorUsuario = async (userId) => {
   try {
     console.log('Buscando metas para usuário:', userId);
     
-    const sql = `
-      SELECT * FROM metas 
-      WHERE usuario_id = ? 
-      ORDER BY criado_em DESC
-    `;
+    // Abordagem alternativa: usar INFORMATION_SCHEMA que suporta parâmetros preparados
+    const verificarColuna = await query(
+      `SELECT COLUMN_NAME 
+       FROM INFORMATION_SCHEMA.COLUMNS 
+       WHERE TABLE_SCHEMA = DATABASE() 
+       AND TABLE_NAME = 'metas' 
+       AND COLUMN_NAME = ?`, 
+      ['categoria_id']
+    );
+    
+    let sql;
+    if (verificarColuna.length > 0) {
+      // Se a coluna existir, use o JOIN normal
+      sql = `
+        SELECT m.*, c.nome as categoria_nome 
+        FROM metas m
+        LEFT JOIN categorias c ON m.categoria_id = c.id
+        WHERE m.usuario_id = ? 
+        ORDER BY m.criado_em DESC
+      `;
+    } else {
+      // Se a coluna não existir, busque apenas as metas sem o JOIN
+      sql = `
+        SELECT m.* 
+        FROM metas m
+        WHERE m.usuario_id = ? 
+        ORDER BY m.criado_em DESC
+      `;
+    }
     
     const metas = await query(sql, [userId]);
     console.log('Metas encontradas no banco:', metas);
@@ -115,6 +140,10 @@ const atualizarMeta = async (id, dadosAtualizados) => {
 
 const excluirMeta = async (id) => {
   try {
+    // Primeiro, desassociar todas as transações vinculadas a esta meta
+    await query('UPDATE transacoes SET meta_id = NULL WHERE meta_id = ?', [id]);
+    
+    // Depois, excluir a meta
     return await deleteRecord('metas', `id = ${id}`);
   } catch (err) {
     console.error('Erro ao excluir meta: ', err);
@@ -130,4 +159,4 @@ export {
   buscarMetasPorCategoria,
   atualizarMeta, 
   excluirMeta
-}; 
+};

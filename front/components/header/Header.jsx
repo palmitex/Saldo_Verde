@@ -29,6 +29,7 @@ export default function Header() {
                             <>
                                 <Link href="/metas">Metas</Link>
                                 <Link href="/transacoes">Transações</Link>
+                                <Link href="/categorias">Categorias</Link>
                             </>
                         )}
                         <Link href="/sobrenos">Sobre Nós</Link>

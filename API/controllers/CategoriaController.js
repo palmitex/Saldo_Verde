@@ -1,4 +1,4 @@
-import Categorias from '../models/Categorias.js';
+import { criarCategoria, buscarCategoriaPorId, listarCategoriasPorUsuario, atualizarCategoria, excluirCategoria } from '../models/Categorias.js';
 import { logActivity } from '../config/database.js';
 
 // Criar uma nova categoria
@@ -6,7 +6,6 @@ const registrarCategoria = async (req, res) => {
   try {
     console.log('Headers recebidos:', req.headers);
     console.log('Body recebido:', req.body);
-    console.log('User ID do token:', req.userId);
 
     const userId = req.userId;
     const { nome } = req.body;
@@ -36,7 +35,7 @@ const registrarCategoria = async (req, res) => {
 
     console.log('Dados da categoria a ser criada:', categoriaDados);
 
-    const categoriaId = await Categorias.criarCategoria(categoriaDados);
+    const categoriaId = await criarCategoria(categoriaDados);
     
     // Registrar log de atividade
     await logActivity(userId, 'criar_categoria', `Usuário criou categoria ${nome}`);
@@ -68,7 +67,7 @@ const listarCategorias = async (req, res) => {
       });
     }
 
-    const categorias = await Categorias.listarCategoriasPorUsuario(userId);
+    const categorias = await listarCategoriasPorUsuario(userId);
 
     res.status(200).json({
       status: 'success',
@@ -97,7 +96,7 @@ const obterCategoria = async (req, res) => {
       });
     }
 
-    const categoria = await Categorias.buscarCategoriaPorId(id);
+    const categoria = await buscarCategoriaPorId(id);
 
     if (!categoria || categoria.usuario_id !== parseInt(userId)) {
       return res.status(404).json({
@@ -141,7 +140,7 @@ const atualizarCategoriaController = async (req, res) => {
       });
     }
 
-    const categoria = await Categorias.buscarCategoriaPorId(id);
+    const categoria = await buscarCategoriaPorId(id);
 
     if (!categoria || categoria.usuario_id !== parseInt(userId)) {
       return res.status(404).json({
@@ -150,7 +149,7 @@ const atualizarCategoriaController = async (req, res) => {
       });
     }
 
-    await Categorias.atualizarCategoria(id, { nome: nome.trim() });
+    await atualizarCategoria(id, { nome: nome.trim() });
     
     // Registrar log de atividade
     await logActivity(userId, 'atualizar_categoria', `Usuário atualizou categoria ${nome}`);
@@ -183,16 +182,26 @@ const excluirCategoriaController = async (req, res) => {
       });
     }
 
-    const categoria = await Categorias.buscarCategoriaPorId(id);
+    // Buscar categoria primeiro
+    const categoria = await buscarCategoriaPorId(id);
 
-    if (!categoria || categoria.usuario_id !== parseInt(userId)) {
+    // Verificar se a categoria existe
+    if (!categoria) {
       return res.status(404).json({
         status: 'error',
         message: 'Categoria não encontrada'
       });
     }
 
-    await Categorias.excluirCategoria(id);
+    // Verificar se a categoria pertence ao usuário
+    if (categoria.usuario_id !== parseInt(userId)) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Você não tem permissão para excluir esta categoria'
+      });
+    }
+
+    await excluirCategoria(id);
     
     // Registrar log de atividade
     await logActivity(userId, 'excluir_categoria', `Usuário excluiu categoria ${categoria.nome}`);

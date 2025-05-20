@@ -1,11 +1,12 @@
 import { criarTransacao, listarTransacoes, buscarTransacaoPorId, atualizarTransacao, excluirTransacao, calcularSaldo, obterGastosPorCategoria } from '../models/Transacoes.js';
-import { logActivity, query, read } from '../config/database.js';
+import { logActivity, query, read, update } from '../config/database.js';
+import { buscarMetaPorId } from '../models/Metas.js';
 
 // Criar uma nova transação
 const registrarTransacao = async (req, res) => {
   try {
     const userId = req.query.userId || req.userId;
-    const { tipo, valor, data, categoria_id, descricao, forma_pagamento } = req.body;
+    const { tipo, valor, data, categoria_id, meta_id, descricao, forma_pagamento } = req.body;
 
     if (!userId) {
       return res.status(401).json({
@@ -25,10 +26,36 @@ const registrarTransacao = async (req, res) => {
       }
     }
 
+    // Verificar se meta existe (se fornecida)
+    let metaAtual = null;
+    if (meta_id) {
+      metaAtual = await buscarMetaPorId(meta_id);
+      if (!metaAtual || metaAtual.usuario_id != userId) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Meta não encontrada'
+        });
+      }
+      
+      // Verificar saldo suficiente para saídas associadas a metas
+      if (tipo === 'saida') {
+        const valorAtual = parseFloat(metaAtual.valor_inicial || 0);
+        const valorSaida = parseFloat(valor);
+        
+        if (valorSaida > valorAtual) {
+          return res.status(400).json({
+            status: 'error',
+            message: 'Saldo insuficiente na meta para realizar esta saída'
+          });
+        }
+      }
+    }
+
     // Dados para inserção
     const transacaoDados = {
       usuario_id: userId,
       categoria_id: categoria_id || null,
+      meta_id: meta_id || null,
       tipo,
       valor,
       data,
@@ -38,6 +65,24 @@ const registrarTransacao = async (req, res) => {
 
     // Inserir transação usando a função do model
     const transacaoId = await criarTransacao(transacaoDados);
+    
+    // Atualizar progresso da meta se for uma transação associada a meta
+    if (meta_id && metaAtual) {
+      let valorAtual = parseFloat(metaAtual.valor_inicial || 0);
+      
+      if (tipo === 'entrada') {
+        // Para entradas, aumentar o valor da meta
+        valorAtual += parseFloat(valor);
+      } else if (tipo === 'saida') {
+        // Para saídas, diminuir o valor da meta
+        valorAtual -= parseFloat(valor);
+      }
+      
+      await update('metas', { valor_inicial: valorAtual }, `id = ${meta_id}`);
+      
+      // Registrar log de atividade específico para atualização de meta
+      await logActivity(userId, 'atualizar_meta', `Usuário atualizou progresso da meta "${metaAtual.nome}" com uma ${tipo} de ${valor}`);
+    }
     
     // Registrar log de atividade
     await logActivity(userId, 'criar_transacao', `Usuário criou uma ${tipo} no valor de ${valor}`);
@@ -166,7 +211,7 @@ const atualizarTransacaoController = async (req, res) => {
   try {
     const userId = req.query.userId || req.userId;
     const { id } = req.params;
-    const { tipo, valor, data, categoria_id, descricao, forma_pagamento } = req.body;
+    const { tipo, valor, data, categoria_id, meta_id, descricao, forma_pagamento } = req.body;
 
     if (!userId) {
       return res.status(401).json({
@@ -195,20 +240,57 @@ const atualizarTransacaoController = async (req, res) => {
       }
     }
 
-    // Dados para atualização
-    const dadosAtualizados = {};
-    if (tipo !== undefined) dadosAtualizados.tipo = tipo;
-    if (valor !== undefined) dadosAtualizados.valor = valor;
-    if (data !== undefined) dadosAtualizados.data = data;
-    if (categoria_id !== undefined) dadosAtualizados.categoria_id = categoria_id || null;
-    if (descricao !== undefined) dadosAtualizados.descricao = descricao || null;
-    if (forma_pagamento !== undefined) dadosAtualizados.forma_pagamento = forma_pagamento || null;
+    // Se a meta está sendo alterada ou o tipo/valor da transação está mudando, precisamos ajustar os valores das metas
+    let metaAntiga = null;
+    let metaNova = null;
+    
+    // Verificar meta antiga (se existia)
+    if (transacao.meta_id) {
+      metaAntiga = await buscarMetaPorId(transacao.meta_id);
+      
+      // Se era uma transação de entrada, precisamos remover o valor da meta antiga
+      if (transacao.tipo === 'entrada' && metaAntiga) {
+        const valorAjustado = Math.max(0, parseFloat(metaAntiga.valor_inicial || 0) - parseFloat(transacao.valor));
+        await update('metas', { valor_inicial: valorAjustado }, `id = ${transacao.meta_id}`);
+      }
+    }
+    
+    // Verificar meta nova (se fornecida)
+    if (meta_id) {
+      metaNova = await buscarMetaPorId(meta_id);
+      if (!metaNova || metaNova.usuario_id != userId) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Meta não encontrada'
+        });
+      }
+    }
 
-    // Atualizar transação usando função do model
+    // Dados para atualização
+    const dadosAtualizados = {
+      categoria_id: categoria_id || null,
+      meta_id: meta_id || null,
+      tipo,
+      valor,
+      data,
+      descricao: descricao || null,
+      forma_pagamento: forma_pagamento || null
+    };
+
+    // Atualizar transação
     await atualizarTransacao(id, dadosAtualizados);
     
+    // Se a nova transação é de entrada e tem meta associada, atualizar o progresso da meta
+    if (meta_id && tipo === 'entrada' && metaNova) {
+      const valorAtual = parseFloat(metaNova.valor_inicial || 0) + parseFloat(valor);
+      await update('metas', { valor_inicial: valorAtual }, `id = ${meta_id}`);
+      
+      // Registrar log de atividade
+      await logActivity(userId, 'atualizar_meta', `Usuário atualizou progresso da meta "${metaNova.nome}" com uma entrada de ${valor}`);
+    }
+    
     // Registrar log de atividade
-    await logActivity(userId, 'atualizar_transacao', `Usuário atualizou transação ID ${id}`);
+    await logActivity(userId, 'atualizar_transacao', `Usuário atualizou transação ${id}`);
 
     res.status(200).json({
       status: 'success',
@@ -245,11 +327,23 @@ const excluirTransacaoController = async (req, res) => {
       });
     }
 
+    // Se a transação está associada a uma meta e é do tipo entrada, ajustar o valor da meta
+    if (transacao.meta_id && transacao.tipo === 'entrada') {
+      const meta = await buscarMetaPorId(transacao.meta_id);
+      if (meta) {
+        const valorAjustado = Math.max(0, parseFloat(meta.valor_inicial || 0) - parseFloat(transacao.valor));
+        await update('metas', { valor_inicial: valorAjustado }, `id = ${transacao.meta_id}`);
+        
+        // Registrar log de atividade
+        await logActivity(userId, 'atualizar_meta', `Valor da meta "${meta.nome}" ajustado após exclusão de transação`);
+      }
+    }
+
     // Excluir transação
     await excluirTransacao(id);
     
     // Registrar log de atividade
-    await logActivity(userId, 'excluir_transacao', `Usuário excluiu transação ID ${id}`);
+    await logActivity(userId, 'excluir_transacao', `Usuário excluiu transação ${id}`);
 
     res.status(200).json({
       status: 'success',
@@ -328,12 +422,111 @@ const obterGastosPorCategoriaController = async (req, res) => {
   }
 };
 
-export {
-  registrarTransacao,
-  listarTransacoesController,
-  obterTransacao,
-  atualizarTransacaoController,
-  excluirTransacaoController,
+// Obter gastos por período e categoria
+const obterGastosPorPeriodo = async (req, res) => {
+  try {
+    const userId = req.query.userId || req.userId;
+    const { periodo, categoria_id } = req.query;
+
+    if (!userId) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Usuário não autenticado'
+      });
+    }
+
+    let dataInicio, dataFim;
+    const hoje = new Date();
+    
+    // Definir período
+    switch(periodo) {
+      case 'semana':
+        dataInicio = new Date(hoje);
+        dataInicio.setDate(hoje.getDate() - 7);
+        dataFim = hoje;
+        break;
+      case 'mes':
+        dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+        dataFim = hoje;
+        break;
+      case 'ano':
+        dataInicio = new Date(hoje.getFullYear(), 0, 1);
+        dataFim = hoje;
+        break;
+      default:
+        dataInicio = new Date(hoje);
+        dataInicio.setDate(hoje.getDate() - 30); // Padrão: últimos 30 dias
+        dataFim = hoje;
+    }
+
+    // Formatar datas para SQL
+    const dataInicioFormatada = dataInicio.toISOString().split('T')[0];
+    const dataFimFormatada = dataFim.toISOString().split('T')[0];
+
+    let sql;
+    let params = [userId, dataInicioFormatada, dataFimFormatada];
+
+    if (categoria_id) {
+      // Gastos por período para uma categoria específica
+      sql = `
+        SELECT 
+          DATE(data) as data,
+          SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as total_saidas,
+          SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as total_entradas
+        FROM transacoes
+        WHERE usuario_id = ? 
+          AND data BETWEEN ? AND ?
+          AND categoria_id = ?
+        GROUP BY DATE(data)
+        ORDER BY data
+      `;
+      params.push(categoria_id);
+    } else {
+      // Gastos por categoria no período
+      sql = `
+        SELECT 
+          c.id,
+          c.nome,
+          SUM(CASE WHEN t.tipo = 'saida' THEN t.valor ELSE 0 END) as total_saidas,
+          SUM(CASE WHEN t.tipo = 'entrada' THEN t.valor ELSE 0 END) as total_entradas,
+          COUNT(t.id) as quantidade
+        FROM transacoes t
+        LEFT JOIN categorias c ON t.categoria_id = c.id
+        WHERE t.usuario_id = ? 
+          AND t.data BETWEEN ? AND ?
+        GROUP BY c.id, c.nome
+        ORDER BY total_saidas DESC
+      `;
+    }
+
+    const resultado = await query(sql, params);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        periodo: {
+          inicio: dataInicioFormatada,
+          fim: dataFimFormatada,
+          tipo: periodo
+        },
+        resultados: resultado
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao obter gastos por período:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Erro ao obter gastos por período'
+    });
+  }
+};
+
+export { 
+  registrarTransacao, 
+  listarTransacoesController, 
+  obterTransacao, 
+  atualizarTransacaoController, 
+  excluirTransacaoController, 
   obterSaldo,
-  obterGastosPorCategoriaController
-}; 
+  obterGastosPorPeriodo
+};

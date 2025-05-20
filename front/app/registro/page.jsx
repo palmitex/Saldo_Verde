@@ -174,7 +174,7 @@ export default function Registro() {
         
         // Tentar fazer login
         await auth.login(formData.email, formData.senha);
-        router.push('/dashboard');
+        router.push('/');
       } catch (loginError) {
         console.error('Erro ao fazer login após cadastro:', loginError);
         // Mesmo que o login falhe, o cadastro foi bem-sucedido

@@ -19,6 +19,8 @@ function Transacoes() {
   const [categorias, setCategorias] = useState([]);
   const [metas, setMetas] = useState([]);
   const [editando, setEditando] = useState(null);
+  const [metaDetalhes, setMetaDetalhes] = useState(null);
+  const [mostrarModalMeta, setMostrarModalMeta] = useState(false);
   
   const [novaTransacaoForm, setNovaTransacaoForm] = useState({
     descricao: '',
@@ -78,7 +80,7 @@ function Transacoes() {
       if (response.ok) {
         const data = await response.json();
         // Ensure data is always an array
-        setCategorias(Array.isArray(data) ? data : []);
+        setCategorias(Array.isArray(data) ? data : (data.status === 'success' && Array.isArray(data.data) ? data.data : []));
       } else {
         console.error(`Erro ao buscar categorias: ${response.status} ${response.statusText}`);
         setCategorias([]);
@@ -99,8 +101,15 @@ function Transacoes() {
       const response = await auth.authFetch(`http://localhost:3001/metas/usuario/${auth.user.id}`);
       if (response.ok) {
         const data = await response.json();
-        // Ensure data is always an array
-        setMetas(Array.isArray(data) ? data : []);
+        // Verificar o formato correto da resposta
+        if (data.status === 'success' && Array.isArray(data.data)) {
+          setMetas(data.data);
+        } else if (Array.isArray(data)) {
+          setMetas(data);
+        } else {
+          console.error('Formato de resposta inválido:', data);
+          setMetas([]);
+        }
       } else {
         console.error(`Erro ao buscar metas: ${response.status} ${response.statusText}`);
         setMetas([]);
@@ -113,6 +122,23 @@ function Transacoes() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
+    // Se o campo alterado for meta_id, vamos preencher a descrição automaticamente
+    if (name === 'meta_id' && value) {
+      // Encontrar a meta selecionada
+      const metaSelecionada = metas.find(meta => meta.id == value);
+      if (metaSelecionada) {
+        // Preencher a descrição com o nome da meta
+        setNovaTransacaoForm({
+          ...novaTransacaoForm,
+          [name]: value,
+          descricao: `Contribuição para meta: ${metaSelecionada.nome}`
+        });
+        return;
+      }
+    }
+    
+    // Comportamento padrão para outros campos
     setNovaTransacaoForm({
       ...novaTransacaoForm,
       [name]: value
@@ -142,7 +168,7 @@ function Transacoes() {
           meta_id: novaTransacaoForm.meta_id ? parseInt(novaTransacaoForm.meta_id) : null
         }),
       });
-
+  
       if (response.ok) {
         // Limpar formulário e recarregar transações
         setNovaTransacaoForm({
@@ -155,11 +181,19 @@ function Transacoes() {
           usuario_id: auth.user.id
         });
         buscarTransacoes();
+        // Atualizar também a lista de metas, pois o progresso pode ter sido alterado
+        if (novaTransacaoForm.meta_id) {
+          buscarMetas();
+        }
       } else {
+        // Exibir mensagem de erro em um alerta
         const errorData = await response.json().catch(() => ({}));
+        const mensagemErro = errorData.message || 'Erro ao adicionar transação';
+        alert(mensagemErro);
         console.error(`Erro ao adicionar transação: ${response.status} ${response.statusText}`, errorData);
       }
     } catch (error) {
+      alert('Erro ao adicionar transação: ' + (error.message || 'Erro desconhecido'));
       console.error('Erro ao adicionar transação:', error);
     }
   };
@@ -213,49 +247,58 @@ function Transacoes() {
     });
   };
 
-  const salvarEdicao = async () => {
-  try {
-    if (!auth?.user) {
-      console.error('Usuário não autenticado');
-      router.push('/login');
-      return;
-    }
-
-    const response = await auth.authFetch(`http://localhost:3001/transacoes/${editando}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        descricao: novaTransacaoForm.descricao,
-        valor: parseFloat(novaTransacaoForm.valor),
-        data: novaTransacaoForm.data,
-        tipo: novaTransacaoForm.tipo,
-        categoria_id: novaTransacaoForm.categoria_id ? parseInt(novaTransacaoForm.categoria_id) : null,
-        meta_id: novaTransacaoForm.meta_id ? parseInt(novaTransacaoForm.meta_id) : null,
-      }),
-    });
-
-    if (response.ok) {
-      setEditando(null);
-      setNovaTransacaoForm({
-        descricao: '',
-        valor: '',
-        data: new Date().toISOString().split('T')[0],
-        tipo: 'saida',
-        categoria_id: '',
-        meta_id: '',
-        usuario_id: auth.user.id
+  const atualizarTransacao = async (e) => {
+    e.preventDefault();
+    
+    try {
+      if (!auth?.user || !editando) {
+        console.error('Usuário não autenticado ou nenhuma transação sendo editada');
+        return;
+      }
+      
+      const response = await auth.authFetch(`http://localhost:3001/transacoes/${editando}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...novaTransacaoForm,
+          usuario_id: auth.user.id,
+          valor: parseFloat(novaTransacaoForm.valor),
+          categoria_id: novaTransacaoForm.categoria_id ? parseInt(novaTransacaoForm.categoria_id) : null,
+          meta_id: novaTransacaoForm.meta_id ? parseInt(novaTransacaoForm.meta_id) : null
+        }),
       });
-      buscarTransacoes();
-    } else {
-      const errorData = await response.json().catch(() => ({}));
-      console.error(`Erro ao salvar edição: ${response.status} ${response.statusText}`, errorData);
+  
+      if (response.ok) {
+        // Limpar formulário e recarregar transações
+        setNovaTransacaoForm({
+          descricao: '',
+          valor: '',
+          data: new Date().toISOString().split('T')[0],
+          tipo: 'saida',
+          categoria_id: '',
+          meta_id: '',
+          usuario_id: auth.user.id
+        });
+        setEditando(null);
+        buscarTransacoes();
+        // Atualizar também a lista de metas, pois o progresso pode ter sido alterado
+        if (novaTransacaoForm.meta_id) {
+          buscarMetas();
+        }
+      } else {
+        // Exibir mensagem de erro em um alerta
+        const errorData = await response.json().catch(() => ({}));
+        const mensagemErro = errorData.message || 'Erro ao atualizar transação';
+        alert(mensagemErro);
+        console.error(`Erro ao atualizar transação: ${response.status} ${response.statusText}`, errorData);
+      }
+    } catch (error) {
+      alert('Erro ao atualizar transação: ' + (error.message || 'Erro desconhecido'));
+      console.error('Erro ao atualizar transação:', error);
     }
-  } catch (error) {
-    console.error('Erro ao salvar edição:', error);
-  }
-};
+  };
 
   const formatarData = (dataString) => {
     if (!dataString) return '-';
@@ -268,113 +311,107 @@ function Transacoes() {
       <h1 className="text-2xl font-bold mb-6">Minhas Transações</h1>
       
       <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-        <h2 className="text-lg font-semibold mb-4">
-          {editando ? 'Editar Transação' : 'Adicionar Nova Transação'}
-        </h2>
-        <form onSubmit={editando ? (e) => { e.preventDefault(); salvarEdicao(); } : adicionarTransacao}>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-              <input
-                type="text"
-                name="descricao"
-                value={novaTransacaoForm.descricao}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
-              <input
-                type="number"
-                name="valor"
-                value={novaTransacaoForm.valor}
-                onChange={handleInputChange}
-                step="0.01"
-                className="w-full border border-gray-300 rounded-md p-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
-              <input
-                type="date"
-                name="data"
-                value={novaTransacaoForm.data}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-              <select
-                name="tipo"
-                value={novaTransacaoForm.tipo}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-                required
-              >
-                <option value="entrada">Entrada</option>
-                <option value="saida">Saída</option>
-              </select>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">
-                Categoria
-              </label>
-              <select
-                name="categoria_id"
-                value={novaTransacaoForm.categoria_id}
-                onChange={handleInputChange}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Selecione uma categoria (opcional)</option>
-                {categorias.map(categoria => (
-                  <option key={categoria.id} value={categoria.id}>
-                    {categoria.nome}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Meta Relacionada</label>
-              <select
-                name="meta_id"
-                value={novaTransacaoForm.meta_id}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded-md p-2"
-              >
-                <option value="">Selecione uma meta (opcional)</option>
-                {Array.isArray(metas) && metas.map((meta) => (
-                  <option key={meta.id} value={meta.id}>
-                    {meta.nome}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <h2 className="text-xl font-semibold mb-4">Nova Transação</h2>
+        <form onSubmit={adicionarTransacao} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+            <input
+              type="text"
+              name="descricao"
+              value={novaTransacaoForm.descricao}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+              placeholder="Descrição da transação"
+            />
           </div>
-          <div className="mt-4 flex justify-end">
-            {editando && (
-              <button
-                type="button"
-                onClick={cancelarEdicao}
-                className="bg-gray-300 text-gray-800 px-4 py-2 rounded-md mr-2"
-              >
-                Cancelar
-              </button>
-            )}
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Valor (R$)</label>
+            <input
+              type="number"
+              name="valor"
+              value={novaTransacaoForm.valor}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Data</label>
+            <input
+              type="date"
+              name="data"
+              value={novaTransacaoForm.data}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+            <select
+              name="tipo"
+              value={novaTransacaoForm.tipo}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+              required
+            >
+              <option value="entrada">Entrada</option>
+              <option value="saida">Saída</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+            <select
+              name="categoria_id"
+              value={novaTransacaoForm.categoria_id}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+            >
+              <option value="">Selecione uma categoria (opcional)</option>
+              {categorias.map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Meta (opcional)</label>
+            <select
+              name="meta_id"
+              value={novaTransacaoForm.meta_id}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded-md p-2"
+            >
+              <option value="">Selecione uma meta (opcional)</option>
+              {metas.map((meta) => (
+                <option key={meta.id} value={meta.id}>
+                  {meta.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="md:col-span-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded-md"
+              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded"
             >
-              {editando ? 'Salvar Alterações' : 'Adicionar Transação'}
+              Adicionar Transação
             </button>
           </div>
         </form>
       </div>
-
+      
+      {/* Lista de transações */}
       <div className="bg-white rounded-lg shadow-md">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -442,7 +479,13 @@ function Transacoes() {
                       {transacao.categoria_nome || 'Sem categoria'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {transacao.meta_nome || 'Sem meta'}
+                      {transacao.meta_nome ? (
+                        <button className="text-blue-600 hover:text-blue-800">
+                          {transacao.meta_nome}
+                        </button>
+                      ) : (
+                        'Sem meta'
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
@@ -465,6 +508,44 @@ function Transacoes() {
           </table>
         </div>
       </div>
+      
+      {/* Modal para exibir detalhes da meta */}
+      {mostrarModalMeta && metaDetalhes && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 className="text-xl font-semibold mb-4">{metaDetalhes.nome}</h2>
+            <p className="mb-2">
+              <span className="font-medium">Valor objetivo:</span> {new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }).format(metaDetalhes.valor_objetivo)}
+            </p>
+            <p className="mb-2">
+              <span className="font-medium">Valor atual:</span> {new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL',
+              }).format(metaDetalhes.valor_inicial)}
+            </p>
+            <p className="mb-4">
+              <span className="font-medium">Prazo:</span> {formatarData(metaDetalhes.prazo)}
+            </p>
+            <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+              <div 
+                className="bg-blue-600 h-4 rounded-full" 
+                style={{ width: `${(metaDetalhes.valor_inicial / metaDetalhes.valor_objetivo) * 100}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-end">
+              <button
+                onClick={() => setMostrarModalMeta(false)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -5,9 +5,9 @@ import { criarMeta,  buscarMetaPorId, buscarMetasPorUsuario, atualizarMeta, excl
 const criarMetaController = async (req, res) => {
   try {
     const userId = req.userId;
-    const { nome, valor_objetivo, valor_inicial, prazo } = req.body;
+    const { nome, valor_objetivo, valor_inicial, prazo, categoria_id } = req.body;
 
-    console.log('Dados recebidos para criar meta:', { nome, valor_objetivo, valor_inicial, prazo });
+    console.log('Dados recebidos para criar meta:', { nome, valor_objetivo, valor_inicial, prazo, categoria_id });
 
     // Validar dados obrigatórios
     if (!nome || !valor_objetivo || !valor_inicial || !prazo) {
@@ -45,6 +45,17 @@ const criarMetaController = async (req, res) => {
       });
     }
 
+    // Verificar se a categoria existe (se fornecida)
+    if (categoria_id) {
+      const categoria = await query('SELECT * FROM categorias WHERE id = ? AND usuario_id = ?', [categoria_id, userId]);
+      if (!categoria || categoria.length === 0) {
+        return res.status(404).json({
+          status: 'error',
+          message: 'Categoria não encontrada'
+        });
+      }
+    }
+
     // Preparar dados da meta
     const metaDados = {
       usuario_id: userId,
@@ -52,6 +63,7 @@ const criarMetaController = async (req, res) => {
       valor_objetivo: valorObjetivo,
       valor_inicial: valorInicial,
       prazo,
+      categoria_id: categoria_id || null,
       criado_em: new Date()
     };
 
@@ -157,6 +169,15 @@ const obterMetaController = async (req, res) => {
       });
     }
     
+    // Buscar informações da categoria se existir
+    let categoria = null;
+    if (meta.categoria_id) {
+      const categoriaResult = await query('SELECT * FROM categorias WHERE id = ?', [meta.categoria_id]);
+      if (categoriaResult && categoriaResult.length > 0) {
+        categoria = categoriaResult[0];
+      }
+    }
+    
     // Calcular progresso
     const sqlEntradas = `
       SELECT SUM(valor) as total 
@@ -200,7 +221,8 @@ const obterMetaController = async (req, res) => {
       valor_atual: totalEntradas,
       percentual_alcancado: percentualAlcancado,
       percentual_tempo: percentualTempo,
-      status
+      status,
+      categoria: categoria
     };
 
     res.status(200).json({
@@ -211,7 +233,8 @@ const obterMetaController = async (req, res) => {
     console.error('Erro ao obter meta:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao obter meta'
+      message: 'Erro ao obter meta',
+      error: error.message
     });
   }
 };
@@ -219,47 +242,34 @@ const obterMetaController = async (req, res) => {
 // Atualizar uma meta
 const atualizarMetaController = async (req, res) => {
   try {
-    const { id } = req.params;
     const userId = req.userId;
-    const { titulo, descricao, valor_objetivo, valor_inicial, data_limite } = req.body;
+    const { id } = req.params;
+    const { nome, valor_objetivo, valor_inicial, prazo, categoria_id } = req.body;
 
-    console.log('Atualizando meta:', { id, userId, dados: req.body });
-
-    if (!id || !userId) {
-      console.error('ID da meta ou usuário não fornecido');
-      return res.status(400).json({
-        status: 'error',
-        message: 'ID da meta e usuário são obrigatórios'
-      });
-    }
-
+    // Buscar meta para verificar se existe e pertence ao usuário
     const meta = await buscarMetaPorId(id);
-    console.log('Meta encontrada:', meta);
-
+    
     if (!meta) {
-      console.error('Meta não encontrada para o ID:', id);
       return res.status(404).json({
         status: 'error',
         message: 'Meta não encontrada'
       });
     }
-
-    if (String(meta.usuario_id) !== String(userId)) {
-      console.error('Meta não pertence ao usuário:', { metaUsuarioId: meta.usuario_id, userId });
+    
+    if (meta.usuario_id !== userId) {
       return res.status(403).json({
         status: 'error',
         message: 'Você não tem permissão para atualizar esta meta'
       });
     }
 
-    // Validar dados
-    if (data_limite) {
-      const dataLimite = new Date(data_limite);
-      const hoje = new Date();
-      if (dataLimite < hoje) {
-        return res.status(400).json({
+    // Verificar se a categoria existe (se fornecida)
+    if (categoria_id) {
+      const categoria = await query('SELECT * FROM categorias WHERE id = ? AND usuario_id = ?', [categoria_id, userId]);
+      if (!categoria || categoria.length === 0) {
+        return res.status(404).json({
           status: 'error',
-          message: 'A data limite deve ser uma data futura'
+          message: 'Categoria não encontrada'
         });
       }
     }
@@ -267,27 +277,32 @@ const atualizarMetaController = async (req, res) => {
     // Preparar dados para atualização
     const dadosAtualizados = {};
     
-    if (titulo) dadosAtualizados.nome = titulo;
-    if (descricao) dadosAtualizados.descricao = descricao;
-    if (valor_objetivo) dadosAtualizados.valor_objetivo = valor_objetivo;
-    if (valor_inicial) dadosAtualizados.valor_inicial = valor_inicial;
-    if (data_limite) dadosAtualizados.data_limite = data_limite;
-
+    if (nome !== undefined) dadosAtualizados.nome = nome.trim();
+    if (valor_objetivo !== undefined) dadosAtualizados.valor_objetivo = parseFloat(valor_objetivo);
+    if (valor_inicial !== undefined) dadosAtualizados.valor_inicial = parseFloat(valor_inicial);
+    if (prazo !== undefined) dadosAtualizados.prazo = prazo;
+    if (categoria_id !== undefined) dadosAtualizados.categoria_id = categoria_id || null;
+    
     // Atualizar meta
     await atualizarMeta(id, dadosAtualizados);
     
     // Registrar log de atividade
-    await logActivity(userId, 'atualizar_meta', `Usuário atualizou meta ID ${id}`);
+    await logActivity(userId, 'atualizar_meta', `Usuário atualizou meta "${meta.nome}"`);
 
+    // Buscar meta atualizada
+    const metaAtualizada = await buscarMetaPorId(id);
+    
     res.status(200).json({
       status: 'success',
-      message: 'Meta atualizada com sucesso'
+      message: 'Meta atualizada com sucesso',
+      data: metaAtualizada
     });
   } catch (error) {
     console.error('Erro ao atualizar meta:', error);
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao atualizar meta'
+      message: 'Erro ao atualizar meta',
+      error: error.message
     });
   }
 };
@@ -295,44 +310,30 @@ const atualizarMetaController = async (req, res) => {
 // Excluir uma meta
 const excluirMetaController = async (req, res) => {
   try {
-    const { id } = req.params;
     const userId = req.userId;
+    const { id } = req.params;
 
-    console.log('Excluindo meta:', { id, userId });
-
-    if (!id || !userId) {
-      console.error('ID da meta ou usuário não fornecido');
-      return res.status(400).json({
-        status: 'error',
-        message: 'ID da meta e usuário são obrigatórios'
-      });
-    }
-
+    // Verificar se a meta existe e pertence ao usuário
     const meta = await buscarMetaPorId(id);
-    console.log('Meta encontrada:', meta);
-
+    
     if (!meta) {
-      console.error('Meta não encontrada para o ID:', id);
       return res.status(404).json({
         status: 'error',
         message: 'Meta não encontrada'
       });
     }
-
-    // No método excluirMetaController
-    if (String(meta.usuario_id) !== String(userId)) {
-    console.error('Meta não pertence ao usuário:', { metaUsuarioId: meta.usuario_id, userId });
-    return res.status(403).json({
-    status: 'error',
-    message: 'Você não tem permissão para excluir esta meta'
-    });
+    
+    if (meta.usuario_id !== parseInt(userId)) {
+      return res.status(403).json({
+        status: 'error',
+        message: 'Você não tem permissão para excluir esta meta'
+      });
     }
 
-    // Excluir meta
     await excluirMeta(id);
     
     // Registrar log de atividade
-    await logActivity(userId, 'excluir_meta', `Usuário excluiu meta ID ${id}`);
+    await logActivity(userId, 'excluir_meta', `Usuário excluiu meta "${meta.nome}"`);
 
     res.status(200).json({
       status: 'success',
@@ -340,9 +341,11 @@ const excluirMetaController = async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao excluir meta:', error);
+    
     res.status(500).json({
       status: 'error',
-      message: 'Erro ao excluir meta'
+      message: 'Erro ao excluir meta',
+      error: error.message
     });
   }
 };

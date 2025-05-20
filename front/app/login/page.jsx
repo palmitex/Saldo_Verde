@@ -19,7 +19,7 @@ export default function Login() {
 
     try {
       await auth.login(email, password);
-      router.push('/dashboard');
+      router.push('/');
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       setError('Credenciais inválidas. Por favor, tente novamente.');

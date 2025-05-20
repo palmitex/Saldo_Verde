@@ -21,16 +21,42 @@ function Metas() {
     valor_objetivo: '',
     valor_inicial: '',
     prazo: new Date().toISOString().split('T')[0],
+    categoria_id: '',
     usuario_id: auth?.user?.id || null
   });
   const [editando, setEditando] = useState(null);
   const [mostrarForm, setMostrarForm] = useState(false);
+  const [transacoesPorMeta, setTransacoesPorMeta] = useState({});
+  const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
     if (auth?.user) {
       buscarMetas();
+      buscarCategorias();
     }
   }, [auth?.user]);
+
+  const buscarCategorias = async () => {
+    try {
+      if (!auth?.user) {
+        console.error('Usuário não autenticado');
+        return;
+      }
+      
+      const response = await auth.authFetch('http://localhost:3001/categorias');
+      if (response.ok) {
+        const data = await response.json();
+        // Garantir que data seja sempre um array
+        setCategorias(Array.isArray(data) ? data : (data.data ? data.data : []));
+      } else {
+        console.error(`Erro ao buscar categorias: ${response.status} ${response.statusText}`);
+        setCategorias([]);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar categorias:', error);
+      setCategorias([]);
+    }
+  };
 
   const buscarMetas = async () => {
     try {
@@ -40,6 +66,8 @@ function Metas() {
         return;
       }
       console.log('Buscando metas para usuário:', auth.user.id);
+      
+      // Usar o endpoint correto
       const response = await auth.authFetch('http://localhost:3001/metas');
       console.log('Resposta da API:', response);
       
@@ -50,18 +78,26 @@ function Metas() {
         if (data.status === 'success' && Array.isArray(data.data)) {
           console.log('Metas encontradas:', data.data);
           setMetas(data.data);
+        } else if (Array.isArray(data)) {
+          // Caso a API retorne diretamente um array
+          console.log('Metas encontradas (formato alternativo):', data);
+          setMetas(data);
         } else {
           console.error('Formato de dados inválido:', data);
-          throw new Error(data.message || 'Formato de dados inválido');
+          setMetas([]);
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
         console.error('Erro na resposta:', errorData);
-        throw new Error(errorData.message || 'Erro ao buscar metas');
+        setMetas([]);
+        // Remover o alerta para evitar mensagens irritantes para o usuário
+        console.error(`Erro ao buscar metas: ${errorData.message || 'Erro desconhecido'}`);
       }
     } catch (error) {
       console.error('Erro ao buscar metas:', error);
       setMetas([]);
+      // Remover o alerta para evitar mensagens irritantes para o usuário
+      console.error(`Erro ao buscar metas: ${error.message || 'Erro desconhecido'}`);
     }
   };
 
@@ -193,6 +229,7 @@ function Metas() {
       valor_objetivo: meta.valor_objetivo,
       valor_inicial: meta.valor_inicial,
       prazo: meta.prazo ? meta.prazo.split('T')[0] : '',
+      categoria_id: meta.categoria_id || '',
       usuario_id: meta.usuario_id
     });
     setEditando(meta.id);
@@ -208,21 +245,34 @@ function Metas() {
           return;
         }
         
-        // Modificar a URL para incluir o userId como parâmetro de consulta
-        const response = await auth.authFetch(`http://localhost:3001/metas/${id}?userId=${auth.user.id}`, {
+        // Usar fetch nativo em vez de authFetch para ter mais controle sobre o tratamento de erros
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:3001/metas/${id}?userId=${auth.user.id}`, {
           method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': token ? `Bearer ${token}` : ''
+          }
         });
         
         if (response.ok) {
           buscarMetas();
         } else {
-          const errorData = await response.json().catch(() => ({}));
-          console.error(`Erro ao excluir meta: ${response.status} ${response.statusText}`, errorData);
-          alert(errorData.message || 'Erro ao excluir meta');
+          // Tratar o erro de forma mais robusta
+          let mensagemErro = 'Erro ao excluir meta';
+          try {
+            const errorData = await response.json();
+            mensagemErro = errorData.message || 'Erro ao excluir meta';
+          } catch (e) {
+            console.error('Erro ao processar resposta:', e);
+          }
+          
+          console.error(`Erro ao excluir meta: ${response.status} ${response.statusText}`);
+          alert(mensagemErro);
         }
       } catch (error) {
         console.error('Erro ao excluir meta:', error);
-        alert('Erro ao excluir meta: ' + error.message);
+        alert('Erro ao excluir meta: ' + (error.message || 'Erro desconhecido'));
       }
     }
   };
@@ -232,6 +282,48 @@ function Metas() {
       style: 'currency',
       currency: 'BRL'
     }).format(valor);
+  };
+
+  const buscarTransacoesDaMeta = async (metaId) => {
+    try {
+      if (!auth?.user) {
+        console.error('Usuário não autenticado');
+        router.push('/login');
+        return;
+      }
+      
+      const response = await auth.authFetch(`http://localhost:3001/transacoes?meta_id=${metaId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.status === 'success' && data.data && Array.isArray(data.data.transacoes)) {
+          // Atualizar o estado com as transações desta meta
+          setTransacoesPorMeta(prev => ({
+            ...prev,
+            [metaId]: data.data.transacoes
+          }));
+        } else {
+          console.error('Formato de resposta inválido:', data);
+          setTransacoesPorMeta(prev => ({
+            ...prev,
+            [metaId]: []
+          }));
+        }
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error(`Erro ao buscar transações da meta: ${errorData.message || response.statusText}`);
+        setTransacoesPorMeta(prev => ({
+          ...prev,
+          [metaId]: []
+        }));
+      }
+    } catch (error) {
+      console.error('Erro ao buscar transações da meta:', error);
+      setTransacoesPorMeta(prev => ({
+        ...prev,
+        [metaId]: []
+      }));
+    }
   };
 
   return (
@@ -245,6 +337,7 @@ function Metas() {
             valor_objetivo: '',
             valor_inicial: '',
             prazo: new Date().toISOString().split('T')[0],
+            categoria_id: '',
             usuario_id: auth?.user?.id || null
           });
           setEditando(null);
@@ -272,6 +365,23 @@ function Metas() {
           </div>
           
           <div className="mb-4">
+            <label className="block mb-1">Categoria</label>
+            <select
+              name="categoria_id"
+              value={formData.categoria_id}
+              onChange={handleInputChange}
+              className="w-full border rounded px-3 py-2"
+            >
+              <option value="">Selecione uma categoria (opcional)</option>
+              {categorias.map((categoria) => (
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nome}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="mb-4">
             <label className="block mb-1">Valor Objetivo (R$)</label>
             <input
               type="number"
@@ -286,7 +396,7 @@ function Metas() {
           </div>
 
           <div className="mb-4">
-            <label className="block mb-1">Valor Inicial (R$)</label>
+            <label className="block mb-1">Valor(R$)</label>
             <input
               type="number"
               name="valor_inicial"
@@ -329,11 +439,16 @@ function Metas() {
               <div className="flex justify-between items-start">
                 <div>
                   <h2 className="text-xl font-semibold">{meta.nome}</h2>
+                  {meta.categoria_nome && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Categoria: {meta.categoria_nome}
+                    </p>
+                  )}
                   <p className="font-bold text-green-600 mt-2">
                     Valor objetivo: {formatarMoeda(meta.valor_objetivo)}
                   </p>
                   <p className="mt-1">
-                    Valor inicial: {formatarMoeda(meta.valor_inicial)}
+                    Valor: {formatarMoeda(meta.valor_inicial)}
                   </p>
                   <p className="mt-1">
                     Prazo: {new Date(meta.prazo).toLocaleDateString('pt-BR')}
@@ -368,10 +483,59 @@ function Metas() {
                   <span>{meta.percentual.toFixed(1)}%</span>
                 </div>
               </div>
+              
+              {/* Adicionar esta seção para mostrar transações associadas */}
+              <div className="mt-4">
+                <button 
+                  onClick={() => buscarTransacoesDaMeta(meta.id)}
+                  className="text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  Ver transações associadas
+                </button>
+                
+                {transacoesPorMeta[meta.id] && transacoesPorMeta[meta.id].length > 0 && (
+                  <div className="mt-2 overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Data</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Descrição</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Valor</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tipo</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {transacoesPorMeta[meta.id].map(transacao => (
+                          <tr key={transacao.id}>
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              {new Date(transacao.data).toLocaleDateString('pt-BR')}
+                            </td>
+                            <td className="px-3 py-2 whitespace-nowrap">{transacao.descricao}</td>
+                            <td className={`px-3 py-2 whitespace-nowrap ${transacao.tipo === 'entrada' ? 'text-green-600' : 'text-red-600'}`}>
+                              {formatarMoeda(transacao.valor)}
+                            </td>
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                transacao.tipo === 'entrada' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                              }`}>
+                                {transacao.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+                
+                {transacoesPorMeta[meta.id] && transacoesPorMeta[meta.id].length === 0 && (
+                  <p className="mt-2 text-sm text-gray-500">Nenhuma transação associada a esta meta.</p>
+                )}
+              </div>
             </li>
           ))}
         </ul>
       )}
     </div>
   );
-}
+};

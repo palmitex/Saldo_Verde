@@ -1,27 +1,26 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
 import Image from 'next/image';
 
 export default function Home() {
   const auth = useAuth();
-  const router = useRouter();
+  const [metas, setMetas] = useState([]);
+  const [erro, setErro] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
-    
-    // Redirecionar para o dashboard apenas se o usuário estiver logado
-    if (auth?.user) {
-      router.push('/dashboard');
-    }
-  }, [auth?.user, router]);
+  }, [auth?.user]);
+
+ 
 
   return (
     <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-      {/* Hero Section */}
+      {/* Hero Section - Visível para todos */}
       <section className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-b-[50px] py-16 px-4 md:px-8 lg:px-16 mb-16">
         <div className="container mx-auto flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 mb-10 md:mb-0">
@@ -48,8 +47,8 @@ export default function Home() {
               <Image 
                 src="/hero-finance.png" 
                 alt="Controle financeiro" 
-                layout="fill"
-                objectFit="contain"
+                width={500}
+                height={400}
                 className="rounded-lg shadow-xl"
               />
             </div>
@@ -139,9 +138,7 @@ export default function Home() {
                 "Finalmente consegui organizar minhas finanças e economizar para realizar meus sonhos!"
               </p>
               <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-                  <Image src="https://randomuser.me/api/portraits/women/44.jpg" alt="Ana Silva" width={48} height={48} />
-                </div>
+                <div className="w-12 h-12 rounded-full bg-gray-300 mr-4"></div>
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-800">Ana Silva</h4>
                   <p className="text-sm text-gray-600">Usuária desde 2022</p>
@@ -153,9 +150,7 @@ export default function Home() {
                 "A melhor plataforma para controle financeiro que já usei. Simples e completa ao mesmo tempo."
               </p>
               <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-                  <Image src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos Mendes" width={48} height={48} />
-                </div>
+                <div className="w-12 h-12 rounded-full bg-gray-300 mr-4"></div>
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-800">Carlos Mendes</h4>
                   <p className="text-sm text-gray-600">Usuário desde 2021</p>
@@ -167,9 +162,7 @@ export default function Home() {
                 "Graças ao FinanciAS consegui sair das dívidas e começar a investir. Recomendo a todos!"
               </p>
               <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-                  <Image src="https://randomuser.me/api/portraits/women/68.jpg" alt="Juliana Costa" width={48} height={48} />
-                </div>
+                <div className="w-12 h-12 rounded-full bg-gray-300 mr-4"></div>
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-800">Juliana Costa</h4>
                   <p className="text-sm text-gray-600">Usuária desde 2023</p>
@@ -192,6 +185,11 @@ export default function Home() {
           {!auth?.user && (
             <Link href="/registro" className="inline-block bg-white text-green-700 hover:bg-green-50 font-semibold py-4 px-8 rounded-lg text-xl transition-colors">
               Começar agora
+            </Link>
+          )}
+          {auth?.user && (
+            <Link href="/metas" className="inline-block bg-white text-green-700 hover:bg-green-50 font-semibold py-4 px-8 rounded-lg text-xl transition-colors">
+              Gerenciar minhas finanças
             </Link>
           )}
         </div>

@@ -14,7 +14,7 @@ const CategoriasPage = () => {
 };
 
 const Categorias = () => {
-  const { authFetch } = useAuth();
+  const { authFetch, user } = useAuth();
   const router = useRouter();
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,31 +25,59 @@ const Categorias = () => {
     nome: ''
   });
 
-  useEffect(() => {
-    carregarCategorias();
-  }, []);
-
-  const carregarCategorias = async () => {
+  // Função para buscar categorias usando authFetch
+  const buscarCategorias = async () => {
     try {
       setLoading(true);
+      setError(null);
       const response = await authFetch('http://localhost:3001/categorias');
+      
       if (response.ok) {
         const data = await response.json();
-        if (data.status === 'success') {
+        console.log('Dados recebidos da API:', data);
+        
+        // Verifica se data é um array diretamente (API pode estar retornando array diretamente)
+        if (Array.isArray(data)) {
+          setCategorias(data);
+        } 
+        // Verifica o formato esperado com status e data
+        else if (data.status === 'success' && Array.isArray(data.data)) {
           setCategorias(data.data);
+        } 
+        // Verifica se data é um objeto com propriedades (pode ser que cada propriedade seja uma categoria)
+        else if (data && typeof data === 'object' && Object.keys(data).length > 0) {
+          // Tenta converter o objeto em array
+          const categoriasArray = Object.values(data);
+          if (Array.isArray(categoriasArray) && categoriasArray.length > 0) {
+            setCategorias(categoriasArray);
+          } else {
+            console.error('Formato de dados inválido (objeto não convertível):', data);
+            setCategorias([]);
+          }
         } else {
-          throw new Error(data.message || 'Erro ao carregar categorias');
+          console.error('Formato de dados inválido:', data);
+          setCategorias([]);
         }
       } else {
-        throw new Error('Erro ao carregar categorias');
+        throw new Error('Falha ao buscar categorias');
       }
     } catch (error) {
-      console.error('Erro ao carregar categorias:', error);
-      setError(error.message || 'Erro ao carregar categorias');
+      console.error('Erro ao buscar categorias:', error);
+      setError('Não foi possível carregar as categorias. Por favor, tente novamente mais tarde.');
+      setCategorias([]);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (user) {
+      console.log('Iniciando busca de categorias...');
+      buscarCategorias();
+    } else {
+      console.log('Usuário não autenticado, não buscando categorias');
+    }
+  }, [user]);
 
   const abrirModal = (categoria = null) => {
     setCategoriaAtual(categoria);
@@ -78,7 +106,7 @@ const Categorias = () => {
     try {
       setError(null);
       const url = categoriaAtual 
-        ? `http://localhost:3001/categorias/${categoriaAtual.id}`
+        ? `http://localhost:3001/categorias/${categoriaAtual.id}?userId=${user.id}`
         : 'http://localhost:3001/categorias';
       
       const response = await authFetch(url, {
@@ -86,7 +114,10 @@ const Categorias = () => {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          usuario_id: user.id // Adicionar ID do usuário explicitamente no corpo
+        })
       });
 
       if (!response.ok) {
@@ -95,36 +126,66 @@ const Categorias = () => {
       }
 
       fecharModal();
-      carregarCategorias();
+      buscarCategorias();
     } catch (error) {
       console.error('Erro ao salvar categoria:', error);
       setError(error.message || 'Erro ao salvar categoria');
     }
   };
 
+  // Adicione este estado
+  const [excluindoId, setExcluindoId] = useState(null);
+  
+  // Na função excluirCategoria
   const excluirCategoria = async (id) => {
     if (!window.confirm('Tem certeza que deseja excluir esta categoria?')) {
       return;
     }
-
+  
     try {
       setError(null);
-      const response = await authFetch(`http://localhost:3001/categorias/${id}`, {
+      setExcluindoId(id); // Marca esta categoria como sendo excluída
+      
+      setLoading(true);
+      
+      console.log(`Tentando excluir categoria com ID: ${id}`);
+      
+      // Modificar para incluir explicitamente o userId como parâmetro de consulta
+      const response = await authFetch(`http://localhost:3001/categorias/${id}?userId=${user.id}`, {
         method: 'DELETE'
       });
-
+  
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao excluir categoria');
+        // Tenta obter detalhes do erro
+        let mensagemErro = 'Erro ao excluir categoria';
+        try {
+          const errorData = await response.json();
+          mensagemErro = errorData.message || 'Erro ao excluir categoria';
+          
+          // Verifica se a categoria está sendo usada
+          if (mensagemErro.includes('em uso') || response.status === 409) {
+            mensagemErro = 'Esta categoria não pode ser excluída porque está sendo usada por transações.';
+          }
+        } catch (e) {
+          console.error('Erro ao processar resposta de erro:', e);
+        }
+        
+        setError(mensagemErro);
+        throw new Error(mensagemErro);
       }
-
-      carregarCategorias();
+  
+      console.log('Categoria excluída com sucesso');
+      buscarCategorias();
     } catch (error) {
       console.error('Erro ao excluir categoria:', error);
-      setError(error.message || 'Erro ao excluir categoria');
+      setError(error.message || 'Erro ao excluir categoria. Por favor, tente novamente mais tarde.');
+    } finally {
+      setLoading(false);
+      setExcluindoId(null); // Limpa o indicador de exclusão
     }
   };
 
+  // No botão de exclusão
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 p-8">
@@ -158,38 +219,49 @@ const Categorias = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categorias.map((categoria) => (
-            <div
-              key={categoria.id}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {categoria.nome}
-                  </h3>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => abrirModal(categoria)}
-                    className="text-blue-500 hover:text-blue-600"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => excluirCategoria(categoria.id)}
-                    className="text-red-500 hover:text-red-600"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                    </svg>
-                  </button>
+          {Array.isArray(categorias) ? (
+            categorias.map((categoria, index) => (
+              <div
+                key={categoria.id || `categoria-${index}`}
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      {categoria.nome}
+                    </h3>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => abrirModal(categoria)}
+                      className="text-blue-500 hover:text-blue-600"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => excluirCategoria(categoria.id)}
+                      disabled={excluindoId === categoria.id}
+                      className="text-red-500 hover:text-red-600"
+                    >
+                      {excluindoId === categoria.id ? (
+                        <div className="animate-spin h-5 w-5 border-t-2 border-red-500 rounded-full"></div>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="col-span-3 text-center py-8">
+              <p className="text-gray-500">Nenhuma categoria encontrada ou carregando...</p>
             </div>
-          ))}
+          )}
         </div>
 
         {modalAberto && (
@@ -236,4 +308,4 @@ const Categorias = () => {
   );
 };
 
-export default CategoriasPage; 
+export default CategoriasPage;
