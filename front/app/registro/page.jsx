@@ -32,21 +32,21 @@ export default function Registro() {
   const validarCPF = (cpf) => {
     // Remove caracteres não numéricos
     const cpfLimpo = cpf.replace(/[^0-9]/g, '');
-    
+
     // Verifica se tem 11 dígitos
     if (cpfLimpo.length !== 11) {
       return false;
     }
-    
+
     // Implementação básica de validação
     return true;
   };
-  
+
   // Função para validar formato de telefone
   const validarTelefone = (telefone) => {
     // Remove caracteres não numéricos
     const telefoneLimpo = telefone.replace(/[^0-9]/g, '');
-    
+
     // Verifica se tem entre 10 e 11 dígitos (com ou sem DDD)
     return telefoneLimpo.length >= 10 && telefoneLimpo.length <= 11;
   };
@@ -55,28 +55,28 @@ export default function Registro() {
     e.preventDefault();
     setError('');
     setLoading(true);
-  
+
     // Validar se as senhas coincidem
     if (formData.senha !== formData.confirmarSenha) {
       setError('As senhas não coincidem');
       setLoading(false);
       return;
     }
-    
+
     // Validar formato de CPF
     if (!validarCPF(formData.cpf)) {
       setError('Formato de CPF inválido. Use o formato 000.000.000-00');
       setLoading(false);
       return;
     }
-    
+
     // Validar formato de telefone
     if (!validarTelefone(formData.telefone)) {
       setError('Formato de telefone inválido. Use o formato (00) 00000-0000');
       setLoading(false);
       return;
     }
-  
+
     try {
       // Enviar dados para a API
       let response;
@@ -102,10 +102,10 @@ export default function Registro() {
         console.error('Erro na requisição fetch:', fetchError);
         throw new Error('Não foi possível conectar ao servidor. Verifique se o servidor está rodando e tente novamente.');
       }
-  
+
       // Imprimir o status da resposta para depuração
       console.log('Status da resposta:', response.status);
-      
+
       // Tentar obter o corpo da resposta
       let data;
       try {
@@ -115,11 +115,11 @@ export default function Registro() {
         console.error('Erro ao analisar JSON:', jsonError);
         data = null;
       }
-  
+
       if (!response.ok) {
         // Mensagem de erro mais detalhada
         let errorMessage = 'Erro ao cadastrar usuário';
-        
+
         if (data) {
           // Verificar diferentes formatos possíveis de mensagem de erro
           if (typeof data.message === 'string') {
@@ -132,7 +132,7 @@ export default function Registro() {
             errorMessage = data.errors.join(', ');
           }
         }
-        
+
         // Verificar erros específicos de conexão
         if (response.status === 0 || response.status === 500) {
           errorMessage = 'Erro de conexão com o servidor. Verifique se o servidor está rodando.';
@@ -141,10 +141,10 @@ export default function Registro() {
         } else if (response.status === 409) {
           errorMessage = 'Este usuário já está cadastrado. Tente outro email ou CPF.';
         }
-        
+
         throw new Error(errorMessage);
       }
-  
+
       // Fazer login após cadastro bem-sucedido
       try {
         // Verificar se o objeto auth está disponível e tem o método login
@@ -157,7 +157,7 @@ export default function Registro() {
           }, 3000);
           return; // Importante: retornar aqui para evitar a execução do código abaixo
         }
-        
+
         if (typeof auth.login !== 'function') {
           console.error('Método login não encontrado no objeto de autenticação');
           setError('Cadastro realizado com sucesso! Por favor, faça login manualmente.');
@@ -166,12 +166,12 @@ export default function Registro() {
           }, 3000);
           return;
         }
-        
+
         // Adicionar um pequeno atraso antes de tentar fazer login
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         console.log('Tentando fazer login com:', formData.email);
-        
+
         // Tentar fazer login
         await auth.login(formData.email, formData.senha);
         router.push('/');
@@ -185,17 +185,17 @@ export default function Registro() {
       }
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
-      
+
       // Mensagem de erro mais amigável para o usuário
       let mensagemErro = error.message || 'Ocorreu um erro ao cadastrar. Tente novamente.';
-      
+
       // Verificar se é um erro de conexão
       if (mensagemErro.includes('conectar ao servidor') || mensagemErro.includes('connection') || mensagemErro.includes('network')) {
         mensagemErro = 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet e se o servidor está rodando.';
       }
-      
+
       setError(mensagemErro);
-      
+
       // Adicionar informações de depuração no console
       console.log('Detalhes do erro:', {
         mensagem: mensagemErro,
@@ -209,7 +209,7 @@ export default function Registro() {
 
   return (
     <div className="min-h-screen flex items-center justify-evenly bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <img src="/porco_rico.svg" alt="" className="w-80" />
+      <img src="/porco_rico.svg" alt="" className="w-100 hidden lg:block" />
 
       <div className="flex flex-col gap-3 max-w-md w-full space-y-8">
         <div>
@@ -223,124 +223,166 @@ export default function Registro() {
             </Link>
           </p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-3">
-            <div>
-              <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
-              <input
-                id="nome"
-                name="nome"
-                type="text"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Nome completo"
-                value={formData.nome}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
-              <input
-                id="telefone"
-                name="telefone"
-                type="tel"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="(00) 00000-0000"
-                value={formData.telefone}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="cpf" className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
-              <input
-                id="cpf"
-                name="cpf"
-                type="text"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="000.000.000-00"
-                value={formData.cpf}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
-              <input
-                id="senha"
-                name="senha"
-                type="password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Senha"
-                value={formData.senha}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="confirmarSenha" className="block text-sm font-medium text-gray-700 mb-1">Confirmar senha</label>
-              <input
-                id="confirmarSenha"
-                name="confirmarSenha"
-                type="password"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Confirmar senha"
-                value={formData.confirmarSenha}
-                onChange={handleChange}
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="pergunta_secreta" className="block text-sm font-medium text-gray-700 mb-1">Pergunta secreta</label>
-              <select
-                id="pergunta_secreta"
-                name="pergunta_secreta"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                value={formData.pergunta_secreta}
-                onChange={handleChange}
-              >
-                <option value="">Selecione uma pergunta secreta</option>
-                <option value="Qual o nome do seu primeiro animal de estimação?">Qual o nome do seu primeiro animal de estimação?</option>
-                <option value="Qual o nome da sua cidade natal?">Qual o nome da sua cidade natal?</option>
-                <option value="Qual o nome da sua escola primária?">Qual o nome da sua escola primária?</option>
-                <option value="Qual o nome do seu melhor amigo de infância?">Qual o nome do seu melhor amigo de infância?</option>
-              </select>
-            </div>
-            
-            <div>
-              <label htmlFor="resposta_secreta" className="block text-sm font-medium text-gray-700 mb-1">Resposta secreta</label>
-              <input
-                id="resposta_secreta"
-                name="resposta_secreta"
-                type="text"
-                required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Resposta secreta"
-                value={formData.resposta_secreta}
-                onChange={handleChange}
-              />
-            </div>
+
+        <form className="max-w-md mx-auto mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="text"
+              name="nome"
+              id="nome"
+              placeholder=" "
+              required
+              value={formData.nome}
+              onChange={handleChange}
+              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+            />
+            <label
+              htmlFor="nome"
+              className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >
+              Nome completo
+            </label>
+          </div>
+
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="email"
+              name="email"
+              id="email"
+              placeholder=" "
+              required
+              value={formData.email}
+              onChange={handleChange}
+              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+            />
+            <label
+              htmlFor="email"
+              className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >
+              Email
+            </label>
+          </div>
+
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="tel"
+              name="telefone"
+              id="telefone"
+              placeholder=" "
+              required
+              value={formData.telefone}
+              onChange={handleChange}
+              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+            />
+            <label
+              htmlFor="telefone"
+              className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >
+              Telefone
+            </label>
+          </div>
+
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="text"
+              name="cpf"
+              id="cpf"
+              placeholder=" "
+              required
+              value={formData.cpf}
+              onChange={handleChange}
+              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+            />
+            <label
+              htmlFor="cpf"
+              className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >
+              CPF
+            </label>
+          </div>
+
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="password"
+              name="senha"
+              id="senha"
+              placeholder=" "
+              required
+              value={formData.senha}
+              onChange={handleChange}
+              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+            />
+            <label
+              htmlFor="senha"
+              className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >
+              Senha
+            </label>
+          </div>
+
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="password"
+              name="confirmarSenha"
+              id="confirmarSenha"
+              placeholder=" "
+              required
+              value={formData.confirmarSenha}
+              onChange={handleChange}
+              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+            />
+            <label
+              htmlFor="confirmarSenha"
+              className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >
+              Confirmar senha
+            </label>
+          </div>
+
+          <div className="relative z-0 w-full mb-5 group">
+            <select
+              id="pergunta_secreta"
+              name="pergunta_secreta"
+              required
+              value={formData.pergunta_secreta}
+              onChange={handleChange}
+              className={`block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer
+      ${formData.pergunta_secreta ? 'border-green-600' : 'border-gray-300 focus:border-green-600'}`}
+            >
+              <option value="" disabled hidden>Selecione uma pergunta secreta</option>
+              <option value="Qual o nome do seu primeiro animal de estimação?">Qual o nome do seu primeiro animal de estimação?</option>
+              <option value="Qual o nome da sua cidade natal?">Qual o nome da sua cidade natal?</option>
+              <option value="Qual o nome da sua escola primária?">Qual o nome da sua escola primária?</option>
+              <option value="Qual o nome do seu melhor amigo de infância?">Qual o nome do seu melhor amigo de infância?</option>
+            </select>
+            <label
+              htmlFor="pergunta_secreta"
+              className={`absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] transition-all
+      peer-focus:scale-75 peer-focus:-translate-y-6
+      ${formData.pergunta_secreta ? 'scale-75 -translate-y-6' : ''}`}
+            >
+              Pergunta secreta
+            </label>
+          </div>
+
+
+          <div className="relative z-0 w-full mb-5 group">
+            <input
+              type="text"
+              name="resposta_secreta"
+              id="resposta_secreta"
+              placeholder=" "
+              required
+              value={formData.resposta_secreta}
+              onChange={handleChange}
+              className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+            />
+            <label
+              htmlFor="resposta_secreta"
+              className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
+            >
+              Resposta secreta
+            </label>
           </div>
 
           {error && (
@@ -349,32 +391,16 @@ export default function Registro() {
             </div>
           )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
-            >
-              {loading ? (
-                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                </span>
-              ) : (
-                <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                  <svg className="h-5 w-5 text-green-500 group-hover:text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                </span>
-              )}
-              {loading ? 'Cadastrando...' : 'Cadastrar'}
-            </button>
-          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full text-white font-medium rounded-lg text-sm px-5 py-2.5 text-center transition ${loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+              } focus:outline-none focus:ring-4 focus:ring-green-300`}
+          >
+            {loading ? 'Cadastrando...' : 'Cadastrar'}
+          </button>
         </form>
+
       </div>
     </div>
   );
