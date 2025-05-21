@@ -348,12 +348,4 @@ const obterPerguntaSecretaController = async (req, res) => {
   }
 };
 
-export {
-  cadastrarUsuarioController,
-  loginController,
-  recuperarSenhaController,
-  obterPerfilController,
-  atualizarPerfilController,
-  excluirContaController,
-  obterPerguntaSecretaController 
-};
+export { cadastrarUsuarioController, loginController, recuperarSenhaController, obterPerfilController, atualizarPerfilController, excluirContaController, obterPerguntaSecretaController };

@@ -80,7 +80,6 @@ const buscarMetasPorUsuario = async (userId) => {
   try {
     console.log('Buscando metas para usuário:', userId);
     
-    // Abordagem alternativa: usar INFORMATION_SCHEMA que suporta parâmetros preparados
     const verificarColuna = await query(
       `SELECT COLUMN_NAME 
        FROM INFORMATION_SCHEMA.COLUMNS 
@@ -140,9 +139,7 @@ const atualizarMeta = async (id, dadosAtualizados) => {
 
 const excluirMeta = async (id) => {
   try {
-    // Primeiro, desassociar todas as transações vinculadas a esta meta
     await query('UPDATE transacoes SET meta_id = NULL WHERE meta_id = ?', [id]);
-    
     // Depois, excluir a meta
     return await deleteRecord('metas', `id = ${id}`);
   } catch (err) {

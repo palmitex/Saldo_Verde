@@ -3,3 +3,56 @@
 @source "../.flowbite-react/class-list.json";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Animações personalizadas */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.animate-pulse-custom {
+  animation: pulse 2s infinite;
+}
+
+/* Melhorias para acessibilidade e foco */
+:focus {
+  outline: 2px solid rgb(16, 185, 129);
+  outline-offset: 2px;
+}
+
+/* Rolagem suave por padrão */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Esquema de cores personalizadas */
+:root {
+  --color-primary: rgb(16, 185, 129);
+  --color-primary-dark: rgb(5, 150, 105);
+  --color-secondary: rgb(79, 70, 229);
+  --color-text: rgb(31, 41, 55);
+  --color-background: rgb(249, 250, 251);
+}

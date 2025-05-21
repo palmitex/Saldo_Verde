@@ -7,9 +7,6 @@ import Image from 'next/image';
 
 export default function Home() {
   const auth = useAuth();
-  const [metas, setMetas] = useState([]);
-  const [erro, setErro] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
