@@ -16,7 +16,7 @@ app.use(express.json());
 // Middleware para extrair userId dos parâmetros de consulta
 app.use((req, res, next) => {
     if (req.query.userId) {
-        req.userId = req.query.userId;
+        req.userId = parseInt(req.query.userId);
     }
     next();
 });

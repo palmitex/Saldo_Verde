@@ -256,7 +256,7 @@ const atualizarMetaController = async (req, res) => {
       });
     }
     
-    if (meta.usuario_id !== userId) {
+    if (meta.usuario_id !== parseInt(userId)) {  // Converter userId para número
       return res.status(403).json({
         status: 'error',
         message: 'Você não tem permissão para atualizar esta meta'
