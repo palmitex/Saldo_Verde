@@ -19,7 +19,7 @@ export default function Footer() {
                             <li><a href="#">Recursos</a></li>
                             <li><a href="#">Planos</a></li>
                             <li><a href="#">Contato</a></li>
-                            <li><a href="#">Blog</a></li>
+                            <li><a href="/blog">Blog</a></li>
                         </ul>
                     </div>
                     <div className="footer-column">
