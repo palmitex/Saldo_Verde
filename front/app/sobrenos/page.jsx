@@ -16,11 +16,11 @@ export default function Sobrenos() {
                             <div className="hidden sm:flex justify-center w-1/2"><img src={sobre.img} alt="" className="hidden sm:block w-70" /></div>
 
                             {/* Texto */}
-                            <div className="flex flex-col justify-around w-full sm:w-1/2 h-auto sm:h-full text-center sm:text-left px-4 border border-green-300 rounded-lg p-6 bg-gradient-to-bl from-gray-400 to-gray-300">
+                            <div className="flex flex-col justify-around w-full sm:w-1/2 h-auto sm:h-full text-center sm:text-left px-4 border border-green-300 rounded-lg p-6 bg-gradient-to-br from-green-500 to-emerald-900">
                                 <h2 className="text-3xl text-yellow-300 font-bold mb-4 border-b pb-3">
                                     {sobre.indice}. {sobre.titulo}
                                 </h2>
-                                <p className="text-black text-md ">{sobre.texto}</p>
+                                <p className="text-white text-md ">{sobre.texto}</p>
                             </div>
                         </div>
                     ))}
