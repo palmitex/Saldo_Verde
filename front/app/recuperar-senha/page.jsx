@@ -32,7 +32,7 @@ export default function RecuperarSenha() {
 
     try {
       const response = await fetch(`http://localhost:3001/usuarios/pergunta-secreta?email=${formData.email}`, {
-      method: 'GET',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         }
@@ -95,48 +95,47 @@ export default function RecuperarSenha() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-evenly bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <img src="/recuperar_senha.svg" alt="" className="w-100 hidden lg:block" />
+
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-5xl font-bold text-gray-800">
             Recuperar Senha
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            <Link href="/login" className="font-medium text-green-600 hover:text-green-500">
+            <Link href="/login" className="text-xl text-green-500 hover:text-green-300">
               Voltar para o login
             </Link>
           </p>
         </div>
-        
+
         {step === 1 ? (
           <form className="mt-8 space-y-6" onSubmit={buscarPerguntaSecreta}>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <div className="relative z-0 w-full mb-5 group">
               <input
-                id="email"
-                name="email"
                 type="email"
+                name="email"
+                id="email"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="seu@email.com"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+                placeholder=" "
                 value={formData.email}
                 onChange={handleChange}
               />
+              <label htmlFor="email" className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-green-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Email
+              </label>
             </div>
 
-            {error && (
-              <div className="text-red-500 text-sm text-center">
-                {error}
-              </div>
-            )}
+            {error && <div className="text-red-500 text-sm text-center">{error}</div>}
 
             <div>
               <button
                 type="submit"
                 disabled={loading}
-                className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                  loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                className={`w-full py-2 px-4 text-sm font-medium rounded-md text-white ${loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
               >
                 {loading ? 'Verificando...' : 'Continuar'}
               </button>
@@ -144,73 +143,74 @@ export default function RecuperarSenha() {
           </form>
         ) : (
           <form className="mt-8 space-y-6" onSubmit={redefinirSenha}>
-            <div>
+            <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">Pergunta Secreta</label>
               <p className="p-2 bg-gray-100 rounded-md">{perguntaSecreta}</p>
             </div>
-            
-            <div>
-              <label htmlFor="resposta_secreta" className="block text-sm font-medium text-gray-700 mb-1">Resposta Secreta</label>
+
+            <div className="relative z-0 w-full mb-5 group">
               <input
-                id="resposta_secreta"
-                name="resposta_secreta"
                 type="text"
+                name="resposta_secreta"
+                id="resposta_secreta"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Sua resposta secreta"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+                placeholder=" "
                 value={formData.resposta_secreta}
                 onChange={handleChange}
               />
+              <label htmlFor="resposta_secreta" className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-green-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Resposta Secreta
+              </label>
             </div>
-            
-            <div>
-              <label htmlFor="nova_senha" className="block text-sm font-medium text-gray-700 mb-1">Nova Senha</label>
+
+            <div className="relative z-0 w-full mb-5 group">
               <input
-                id="nova_senha"
-                name="nova_senha"
                 type="password"
+                name="nova_senha"
+                id="nova_senha"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Nova senha"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+                placeholder=" "
                 value={formData.nova_senha}
                 onChange={handleChange}
               />
+              <label htmlFor="nova_senha" className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-green-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Nova Senha
+              </label>
             </div>
-            
-            <div>
-              <label htmlFor="confirmar_senha" className="block text-sm font-medium text-gray-700 mb-1">Confirmar Nova Senha</label>
+
+            <div className="relative z-0 w-full mb-5 group">
               <input
-                id="confirmar_senha"
-                name="confirmar_senha"
                 type="password"
+                name="confirmar_senha"
+                id="confirmar_senha"
                 required
-                className="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-green-500 focus:border-green-500 focus:z-10 sm:text-sm"
-                placeholder="Confirmar nova senha"
+                className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-green-600 peer"
+                placeholder=" "
                 value={formData.confirmar_senha}
                 onChange={handleChange}
               />
+              <label htmlFor="confirmar_senha" className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:text-green-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
+                Confirmar Nova Senha
+              </label>
             </div>
 
-            {error && (
-              <div className="text-red-500 text-sm text-center">
-                {error}
-              </div>
-            )}
+            {error && <div className="text-red-500 text-sm text-center">{error}</div>}
 
             <div className="flex space-x-4">
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="group relative w-1/2 flex justify-center py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                className="w-1/2 py-2 px-4 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
               >
                 Voltar
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className={`group relative w-1/2 flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                  loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
-                } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
+                className={`w-1/2 py-2 px-4 text-sm font-medium rounded-md text-white ${loading ? 'bg-green-400' : 'bg-green-600 hover:bg-green-700'
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500`}
               >
                 {loading ? 'Redefinindo...' : 'Redefinir Senha'}
               </button>
@@ -219,5 +219,6 @@ export default function RecuperarSenha() {
         )}
       </div>
     </div>
+
   );
 }
