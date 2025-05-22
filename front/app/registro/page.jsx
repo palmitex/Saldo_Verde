@@ -189,7 +189,7 @@ export default function Registro() {
     <div className="min-h-screen flex items-center justify-evenly bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <img src="/porco_rico.svg" alt="" className="w-100 hidden lg:block" />
 
-      <div className="flex flex-col gap-3 max-w-md w-full space-y-8">
+      <div className="flex flex-col max-w-md w-full space-y-8">
         <div>
           <h1 className="mt-6 text-center text-5xl font-bold text-gray-800">
             Criar nova conta
@@ -202,7 +202,7 @@ export default function Registro() {
           </p>
         </div>
 
-        <form className="max-w-md mx-auto mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="w-full mx-auto mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="relative z-0 w-full mb-5 group">
             <input
               type="text"

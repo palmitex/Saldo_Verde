@@ -46,7 +46,7 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="max-w-md mx-auto mt-8 space-y-6 p-16" onSubmit={handleSubmit}>
+        <form className="w-full mx-auto mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="relative z-0 w-full group">
             <input
               type="email"
