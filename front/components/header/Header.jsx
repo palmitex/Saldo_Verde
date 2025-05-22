@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './header.css';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
@@ -7,15 +7,111 @@ import { useAuth } from '../../context/AuthContext';
 export default function Header() {
     const [isActive, setIsActive] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const auth = useAuth();
+    
+    // Refs para os menus dropdown
+    const dropdownRef = useRef(null);
+    const userMenuRef = useRef(null);
+    const financeButtonRef = useRef(null);
+    const userAvatarRef = useRef(null);
+
+    // Efeito para fechar os dropdowns quando clicar fora deles
+    useEffect(() => {
+        function handleClickOutside(event) {
+            // Fechar menu de finanças ao clicar fora
+            if (showDropdown && 
+                dropdownRef.current && 
+                !dropdownRef.current.contains(event.target) &&
+                financeButtonRef.current && 
+                !financeButtonRef.current.contains(event.target)) {
+                setShowDropdown(false);
+            }
+            
+            // Fechar menu de usuário ao clicar fora
+            if (showUserMenu && 
+                userMenuRef.current && 
+                !userMenuRef.current.contains(event.target) &&
+                userAvatarRef.current && 
+                !userAvatarRef.current.contains(event.target)) {
+                setShowUserMenu(false);
+            }
+        }
+        
+        // Adicionar listener para detectar cliques
+        document.addEventListener("mousedown", handleClickOutside);
+        
+        // Remover listener ao desmontar componente
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showDropdown, showUserMenu]);
 
     const toggleActive = () => {
         setIsActive(!isActive);
+        // Fechar o menu do usuário quando fechar o menu responsivo
+        if (!isActive === false) {
+            setShowUserMenu(false);
+        }
     };
 
     const handleLogout = () => {
         auth.logout();
     };
+
+    // Componente para o avatar do usuário
+    const UserAvatar = () => (
+        <button 
+            ref={userAvatarRef}
+            onClick={() => setShowUserMenu(!showUserMenu)} 
+            className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-800 hover:bg-green-200 transition-colors"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+        </button>
+    );
+
+    // Componente para o menu dropdown de usuário
+    const UserDropdownMenu = ({ isMobile = false }) => (
+        <div 
+            ref={isMobile ? null : userMenuRef}
+            className={`${isMobile ? 'mobile-dropdown' : 'desktop-dropdown absolute right-0'} mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50 transition-all duration-300 ease-out transform origin-top ${
+            showUserMenu ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'
+        }`}>
+            <div className="px-4 py-2 border-b border-gray-100">
+                <p className="text-sm font-semibold text-gray-800">Olá, {auth.user.nome?.split(' ')[0] || 'Usuário'}</p>
+                <p className="text-xs text-gray-500 truncate">{auth.user.email}</p>
+            </div>
+            
+            <Link href="/perfil">
+                <div className="px-4 py-2 hover:bg-gray-50 flex items-center gap-2 cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-600">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                    <span className="text-sm text-gray-700">Meu Perfil</span>
+                </div>
+            </Link>
+            
+            <div onClick={handleLogout} className="px-4 py-2 hover:bg-gray-50 flex items-center gap-2 cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-600">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+                </svg>
+                <span className="text-sm text-gray-700">Sair</span>
+            </div>
+        </div>
+    );
+
+    // Componente para o botão de login
+    const LoginButton = () => (
+        <Link href="/login">
+            <button className="w-10 h-10 rounded-full bg-yellow-300 flex items-center justify-center text-gray-800 hover:bg-green-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+                </svg>
+            </button>
+        </Link>
+    );
 
     return (
         <header className="header">
@@ -29,12 +125,14 @@ export default function Header() {
                     {auth?.user && (
                         <div className="relative group">
                             <button
+                                ref={financeButtonRef}
                                 onClick={() => setShowDropdown(!showDropdown)}
                                 className="relative text-gray-800 font-medium after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-[#E8EC67] hover:after:w-full after:transition-all after:duration-300"
                             >
                                 Finanças
                             </button>
                             <div
+                                ref={dropdownRef}
                                 className={` w-45 absolute mt-2 bg-white shadow-lg rounded-md py-2 px-4 z-50 transition-all duration-300 ease-out transform origin-top ${showDropdown ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'
                                     }`}
                             >
@@ -72,29 +170,40 @@ export default function Header() {
                                         <span>Categorias</span>
                                     </div>
                                 </Link>
-
-
-
-
                             </div>
                         </div>
                     )}
                     <Link href="/blog">Blog</Link>
                     <Link href="/sobrenos">Sobre Nós</Link>
+                    
+                    {/* Componente de autenticação dentro do menu responsivo */}
+                    <div className="auth-mobile-container">
+                        {auth?.user ? (
+                            <div className="relative py-3">
+                                <div className="flex items-center gap-2">
+                                    <UserAvatar />
+                                    <span className="user-greeting">Olá, {auth.user.nome?.split(' ')[0] || 'Usuário'}</span>
+                                </div>
+                                <UserDropdownMenu isMobile={true} />
+                            </div>
+                        ) : (
+                            <div className="login-mobile py-3">
+                                <LoginButton />
+                                <span className="ml-2">Entrar</span>
+                            </div>
+                        )}
+                    </div>
                 </nav>
 
+                {/* Botões de autenticação para telas grandes */}
                 <div className="auth-buttons">
                     {auth?.user ? (
-                        <button onClick={handleLogout} className="btn entrar">Sair</button>
+                        <div className="relative">
+                            <UserAvatar />
+                            <UserDropdownMenu />
+                        </div>
                     ) : (
-                        <>
-                            <Link href="/login">
-                                <button className="btn bg-yellow-300">Entrar</button>
-                            </Link>
-                            <Link href="/registro">
-                                <button className="btn bg-yellow-300">Criar Conta</button>
-                            </Link>
-                        </>
+                        <LoginButton />
                     )}
                 </div>
 

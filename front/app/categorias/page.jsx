@@ -22,7 +22,8 @@ function Categorias() {
   const [categoriaAtual, setCategoriaAtual] = useState(null);
   const [formData, setFormData] = useState({
     nome: '',
-    cor: '#4CAF50' // Cor padrão verde
+    cor: '#4CAF50', // Cor padrão verde
+    icone_index: 0  // Novo campo para armazenar o índice do ícone selecionado
   });
   // Para efeitos visuais de hover e interações
   const [hoveredId, setHoveredId] = useState(null);
@@ -102,7 +103,8 @@ function Categorias() {
     setCategoriaAtual(categoria);
     setFormData({
       nome: categoria ? categoria.nome : '',
-      cor: categoria && categoria.cor ? categoria.cor : '#4CAF50'
+      cor: categoria && categoria.cor ? categoria.cor : '#4CAF50',
+      icone_index: categoria && categoria.icone_index !== undefined ? categoria.icone_index : 0
     });
     setDrawerAberto(true);
   };
@@ -110,7 +112,7 @@ function Categorias() {
   const fecharDrawer = () => {
     setDrawerAberto(false);
     setCategoriaAtual(null);
-    setFormData({ nome: '', cor: '#4CAF50' });
+    setFormData({ nome: '', cor: '#4CAF50', icone_index: 0 });
   };
 
   const handleInputChange = (e) => {
@@ -118,6 +120,20 @@ function Categorias() {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const selecionarCor = (cor) => {
+    setFormData(prev => ({
+      ...prev,
+      cor: cor
+    }));
+  };
+
+  const selecionarIcone = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      icone_index: index
     }));
   };
 
@@ -186,7 +202,7 @@ function Categorias() {
   // Tela de carregamento
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-white p-8 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
           <p className="mt-6 text-green-700 font-medium">Carregando suas categorias...</p>
@@ -196,7 +212,7 @@ function Categorias() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-60 py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="max-w-6xl mx-auto">
         {/* Header com título e botão de nova categoria */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12">
@@ -235,7 +251,8 @@ function Categorias() {
             {categorias.map((categoria, index) => {
               const corIndex = index % coresCategorias.length;
               const corClasse = coresCategorias[corIndex];
-              const iconIndex = index % icons.length;
+              // Use o icone_index armazenado ou o índice como fallback
+              const iconIndex = categoria.icone_index !== undefined ? categoria.icone_index : (index % icons.length);
               const isHovered = hoveredId === categoria.id;
               const isAnimated = animatedId === categoria.id;
               
@@ -393,7 +410,7 @@ function Categorias() {
                           '#8BC34A', '#43A047', '#66BB6A', '#558B2F', '#33691E'].map(cor => (
                           <div 
                             key={cor}
-                            onClick={() => setFormData({...formData, cor})}
+                            onClick={() => selecionarCor(cor)}
                             className={`h-8 w-8 rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 ${formData.cor === cor ? 'ring-2 ring-offset-2 ring-green-700' : ''}`}
                             style={{ backgroundColor: cor }}
                           ></div>
@@ -404,13 +421,17 @@ function Categorias() {
                   
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Ícone (Pré-visualização)
+                      Ícone (Selecione um)
                     </label>
                     <div className="grid grid-cols-6 gap-3">
                       {icons.map((path, i) => (
                         <div 
                           key={i} 
-                          className={`h-12 w-12 rounded-full bg-gradient-to-br from-green-600 to-green-400 flex items-center justify-center text-white cursor-pointer hover:shadow-lg transition-shadow duration-200`}
+                          onClick={() => selecionarIcone(i)}
+                          className={`h-12 w-12 rounded-full flex items-center justify-center text-white cursor-pointer transition-all duration-200 ${formData.icone_index === i 
+                            ? 'bg-gradient-to-br from-green-700 to-green-500 ring-2 ring-offset-2 ring-green-500 scale-110 shadow-md' 
+                            : 'bg-gradient-to-br from-green-500 to-green-400 hover:scale-105'
+                          }`}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={path} />
@@ -418,6 +439,9 @@ function Categorias() {
                         </div>
                       ))}
                     </div>
+                    <p className="text-sm text-gray-500 mt-2">
+                      Ícone selecionado: {formData.icone_index + 1} de {icons.length}
+                    </p>
                   </div>
                   
                   <div className="mt-auto pt-6 border-t border-green-100">

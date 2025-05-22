@@ -17,15 +17,16 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    try {
-      await auth.login(email, password);
+    const result = await auth.login(email, password);
+    
+    if (result.success) {
       router.push('/');
-    } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      setError('Credenciais inválidas. Por favor, tente novamente.');
-    } finally {
-      setLoading(false);
+    } else {
+      // Exibir mensagem de erro
+      setError(result.message);
     }
+    
+    setLoading(false);
   };
 
   return (

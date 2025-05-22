@@ -34,52 +34,69 @@ export const AuthProvider = ({ children }) => {
 
   // Função de login
   const login = async (email, senha) => {
+    let response;
+    
     try {
-      console.log('Tentando fazer login com:', { email });
-      
-      let response;
+      response = await fetch('http://localhost:3001/usuarios/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ login: email, senha }),
+        // Adicionar timeout para evitar espera infinita
+        signal: AbortSignal.timeout(10000) // 10 segundos de timeout
+      });
+    } catch (fetchError) {
+      // Erro de conexão
+      return { 
+        success: false, 
+        message: 'Não foi possível conectar ao servidor. Verifique se o servidor está rodando e tente novamente.' 
+      };
+    }
+
+    // Verificar status da resposta
+    if (!response.ok) {
+      // Tentar obter detalhes do erro
+      let errorData;
       try {
-        response = await fetch('http://localhost:3001/usuarios/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ login: email, senha }),
-          // Adicionar timeout para evitar espera infinita
-          signal: AbortSignal.timeout(10000) // 10 segundos de timeout
-        });
-      } catch (fetchError) {
-        console.error('Erro na requisição fetch durante login:', fetchError);
-        throw new Error('Não foi possível conectar ao servidor. Verifique se o servidor está rodando e tente novamente.');
+        errorData = await response.json();
+      } catch (jsonError) {
+        // Erro silencioso ao analisar JSON
       }
 
-      // Verificar status da resposta
-      if (!response.ok) {
-        // Tentar obter detalhes do erro
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (jsonError) {
-          console.error('Erro ao analisar resposta JSON:', jsonError);
-        }
-
-        // Mensagens de erro específicas baseadas no status
-        if (response.status === 401) {
-          throw new Error('Credenciais inválidas. Verifique seu email e senha.');
-        } else if (response.status === 404) {
-          throw new Error('Usuário não encontrado. Verifique seu email.');
-        } else if (errorData?.message) {
-          throw new Error(errorData.message);
-        } else {
-          throw new Error('Erro ao fazer login. Tente novamente.');
-        }
+      // Mensagens de erro específicas baseadas no status
+      if (response.status === 401) {
+        return { 
+          success: false, 
+          message: 'Credenciais inválidas. Verifique seu email e senha.' 
+        };
+      } else if (response.status === 404) {
+        return { 
+          success: false, 
+          message: 'Usuário não encontrado. Verifique seu email.' 
+        };
+      } else if (errorData?.message) {
+        return { 
+          success: false, 
+          message: errorData.message 
+        };
+      } else {
+        return { 
+          success: false, 
+          message: 'Erro ao fazer login. Tente novamente.' 
+        };
       }
+    }
 
+    try {
       const userData = await response.json();
       
       // Verificar se a resposta contém os dados do usuário
       if (!userData || !userData.data || !userData.data.usuario) {
-        throw new Error('Resposta do servidor inválida. Tente novamente.');
+        return { 
+          success: false, 
+          message: 'Resposta do servidor inválida. Tente novamente.' 
+        };
       }
       
       const userInfo = userData.data.usuario;
@@ -88,10 +105,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userInfo));
       setUser(userInfo);
       
-      return userInfo;
+      return { success: true, user: userInfo };
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
-      throw error;
+      return { 
+        success: false, 
+        message: 'Erro ao processar resposta do servidor. Tente novamente.' 
+      };
     }
   };
 
@@ -107,15 +126,20 @@ export const AuthProvider = ({ children }) => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Erro ao criar conta');
+        const errorData = await response.json().catch(() => ({}));
+        return { 
+          success: false, 
+          message: errorData.message || 'Erro ao criar conta' 
+        };
       }
 
       // Login após registro bem-sucedido
       return login(email, password);
     } catch (error) {
-      console.error('Erro ao registrar:', error);
-      throw error;
+      return { 
+        success: false, 
+        message: 'Erro ao processar seu registro. Tente novamente.' 
+      };
     }
   };
 
@@ -124,6 +148,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('user');
     setUser(null);
     router.push('/');
+  };
+
+  // Função para atualizar os dados do usuário
+  const updateUserData = (newUserData) => {
+    setUser(newUserData);
   };
 
   // Verificar se o usuário está autenticado
@@ -211,7 +240,8 @@ export const AuthProvider = ({ children }) => {
       register, 
       isAuthenticated, 
       loading,
-      authFetch
+      authFetch,
+      updateUserData
     }}>
       {children}
     </AuthContext.Provider>
@@ -231,7 +261,8 @@ export function useAuth() {
       register: () => Promise.reject(new Error('AuthProvider não encontrado')),
       isAuthenticated: () => false,
       loading: false,
-      authFetch: () => Promise.reject(new Error('AuthProvider não encontrado'))
+      authFetch: () => Promise.reject(new Error('AuthProvider não encontrado')),
+      updateUserData: () => {}
     };
   }
   return context;

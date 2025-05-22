@@ -205,7 +205,7 @@ function Transacoes() {
   };
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen py-8">
+    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen py-8 max-w-7xl mx-auto">
       <div className="container mx-auto px-4">
         {/* Cabeçalho da página */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500 animate-fadeIn">
@@ -614,7 +614,7 @@ function Transacoes() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {transacao.categoria_nome ? (
-                          <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                          <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500 text-green-800">
                             {transacao.categoria_nome}
                           </span>
                         ) : (
@@ -631,7 +631,7 @@ function Transacoes() {
                                 setMostrarModalMeta(true);
                               }
                             }}
-                            className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors duration-200"
+                            className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500 text-green-800 hover:bg-green-200 transition-colors duration-200"
                           >
                             {transacao.meta_nome}
                           </button>
@@ -649,34 +649,38 @@ function Transacoes() {
         
         {/* Modal para exibir detalhes da meta */}
         {mostrarModalMeta && metaDetalhes && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full animate-fadeIn">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">{metaDetalhes.nome}</h2>
+          <div className="fixed inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/80 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn">
+            <div className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-2xl shadow-2xl max-w-md w-full border border-white/20 animate-fadeIn transform transition-all duration-300 hover:shadow-green-300/20">
+              {/* Cabeçalho com título e botão de fechar */}
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-teal-500">
+                  {metaDetalhes.nome}
+                </h2>
                 <button 
                   onClick={() => setMostrarModalMeta(false)}
-                  className="text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                  className="bg-gray-100 hover:bg-gray-200 p-2 rounded-full text-gray-500 hover:text-gray-700 transition-all duration-200 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-50"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
               
-              <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Valor atual</p>
-                    <p className="text-lg font-semibold text-gray-800">
+              {/* Bloco de valores */}
+              <div className="bg-gradient-to-r from-emerald-50 to-green-50 p-6 rounded-xl mb-6 shadow-inner border border-emerald-100">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg shadow-sm border border-emerald-100 transition-all duration-300 hover:shadow-md">
+                    <p className="text-xs font-medium text-emerald-600 mb-1 uppercase tracking-wider">Valor atual</p>
+                    <p className="text-xl font-bold text-gray-800">
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
                       }).format(metaDetalhes.valor_inicial)}
                     </p>
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-500 mb-1">Valor objetivo</p>
-                    <p className="text-lg font-semibold text-gray-800">
+                  <div className="bg-white/70 backdrop-blur-sm p-4 rounded-lg shadow-sm border border-emerald-100 transition-all duration-300 hover:shadow-md">
+                    <p className="text-xs font-medium text-emerald-600 mb-1 uppercase tracking-wider">Valor objetivo</p>
+                    <p className="text-xl font-bold text-gray-800">
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL',
@@ -686,29 +690,36 @@ function Transacoes() {
                 </div>
               </div>
               
-              <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-1">Progresso</p>
-                <div className="w-full bg-gray-200 rounded-full h-2.5">
+              {/* Bloco de progresso */}
+              <div className="mb-6 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-sm font-bold text-gray-700">Progresso</p>
+                  <span className="text-sm font-bold px-3 py-1 bg-green-100 text-green-800 rounded-full">
+                    {Math.min(Math.round((metaDetalhes.valor_inicial / metaDetalhes.valor_objetivo) * 100), 100)}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-100 rounded-full h-3 mb-3 overflow-hidden">
                   <div 
-                    className="bg-blue-600 h-2.5 rounded-full" 
+                    className="bg-gradient-to-r from-green-500 to-emerald-400 h-3 rounded-full shadow-inner transition-all duration-1000 ease-in-out" 
                     style={{ width: `${Math.min((metaDetalhes.valor_inicial / metaDetalhes.valor_objetivo) * 100, 100)}%` }}
                   ></div>
                 </div>
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>{Math.min(Math.round((metaDetalhes.valor_inicial / metaDetalhes.valor_objetivo) * 100), 100)}%</span>
-                  <span>Meta: {formatarData(metaDetalhes.prazo)}</span>
+                <div className="flex justify-between">
+                  <span className="text-xs text-gray-500">Meta iniciada</span>
+                  <span className="text-xs font-medium text-emerald-600">Meta até: {formatarData(metaDetalhes.prazo)}</span>
                 </div>
               </div>
               
-              <div className="flex justify-end mt-4">
+              {/* Botões de ação */}
+              <div className="flex justify-end mt-6">
                 <button
                   onClick={() => {
                     setMostrarModalMeta(false);
                     router.push('/metas');
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 flex items-center"
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:translate-y-[-2px] flex items-center"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>

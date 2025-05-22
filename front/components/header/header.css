@@ -93,6 +93,73 @@
     color: #000;
 }
 
+/* Esconde o container de autenticação mobile em telas grandes */
+.auth-mobile-container {
+    display: none;
+}
+
+/* Estilos para o avatar e menu do usuário */
+.auth-buttons .relative {
+    z-index: 1000;
+}
+
+.auth-buttons button.w-10 {
+    transition: all 0.3s ease;
+}
+
+.auth-buttons button.w-10:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+}
+
+/* Estilos para o dropdown do usuário */
+.desktop-dropdown {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* Estilos para o dropdown móvel */
+.mobile-dropdown {
+    width: 100% !important;
+    margin-top: 10px;
+    box-shadow: none;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+/* Animação de brilho */
+.shine-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.shine-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to bottom right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(30deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) rotate(30deg);
+    }
+    100% {
+        transform: translateX(100%) rotate(30deg);
+    }
+}
+
 .menu-toggle {
     display: none;
     background: none;
@@ -103,6 +170,10 @@
 
 /* Responsivo */
 @media (max-width: 768px) {
+    .Logo {
+        width: 250px;
+    }
+
     .nav {
         display: none;
         flex-direction: column;
@@ -114,14 +185,68 @@
         background: white;
         padding: 10px 20px;
         border-top: 1px solid #eee;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
     }
 
     .nav.active {
         display: flex;
+        animation: slideDown 0.3s ease-out forwards;
     }
 
     .menu-toggle {
         display: block;
+    }
+
+    /* Oculta os botões de autenticação normais em telas pequenas */
+    .auth-buttons {
+        display: none;
+    }
+
+    /* Mostra o container de autenticação mobile em telas pequenas */
+    .auth-mobile-container {
+        display: block;
+        width: 100%;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+
+    /* Estilo para o container do avatar em telas pequenas */
+    .auth-mobile-container .relative {
+        width: 100%;
+    }
+
+    /* Alinha verticalmente o ícone e o texto */
+    .auth-mobile-container .flex {
+        align-items: center;
+    }
+
+    /* Estilo para o texto de saudação de usuário */
+    .user-greeting {
+        font-weight: 500;
+        color: #333;
+        margin-left: 10px;
+    }
+
+    /* Ajusta o posicionamento do dropdown em telas pequenas */
+    .auth-mobile-container .mobile-dropdown {
+        position: static;
+        width: 100%;
+        box-shadow: none;
+        border: 1px solid #eee;
+        border-radius: 8px;
+    }
+
+    /* Estilo para o botão de login em telas pequenas */
+    .login-mobile {
+        display: flex;
+        align-items: center;
+    }
+
+    .login-mobile span {
+        font-weight: 500;
+        color: #333;
     }
 
     @keyframes slideDown {

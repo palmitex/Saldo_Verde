@@ -168,7 +168,7 @@ const Analise = () => {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans max-w-7xl mx-auto ">
       <div className="container mx-auto px-4 py-10 max-w-7xl">
         {/* Header com design sofisticado */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-8 rounded-2xl shadow-lg border-l-4 border-emerald-600 transition-all duration-300 transform hover:shadow-xl">

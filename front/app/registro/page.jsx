@@ -20,12 +20,69 @@ export default function Registro() {
   const router = useRouter();
   const auth = useAuth();
 
+  // Função para formatar CPF enquanto o usuário digita
+  const formatarCPF = (cpf) => {
+    // Remove todos os caracteres não numéricos
+    cpf = cpf.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos
+    cpf = cpf.slice(0, 11);
+    
+    // Aplica a formatação: XXX.XXX.XXX-XX
+    if (cpf.length > 9) {
+      cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+    } else if (cpf.length > 6) {
+      cpf = cpf.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+    } else if (cpf.length > 3) {
+      cpf = cpf.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+    }
+    
+    return cpf;
+  };
+
+  // Função para formatar telefone enquanto o usuário digita
+  const formatarTelefone = (telefone) => {
+    // Remove todos os caracteres não numéricos
+    telefone = telefone.replace(/\D/g, '');
+    
+    // Limita a 11 dígitos (com DDD)
+    telefone = telefone.slice(0, 11);
+    
+    // Aplica a formatação: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
+    if (telefone.length > 10) {
+      // Celular com 9 dígitos + DDD: (XX) XXXXX-XXXX
+      telefone = telefone.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+    } else if (telefone.length > 6) {
+      // Telefone fixo com 8 dígitos + DDD: (XX) XXXX-XXXX
+      telefone = telefone.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+    } else if (telefone.length > 2) {
+      // DDD + início do número: (XX) XXXX
+      telefone = telefone.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+    }
+    
+    return telefone;
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
+    
+    // Aplicar formatação específica para CPF e telefone
+    if (name === 'cpf') {
+      setFormData({
+        ...formData,
+        [name]: formatarCPF(value)
+      });
+    } else if (name === 'telefone') {
+      setFormData({
+        ...formData,
+        [name]: formatarTelefone(value)
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value
+      });
+    }
   };
 
   // Função para validar formato de CPF
@@ -38,7 +95,32 @@ export default function Registro() {
       return false;
     }
 
-    // Implementação básica de validação
+    // Verifica CPF com todos os dígitos iguais
+    if (/^(\d)\1{10}$/.test(cpfLimpo)) {
+      return false;
+    }
+    
+    // Implementação da validação de CPF
+    let soma = 0;
+    let resto;
+    
+    for (let i = 1; i <= 9; i++) {
+      soma += parseInt(cpfLimpo.substring(i-1, i)) * (11 - i);
+    }
+    
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpfLimpo.substring(9, 10))) return false;
+    
+    soma = 0;
+    for (let i = 1; i <= 10; i++) {
+      soma += parseInt(cpfLimpo.substring(i-1, i)) * (12 - i);
+    }
+    
+    resto = (soma * 10) % 11;
+    if (resto === 10 || resto === 11) resto = 0;
+    if (resto !== parseInt(cpfLimpo.substring(10, 11))) return false;
+    
     return true;
   };
 
@@ -65,7 +147,7 @@ export default function Registro() {
 
     // Validar formato de CPF
     if (!validarCPF(formData.cpf)) {
-      setError('Formato de CPF inválido. Use o formato 000.000.000-00');
+      setError('CPF inválido. Verifique os números digitados.');
       setLoading(false);
       return;
     }
@@ -77,134 +159,30 @@ export default function Registro() {
       return;
     }
 
-    try {
-      // Enviar dados para a API
-      let response;
-      try {
-        response = await fetch('http://localhost:3001/usuarios/cadastrar', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            nome: formData.nome,
-            email: formData.email,
-            telefone: formData.telefone,
-            cpf: formData.cpf,
-            senha: formData.senha,
-            pergunta_secreta: formData.pergunta_secreta,
-            resposta_secreta: formData.resposta_secreta
-          }),
-          // Adicionar timeout para evitar espera infinita
-          signal: AbortSignal.timeout(10000) // 10 segundos de timeout
-        });
-      } catch (fetchError) {
-        console.error('Erro na requisição fetch:', fetchError);
-        throw new Error('Não foi possível conectar ao servidor. Verifique se o servidor está rodando e tente novamente.');
-      }
+    // Preparar dados para o registro
+    const userData = {
+      nome: formData.nome,
+      email: formData.email,
+      telefone: formData.telefone.replace(/\D/g, ''), // Remove não-dígitos
+      cpf: formData.cpf.replace(/\D/g, ''), // Remove não-dígitos
+      senha: formData.senha,
+      pergunta_secreta: formData.pergunta_secreta,
+      resposta_secreta: formData.resposta_secreta
+    };
 
-      // Imprimir o status da resposta para depuração
-      console.log('Status da resposta:', response.status);
-
-      // Tentar obter o corpo da resposta
-      let data;
-      try {
-        data = await response.json();
-        console.log('Dados da resposta:', data);
-      } catch (jsonError) {
-        console.error('Erro ao analisar JSON:', jsonError);
-        data = null;
-      }
-
-      if (!response.ok) {
-        // Mensagem de erro mais detalhada
-        let errorMessage = 'Erro ao cadastrar usuário';
-
-        if (data) {
-          // Verificar diferentes formatos possíveis de mensagem de erro
-          if (typeof data.message === 'string') {
-            errorMessage = data.message;
-          } else if (typeof data.erro === 'string') {
-            errorMessage = data.erro;
-          } else if (typeof data.error === 'string') {
-            errorMessage = data.error;
-          } else if (Array.isArray(data.errors) && data.errors.length > 0) {
-            errorMessage = data.errors.join(', ');
-          }
-        }
-
-        // Verificar erros específicos de conexão
-        if (response.status === 0 || response.status === 500) {
-          errorMessage = 'Erro de conexão com o servidor. Verifique se o servidor está rodando.';
-        } else if (response.status === 400) {
-          errorMessage = data?.message || 'Dados inválidos. Verifique as informações e tente novamente.';
-        } else if (response.status === 409) {
-          errorMessage = 'Este usuário já está cadastrado. Tente outro email ou CPF.';
-        }
-
-        throw new Error(errorMessage);
-      }
-
-      // Fazer login após cadastro bem-sucedido
-      try {
-        // Verificar se o objeto auth está disponível e tem o método login
-        if (!auth) {
-          console.error('Objeto de autenticação não disponível');
-          // Em vez de lançar um erro, redirecionar para a página de login com uma mensagem
-          setError('Cadastro realizado com sucesso! Por favor, faça login manualmente.');
-          setTimeout(() => {
-            router.push('/login');
-          }, 3000);
-          return; // Importante: retornar aqui para evitar a execução do código abaixo
-        }
-
-        if (typeof auth.login !== 'function') {
-          console.error('Método login não encontrado no objeto de autenticação');
-          setError('Cadastro realizado com sucesso! Por favor, faça login manualmente.');
-          setTimeout(() => {
-            router.push('/login');
-          }, 3000);
-          return;
-        }
-
-        // Adicionar um pequeno atraso antes de tentar fazer login
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        console.log('Tentando fazer login com:', formData.email);
-
-        // Tentar fazer login
-        await auth.login(formData.email, formData.senha);
-        router.push('/');
-      } catch (loginError) {
-        console.error('Erro ao fazer login após cadastro:', loginError);
-        // Mesmo que o login falhe, o cadastro foi bem-sucedido
-        setError('Cadastro realizado com sucesso, mas houve um erro ao fazer login automático. Por favor, faça login manualmente.');
-        setTimeout(() => {
-          router.push('/login');
-        }, 3000);
-      }
-    } catch (error) {
-      console.error('Erro ao cadastrar:', error);
-
-      // Mensagem de erro mais amigável para o usuário
-      let mensagemErro = error.message || 'Ocorreu um erro ao cadastrar. Tente novamente.';
-
-      // Verificar se é um erro de conexão
-      if (mensagemErro.includes('conectar ao servidor') || mensagemErro.includes('connection') || mensagemErro.includes('network')) {
-        mensagemErro = 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet e se o servidor está rodando.';
-      }
-
-      setError(mensagemErro);
-
-      // Adicionar informações de depuração no console
-      console.log('Detalhes do erro:', {
-        mensagem: mensagemErro,
-        original: error.toString(),
-        stack: error.stack
-      });
-    } finally {
-      setLoading(false);
+    // Tenta registrar o usuário usando a função do contexto de autenticação
+    const result = await auth.register(formData.nome, formData.email, formData.senha);
+    
+    if (result.success) {
+      // Registro e login bem-sucedidos
+      router.push('/');
+    } else {
+      // Exibir mensagem de erro
+      alert(result.message);
+      setError(result.message);
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -278,7 +256,7 @@ export default function Registro() {
               htmlFor="telefone"
               className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
             >
-              Telefone
+              Telefone (00) 00000-0000
             </label>
           </div>
 
@@ -297,7 +275,7 @@ export default function Registro() {
               htmlFor="cpf"
               className="peer-focus:font-medium absolute text-sm text-gray-500 duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
             >
-              CPF
+              CPF 000.000.000-00
             </label>
           </div>
 

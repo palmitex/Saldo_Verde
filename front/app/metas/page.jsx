@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import { button } from 'framer-motion/client';
 
 export default function MetasPage() {
   return (
@@ -331,22 +332,34 @@ function Metas() {
         return;
       }
       
-      const response = await auth.authFetch(`http://localhost:3001/transacoes?meta_id=${metaId}`);
+      // Mostra notificação de carregamento
+      mostrarNotificacao('sucesso', 'Buscando transações da meta...');
+      
+      const response = await auth.authFetch(`http://localhost:3001/transacoes?meta_id=${metaId}&userId=${auth.user.id}`);
       
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && data.data && Array.isArray(data.data.transacoes)) {
-          // Atualizar o estado com as transações desta meta
+          // Filtrar para garantir que apenas transações desta meta sejam incluídas
+          const transacoesFiltradas = data.data.transacoes.filter(
+            transacao => transacao.meta_id === metaId || parseInt(transacao.meta_id) === parseInt(metaId)
+          );
+          
+          // Atualizar o estado com as transações filtradas desta meta
           setTransacoesPorMeta(prev => ({
             ...prev,
-            [metaId]: data.data.transacoes
+            [metaId]: transacoesFiltradas
           }));
+          
+          // Mostrar mensagem de sucesso com o número de transações encontradas
+          mostrarNotificacao('sucesso', `${transacoesFiltradas.length} transações encontradas`);
         } else {
           console.error('Formato de resposta inválido:', data);
           setTransacoesPorMeta(prev => ({
             ...prev,
             [metaId]: []
           }));
+          mostrarNotificacao('erro', 'Não foi possível obter as transações');
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -355,6 +368,7 @@ function Metas() {
           ...prev,
           [metaId]: []
         }));
+        mostrarNotificacao('erro', 'Erro ao buscar transações');
       }
     } catch (error) {
       console.error('Erro ao buscar transações da meta:', error);
@@ -363,6 +377,7 @@ function Metas() {
           ...prev,
           [metaId]: []
         }));
+        mostrarNotificacao('erro', `Erro: ${error.message || 'Falha ao buscar transações'}`);
       } catch (stateError) {
         console.error('Erro ao atualizar estado:', stateError);
       }
@@ -378,7 +393,7 @@ function Metas() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans">
+    <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans max-w-7xl mx-auto ">
       <div className="container mx-auto px-4 py-10 max-w-7xl">
         {/* Componente de Notificação */}
         {notificacao.visivel && (
@@ -859,28 +874,6 @@ function Metas() {
                                 : 'Não especificada'}
                             </span>
                           </p>
-                          <p className="mb-3 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span className="font-medium text-gray-700 min-w-28">Data de Criação: </span>
-                            <span className="text-gray-600 bg-white px-3 py-1 rounded-lg ml-2">
-                              {meta.created_at 
-                                ? new Date(meta.created_at).toLocaleDateString('pt-BR')
-                                : 'Não disponível'}
-                            </span>
-                          </p>
-                          <p className="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span className="font-medium text-gray-700 min-w-28">Última Atualização: </span>
-                            <span className="text-gray-600 bg-white px-3 py-1 rounded-lg ml-2">
-                              {meta.updated_at 
-                                ? new Date(meta.updated_at).toLocaleDateString('pt-BR')
-                                : 'Não disponível'}
-                            </span>
-                          </p>
                         </div>
                         
                         <div className="mt-5">
@@ -893,6 +886,114 @@ function Metas() {
                             </svg>
                             Ver Transações Relacionadas
                           </button>
+                          
+                          {/* Exibição das transações relacionadas */}
+                          {transacoesPorMeta[meta.id] && (
+                            <div className="mt-4 bg-gradient-to-br from-green-50 to-white p-5 rounded-xl shadow-md border border-green-100 animate-fadeIn">
+                              <h5 className="text-sm font-semibold text-gray-800 mb-3 flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                </svg>
+                                Transações desta Meta: {meta.nome}
+                              </h5>
+                              
+                              {transacoesPorMeta[meta.id].length === 0 ? (
+                                <div className="text-center py-6 bg-white rounded-lg">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                  </svg>
+                                  <p className="text-sm text-gray-500 italic">
+                                    Nenhuma transação encontrada para esta meta.
+                                  </p>
+                                  <button 
+                                    onClick={() => router.push('/transacoes')}
+                                    className="mt-3 px-4 py-2 bg-green-100 text-green-700 rounded-lg text-xs font-medium hover:bg-green-200 transition-colors"
+                                  >
+                                    Criar uma transação
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="overflow-x-auto rounded-lg shadow-sm border border-gray-100">
+                                  <table className="min-w-full text-sm bg-white">
+                                    <thead className="bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                      <tr>
+                                        <th className="px-4 py-3 text-left">Descrição</th>
+                                        <th className="px-4 py-3 text-left">Valor</th>
+                                        <th className="px-4 py-3 text-left">Data</th>
+                                        <th className="px-4 py-3 text-left">Tipo</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                      {transacoesPorMeta[meta.id].map((transacao) => (
+                                        <tr key={transacao.id} className="hover:bg-green-50 transition-colors">
+                                          <td className="px-4 py-3 whitespace-nowrap font-medium text-gray-800">
+                                            {transacao.descricao}
+                                          </td>
+                                          <td className="px-4 py-3 whitespace-nowrap">
+                                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                              transacao.tipo === 'entrada' 
+                                                ? 'bg-green-100 text-green-700' 
+                                                : 'bg-red-100 text-red-700'
+                                            }`}>
+                                              {formatarMoeda(transacao.valor)}
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-3 whitespace-nowrap text-gray-600">
+                                            {new Date(transacao.data).toLocaleDateString('pt-BR')}
+                                          </td>
+                                          <td className="px-4 py-3 whitespace-nowrap">
+                                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                              transacao.tipo === 'entrada' 
+                                                ? 'bg-green-100 text-green-800' 
+                                                : 'bg-red-100 text-red-800'
+                                            }`}>
+                                              {transacao.tipo === 'entrada' ? 'Entrada' : 'Saída'}
+                                            </span>
+                                          </td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </div>
+                              )}
+                              
+                              {/* Resumo das transações */}
+                              {transacoesPorMeta[meta.id]?.length > 0 && (
+                                <div className="mt-4 pt-4 border-t border-gray-200 bg-white p-4 rounded-lg shadow-sm">
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                      <p className="text-xs text-gray-500 mb-1">Total de transações</p>
+                                      <p className="text-lg font-bold text-gray-800">{transacoesPorMeta[meta.id].length}</p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                      <p className="text-xs text-gray-500 mb-1">Valor total</p>
+                                      <p className="text-lg font-bold text-emerald-600">
+                                        {formatarMoeda(
+                                          transacoesPorMeta[meta.id].reduce((total, transacao) => 
+                                            total + parseFloat(transacao.valor || 0), 0)
+                                        )}
+                                      </p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-3 rounded-lg">
+                                      <p className="text-xs text-gray-500 mb-1">Última transação</p>
+                                      <p className="text-lg font-medium text-gray-800">
+                                        {transacoesPorMeta[meta.id].length > 0 
+                                          ? new Date(
+                                              Math.max(
+                                                ...transacoesPorMeta[meta.id].map(t => new Date(t.data))
+                                              )
+                                            ).toLocaleDateString('pt-BR')
+                                          : '-'
+                                        }
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
