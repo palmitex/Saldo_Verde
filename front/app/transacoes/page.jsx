@@ -96,10 +96,9 @@ function Transacoes() {
         return;
       }
       
-      const response = await auth.authFetch(`http://localhost:3001/metas/usuario/${auth.user.id}`);
+      const response = await auth.authFetch(`http://localhost:3001/metas`);
       if (response.ok) {
         const data = await response.json();
-        // Verificar o formato correto da resposta
         if (data.status === 'success' && Array.isArray(data.data)) {
           setMetas(data.data);
         } else if (Array.isArray(data)) {

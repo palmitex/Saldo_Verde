@@ -36,19 +36,10 @@ const atualizarCategoria = async (id, dadosAtualizados) => {
   }
 };
 
-const excluirCategoria = async (id) => {
-  try {
-    return await deleteRecord('categorias', `id = ${id}`);
-  } catch (err) {
-    console.error('Erro ao excluir categoria: ', err);
-    throw err;
-  }
-};
 
 export { 
   criarCategoria, 
   buscarCategoriaPorId, 
   listarCategoriasPorUsuario, 
-  atualizarCategoria, 
-  excluirCategoria
+  atualizarCategoria
 };

@@ -1,4 +1,4 @@
-import { criarCategoria, buscarCategoriaPorId, listarCategoriasPorUsuario, atualizarCategoria, excluirCategoria } from '../models/Categorias.js';
+import { criarCategoria, buscarCategoriaPorId, listarCategoriasPorUsuario, atualizarCategoria } from '../models/Categorias.js';
 import { logActivity } from '../config/database.js';
 
 // Criar uma nova categoria
@@ -169,61 +169,9 @@ const atualizarCategoriaController = async (req, res) => {
   }
 };
 
-// Excluir categoria
-const excluirCategoriaController = async (req, res) => {
-  try {
-    const userId = req.query.userId || req.userId;
-    const { id } = req.params;
-
-    if (!userId) {
-      return res.status(401).json({
-        status: 'error',
-        message: 'Usuário não autenticado'
-      });
-    }
-
-    // Buscar categoria primeiro
-    const categoria = await buscarCategoriaPorId(id);
-
-    // Verificar se a categoria existe
-    if (!categoria) {
-      return res.status(404).json({
-        status: 'error',
-        message: 'Categoria não encontrada'
-      });
-    }
-
-    // Verificar se a categoria pertence ao usuário
-    if (categoria.usuario_id !== parseInt(userId)) {
-      return res.status(403).json({
-        status: 'error',
-        message: 'Você não tem permissão para excluir esta categoria'
-      });
-    }
-
-    await excluirCategoria(id);
-    
-    // Registrar log de atividade
-    await logActivity(userId, 'excluir_categoria', `Usuário excluiu categoria ${categoria.nome}`);
-
-    res.status(200).json({
-      status: 'success',
-      message: 'Categoria excluída com sucesso'
-    });
-  } catch (error) {
-    console.error('Erro ao excluir categoria:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Erro ao excluir categoria',
-      error: error.message
-    });
-  }
-};
-
 export {
   registrarCategoria,
   listarCategorias,
   obterCategoria,
-  atualizarCategoriaController,
-  excluirCategoriaController
+  atualizarCategoriaController
 };

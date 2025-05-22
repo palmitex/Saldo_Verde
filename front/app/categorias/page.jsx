@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { useRouter } from 'next/navigation';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import './categoria.css';
 
-const CategoriasPage = () => {
+export default function CategoriasPage() {
   return (
     <ProtectedRoute>
       <Categorias />
@@ -13,17 +13,20 @@ const CategoriasPage = () => {
   );
 };
 
-const Categorias = () => {
+function Categorias() {
   const { authFetch, user } = useAuth();
-  const router = useRouter();
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [modalAberto, setModalAberto] = useState(false);
+  const [drawerAberto, setDrawerAberto] = useState(false);
   const [categoriaAtual, setCategoriaAtual] = useState(null);
   const [formData, setFormData] = useState({
-    nome: ''
+    nome: '',
+    cor: '#4CAF50' // Cor padrão verde
   });
+  // Para efeitos visuais de hover e interações
+  const [hoveredId, setHoveredId] = useState(null);
+  const [animatedId, setAnimatedId] = useState(null);
 
   // Função para buscar categorias usando authFetch
   const buscarCategorias = async () => {
@@ -79,18 +82,35 @@ const Categorias = () => {
     }
   }, [user]);
 
-  const abrirModal = (categoria = null) => {
+  useEffect(() => {
+    // Efeito de animação aleatória nos cards
+    if (categorias.length > 0) {
+      const interval = setInterval(() => {
+        const randomIndex = Math.floor(Math.random() * categorias.length);
+        const randomCat = categorias[randomIndex];
+        if (randomCat && randomCat.id) {
+          setAnimatedId(randomCat.id);
+          setTimeout(() => setAnimatedId(null), 1000);
+        }
+      }, 5000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [categorias]);
+
+  const abrirDrawer = (categoria = null) => {
     setCategoriaAtual(categoria);
     setFormData({
-      nome: categoria ? categoria.nome : ''
+      nome: categoria ? categoria.nome : '',
+      cor: categoria && categoria.cor ? categoria.cor : '#4CAF50'
     });
-    setModalAberto(true);
+    setDrawerAberto(true);
   };
 
-  const fecharModal = () => {
-    setModalAberto(false);
+  const fecharDrawer = () => {
+    setDrawerAberto(false);
     setCategoriaAtual(null);
-    setFormData({ nome: '' });
+    setFormData({ nome: '', cor: '#4CAF50' });
   };
 
   const handleInputChange = (e) => {
@@ -125,7 +145,7 @@ const Categorias = () => {
         throw new Error(errorData.message || 'Erro ao salvar categoria');
       }
 
-      fecharModal();
+      fecharDrawer();
       buscarCategorias();
     } catch (error) {
       console.error('Erro ao salvar categoria:', error);
@@ -137,169 +157,294 @@ const Categorias = () => {
   const [excluindoId, setExcluindoId] = useState(null);
   
   // Na função excluirCategoria
-  const excluirCategoria = async (id) => {
-    if (!window.confirm('Tem certeza que deseja excluir esta categoria?')) {
-      return;
-    }
-  
-    try {
-      setError(null);
-      setExcluindoId(id); // Marca esta categoria como sendo excluída
-      
-      setLoading(true);
-      
-      console.log(`Tentando excluir categoria com ID: ${id}`);
-      
-      // Modificar para incluir explicitamente o userId como parâmetro de consulta
-      const response = await authFetch(`http://localhost:3001/categorias/${id}?userId=${user.id}`, {
-        method: 'DELETE'
-      });
-  
-      if (!response.ok) {
-        // Tenta obter detalhes do erro
-        let mensagemErro = 'Erro ao excluir categoria';
-        try {
-          const errorData = await response.json();
-          mensagemErro = errorData.message || 'Erro ao excluir categoria';
-          
-          // Verifica se a categoria está sendo usada
-          if (mensagemErro.includes('em uso') || response.status === 409) {
-            mensagemErro = 'Esta categoria não pode ser excluída porque está sendo usada por transações.';
-          }
-        } catch (e) {
-          console.error('Erro ao processar resposta de erro:', e);
-        }
-        
-        setError(mensagemErro);
-        throw new Error(mensagemErro);
-      }
-  
-      console.log('Categoria excluída com sucesso');
-      buscarCategorias();
-    } catch (error) {
-      console.error('Erro ao excluir categoria:', error);
-      setError(error.message || 'Erro ao excluir categoria. Por favor, tente novamente mais tarde.');
-    } finally {
-      setLoading(false);
-      setExcluindoId(null); // Limpa o indicador de exclusão
-    }
-  };
 
-  // No botão de exclusão
+  
+  // Cores para os cards de categoria - foco em tons de verde
+  const coresCategorias = [
+    'from-green-600 to-green-400',
+    'from-emerald-600 to-emerald-400',
+    'from-teal-600 to-teal-400',
+    'from-lime-600 to-lime-400',
+    'from-green-700 to-green-500',
+    'from-emerald-700 to-emerald-500',
+    'from-teal-700 to-teal-500',
+    'from-lime-700 to-lime-500',
+    'from-green-800 to-green-600',
+    'from-emerald-800 to-emerald-600',
+  ];
+  
+  // Ícones para categorias
+  const icons = [
+    "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z", // Cartão
+    "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z", // Dinheiro
+    "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z", // Pessoa
+    "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", // Casa
+    "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01", // Lista
+    "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z", // Gráfico
+  ];
+
+  // Tela de carregamento
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Carregando categorias...</p>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
+          <p className="mt-6 text-green-700 font-medium">Carregando suas categorias...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Categorias</h1>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header com título e botão de nova categoria */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12">
+          <div className="mb-6 sm:mb-0">
+            <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-700 to-green-500 inline">
+              Categorias
+            </h1>
+            <p className="text-green-700 mt-2">
+              Organize suas finanças criando categorias personalizadas
+            </p>
+          </div>
           <button
-            onClick={() => abrirModal()}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
+            onClick={() => abrirDrawer()}
+            className="group flex items-center px-6 py-3 bg-gradient-to-r from-green-700 to-green-500 text-white rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-green-300/50 transform hover:-translate-y-1"
           >
-            Nova Categoria
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            <span>Nova Categoria</span>
           </button>
         </div>
 
+        {/* Mensagem de erro */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
+          <div className="mb-8 bg-red-50 border-l-4 border-red-500 p-4 rounded-lg flex items-center shadow-md animate-pulse">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <p className="text-red-700">{error}</p>
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.isArray(categorias) ? (
-            categorias.map((categoria, index) => (
-              <div
-                key={categoria.id || `categoria-${index}`}
-                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-              >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {categoria.nome}
-                    </h3>
+        {/* Grid de categorias */}
+        {Array.isArray(categorias) && categorias.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {categorias.map((categoria, index) => {
+              const corIndex = index % coresCategorias.length;
+              const corClasse = coresCategorias[corIndex];
+              const iconIndex = index % icons.length;
+              const isHovered = hoveredId === categoria.id;
+              const isAnimated = animatedId === categoria.id;
+              
+              return (
+                <div
+                  key={categoria.id || `categoria-${index}`}
+                  className={`bg-white rounded-2xl shadow-xl overflow-hidden card-categoria transition-all duration-300 
+                    ${isHovered ? 'scale-105 shadow-green-300/50' : ''} 
+                    ${isAnimated ? 'animate-pulse' : ''}`}
+                  onMouseEnter={() => setHoveredId(categoria.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                >
+                  <div className={`h-2 w-full bg-gradient-to-r ${corClasse} relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-white opacity-30 shine-effect"></div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => abrirModal(categoria)}
-                      className="text-blue-500 hover:text-blue-600"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => excluirCategoria(categoria.id)}
-                      disabled={excluindoId === categoria.id}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      {excluindoId === categoria.id ? (
-                        <div className="animate-spin h-5 w-5 border-t-2 border-red-500 rounded-full"></div>
-                      ) : (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                        </svg>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="col-span-3 text-center py-8">
-              <p className="text-gray-500">Nenhuma categoria encontrada ou carregando...</p>
-            </div>
-          )}
-        </div>
+                  <div className="p-6">
+                    <div className="flex justify-between items-center mb-3">
+                      <div className="flex items-center">
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${corClasse} flex items-center justify-center text-white mr-3 shadow-md`}>
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icons[iconIndex]} />
+                          </svg>
+                        </div>
+                        <h3 className="text-xl font-bold text-gray-800">
+                          {categoria.nome}
+                        </h3>
+                      </div>
+                      <div className={`flex space-x-2 opacity-0 transition-opacity duration-200 ${isHovered ? 'opacity-100' : ''}`}>
+                        <button
+                          onClick={() => abrirDrawer(categoria)}
+                          className="p-2 rounded-full text-gray-500 hover:bg-green-50 hover:text-green-600 transition-colors duration-200"
+                          title="Editar categoria"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                          </svg>
+                        </button>
 
-        {modalAberto && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md">
-              <h2 className="text-2xl font-bold mb-4">
-                {categoriaAtual ? 'Editar Categoria' : 'Nova Categoria'}
-              </h2>
-              <form onSubmit={salvarCategoria}>
-                <div className="mb-4">
-                  <label className="block text-gray-700 text-sm font-bold mb-2">
-                    Nome
-                  </label>
-                  <input
-                    type="text"
-                    name="nome"
-                    value={formData.nome}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                      </div>
+                    </div>
+                    <div className="mt-2 flex items-center">
+                      <span className="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-gradient-to-r from-green-100 to-green-200 text-green-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                        Categoria
+                      </span>
+                      
+                      <div className={`ml-auto transform transition-transform duration-300 ${isHovered ? 'scale-110' : 'scale-0'}`}>
+                        <div className="h-6 w-6 rounded-full bg-gradient-to-br from-green-600 to-green-400 shadow-md"></div>
+                      </div>
+                    </div>
+                    
+                    <div className={`mt-3 pt-3 border-t border-gray-100 opacity-0 transition-opacity duration-300 ${isHovered ? 'opacity-100' : ''}`}>
+                      <div className="flex justify-between items-center text-sm text-gray-500">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                            <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                          </svg>
+                          
+                        </div>
+                        <div className="flex items-center">
+                      
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-end space-x-4">
-                  <button
-                    type="button"
-                    onClick={fecharModal}
-                    className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              );
+            })}
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl shadow-xl p-10 text-center border border-green-100">
+            <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-green-50 to-green-100 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="mt-4 text-xl font-medium text-gray-700">Nenhuma categoria encontrada</h3>
+            <p className="mt-2 text-green-600">Crie categorias para organizar suas finanças</p>
+            <button
+              onClick={() => abrirDrawer()}
+              className="mt-6 inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-700 to-green-500 text-white rounded-xl shadow-lg shadow-green-200 hover:shadow-green-300/50 hover:scale-105 transition-all duration-300"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 animate-pulse" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              Criar primeira categoria
+            </button>
+          </div>
+        )}
+
+        {/* Drawer lateral para adicionar/editar categoria */}
+        {drawerAberto && (
+          <div className="fixed inset-0 z-50 overflow-hidden">
+            <div className="absolute inset-0 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity"
+                 onClick={fecharDrawer}></div>
+            
+            <div className="absolute inset-y-0 right-0 max-w-md w-full bg-white shadow-xl transform transition-all duration-300">
+              <div className="h-full flex flex-col overflow-y-auto py-6 px-6">
+                <div className="flex items-center justify-between border-b border-green-100 pb-4 mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800 flex items-center">
+                    <div className="h-8 w-1 rounded-full bg-gradient-to-b from-green-700 to-green-500 mr-3"></div>
+                    {categoriaAtual ? 'Editar Categoria' : 'Nova Categoria'}
+                  </h2>
+                  <button 
+                    onClick={fecharDrawer}
+                    className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                   >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-                  >
-                    Salvar
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                   </button>
                 </div>
-              </form>
+                
+                <form onSubmit={salvarCategoria} className="flex-1 flex flex-col">
+                  <div className="mb-6 flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Nome da Categoria
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M17.707 9.293a1 1 0 010 1.414l-7 7a1 1 0 01-1.414 0l-7-7A.997.997 0 012 10V5a3 3 0 013-3h5c.256 0 .512.098.707.293l7 7zM5 6a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <input
+                        type="text"
+                        name="nome"
+                        value={formData.nome}
+                        onChange={handleInputChange}
+                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                        placeholder="Digite o nome da categoria"
+                        required
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Cor da Categoria
+                    </label>
+                    <div className="flex items-center">
+                      <input
+                        type="color"
+                        name="cor"
+                        value={formData.cor}
+                        onChange={handleInputChange}
+                        className="h-10 w-10 rounded cursor-pointer"
+                      />
+                      <div className="ml-4 flex-1 grid grid-cols-5 gap-2">
+                        {['#4CAF50', '#2E7D32', '#81C784', '#388E3C', '#1B5E20',
+                          '#8BC34A', '#43A047', '#66BB6A', '#558B2F', '#33691E'].map(cor => (
+                          <div 
+                            key={cor}
+                            onClick={() => setFormData({...formData, cor})}
+                            className={`h-8 w-8 rounded-full cursor-pointer hover:scale-110 transition-transform duration-200 ${formData.cor === cor ? 'ring-2 ring-offset-2 ring-green-700' : ''}`}
+                            style={{ backgroundColor: cor }}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Ícone (Pré-visualização)
+                    </label>
+                    <div className="grid grid-cols-6 gap-3">
+                      {icons.map((path, i) => (
+                        <div 
+                          key={i} 
+                          className={`h-12 w-12 rounded-full bg-gradient-to-br from-green-600 to-green-400 flex items-center justify-center text-white cursor-pointer hover:shadow-lg transition-shadow duration-200`}
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={path} />
+                          </svg>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-auto pt-6 border-t border-green-100">
+                    <div className="flex flex-col space-y-3">
+                      <button
+                        type="submit"
+                        className="w-full py-3 bg-gradient-to-r from-green-700 to-green-500 text-white rounded-lg shadow-md hover:shadow-lg hover:shadow-green-200 transition-all duration-200 flex items-center justify-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        {categoriaAtual ? 'Atualizar Categoria' : 'Criar Categoria'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={fecharDrawer}
+                        className="w-full py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors flex items-center justify-center"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         )}
@@ -307,5 +452,3 @@ const Categorias = () => {
     </div>
   );
 };
-
-export default CategoriasPage;

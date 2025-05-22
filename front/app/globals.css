@@ -37,11 +37,7 @@
   animation: pulse 2s infinite;
 }
 
-/* Melhorias para acessibilidade e foco */
-:focus {
-  outline: 2px solid rgb(16, 185, 129);
-  outline-offset: 2px;
-}
+
 
 /* Rolagem suave por padrão */
 html {

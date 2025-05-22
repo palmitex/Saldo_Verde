@@ -10,7 +10,7 @@ import { Pie, Bar } from 'react-chartjs-2';
 // Registrar componentes do Chart.js
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const AnalisePage = () => {
+export default function AnalisePage()  {
   return (
     <ProtectedRoute>
       <Analise />
@@ -291,7 +291,7 @@ const Analise = () => {
                   <h3 className="text-sm font-medium text-emerald-800">Total de Entradas</h3>
                 </div>
                 <p className="text-3xl font-bold text-gray-800">
-                  {formatarMoeda(dadosAnalise.resultados.reduce((acc, item) => acc + (item.total_entradas || 0), 0))}
+                  {formatarMoeda(dadosAnalise.resultados.reduce((acc, item) => acc + (parseFloat(item.total_entradas) || 0), 0))}
                 </p>
               </div>
               
@@ -305,7 +305,7 @@ const Analise = () => {
                   <h3 className="text-sm font-medium text-red-800">Total de Saídas</h3>
                 </div>
                 <p className="text-3xl font-bold text-gray-800">
-                  {formatarMoeda(dadosAnalise.resultados.reduce((acc, item) => acc + (item.total_saidas || 0), 0))}
+                  {formatarMoeda(dadosAnalise.resultados.reduce((acc, item) => acc + (parseFloat(item.total_saidas) || 0), 0))}
                 </p>
               </div>
               
@@ -320,8 +320,8 @@ const Analise = () => {
                 </div>
                 <p className="text-3xl font-bold text-gray-800">
                   {formatarMoeda(
-                    dadosAnalise.resultados.reduce((acc, item) => acc + (item.total_entradas || 0), 0) - 
-                    dadosAnalise.resultados.reduce((acc, item) => acc + (item.total_saidas || 0), 0)
+                    dadosAnalise.resultados.reduce((acc, item) => acc + (parseFloat(item.total_entradas) || 0), 0) - 
+                    dadosAnalise.resultados.reduce((acc, item) => acc + (parseFloat(item.total_saidas) || 0), 0)
                   )}
                 </p>
               </div>
@@ -453,5 +453,3 @@ const Analise = () => {
     </div>
   );
 };
-
-export default AnalisePage;
