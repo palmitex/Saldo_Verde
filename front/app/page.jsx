@@ -16,7 +16,7 @@ export default function Home() {
 
 
   return (
-    <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
+    <div className={`overflow-hidden transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
       {/* Hero Section */}
       <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gradient-to-b from-gray-200 to-gray-300 py-16 px-4 md:px-8 lg:px-16 mb-16 rounded-b-2xl">
         <div className="max-w-7xl mx-auto">
