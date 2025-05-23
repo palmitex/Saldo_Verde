@@ -5,12 +5,12 @@ import Link from 'next/link';
 
 export default function Blog() {
     return (
-        <main className='max-w-7xl mx-auto px-1'>
+        <main>
             {/* Seção de Destaque */}
             <section className="bg-[#014038] text-white px-6 py-12 md:py-20 md:px-24">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-10">
-                    <div className="w-full md:w-1/2">
-                        <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-10 max-w-7xl mx-auto px-1">
+                    <div className="w-full md:w-1/2 max-w-7xl mx-auto px-1">
+                        <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight font-size-20">
                             Como Funciona o Pix por Aproximação?
                         </h1>
                         <p className="text-base md:text-lg text-white/80 mb-6">
@@ -19,7 +19,7 @@ export default function Blog() {
                     </div>
 
                     <div className="w-full md:w-1/2 relative">
-                        <div className=" w-200 h-100 relative z-10 w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
+                        <div className=" w-200 h-100 relative z-10 w-full h-64 md:h-80 rounded-xl overflow-hidden shadow-lg ">
                             <img src="/ImagemTeste.png" alt="Pix por Aproximação" className='w-200 h-100 object-cover' />
                         </div>
 
@@ -29,13 +29,13 @@ export default function Blog() {
                 </div>
             </section>
 
-            <section className="py-10 px-4 sm:px-8 lg:px-16">
+            <section className="py-10 px-4 sm:px-8 lg:px-16 max-w-7xl mx-auto px-1">
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-3xl font-bold">Últimos artigos</h2>
                     <a href="#" className="text-sm text-yellow-600 hover:underline font-medium"> Ver Todos →</a>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto px-1">
                     {artigos.map((artigo) => {
                         return (
 
@@ -45,12 +45,12 @@ export default function Blog() {
                                     <img src={artigo.img} alt={artigo.titulo} className='w-full h-48 rounded-b-lg transform transition-transform hover:scale-105 object-cover' />
                                 </div>
 
-                                <div className="p-5 flex flex-col gap-2">
-                                    <span className="text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-1 w-fit">
+                                <div className="flex flex-col gap-2">
+                                    <span className="text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-1 w-fit mt-3">
                                         {artigo.categoria}
                                     </span>
-                                    <h3 className="text-lg font-semibold text-gray-800">{artigo.titulo}</h3>
-                                    <p className="text-sm text-gray-600">{artigo.descricao}</p>
+                                    <h3 className="text-2xl font-semibold text-gray-800">{artigo.titulo}</h3>
+                                    <p className="text-base text-gray-600 mb-3">{artigo.descricao}</p>
                                 </div>
                             </Link>
                         )

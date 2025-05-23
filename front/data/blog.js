@@ -1,10 +1,12 @@
 const artigos = [
     {
         id: 1,
-        titulo: 'teste',
-        descricao: 'teste',
-        categoria: 'teste',
-        img: './ImagemTeste.png'
+        titulo: 'Imposto de Renda 2025: Prazo, Quem Deve Declarar e Novidades',
+        descricao: 'O Imposto de Renda 2025 já tem data definida! Descubra os prazos, quem deve declarar, tabela atualizada, como pagar e regras de isenção.',
+        categoria: 'Finanças',
+        img: '../ImagemTeste.png',
+        data: '19.05.2025',
+        tempoLeitura: '9 minutos de leitura'
     },
     {
         id: 2,
