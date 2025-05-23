@@ -1,4 +1,4 @@
-import { create, read, readAll, update, deleteRecord, query } from "../config/database.js";
+import { create, read, update, deleteRecord, query } from "../config/database.js";
 
 const criarTransacao = async (dados) => {
   try {
@@ -66,24 +66,6 @@ const listarTransacoes = async (filtros = {}) => {
   }
 };
 
-const buscarTransacaoPorId = async (id) => {
-  try {
-    const sql = `
-      SELECT 
-        t.*,
-        c.nome as categoria_nome
-      FROM transacoes t
-      LEFT JOIN categorias c ON t.categoria_id = c.id
-      WHERE t.id = ?
-    `;
-    const transacoes = await query(sql, [id]);
-    return transacoes[0] || null;
-  } catch (err) {
-    console.error('Erro ao buscar transação:', err);
-    throw err;
-  }
-};
-
 const buscarTransacoesPorUsuario = async (usuarioId) => {
   try {
     return await read('transacoes', `usuario_id = ${usuarioId}`);
@@ -111,86 +93,10 @@ const buscarTransacoesPorTipo = async (tipo) => {
   }
 };
 
-const atualizarTransacao = async (id, dados) => {
-  try {
-    return await update('transacoes', dados, `id = ${id}`);
-  } catch (err) {
-    console.error('Erro ao atualizar transação:', err);
-    throw err;
-  }
-};
-
-const excluirTransacao = async (id) => {
-  try {
-    return await deleteRecord('transacoes', `id = ${id}`);
-  } catch (err) {
-    console.error('Erro ao excluir transação:', err);
-    throw err;
-  }
-};
-
-const calcularSaldo = async (usuario_id) => {
-  try {
-    const sql = `
-      SELECT 
-        SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as total_entradas,
-        SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as total_saidas,
-        SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE -valor END) as saldo
-      FROM transacoes
-      WHERE usuario_id = ?
-    `;
-    const resultado = await query(sql, [usuario_id]);
-    return resultado[0];
-  } catch (err) {
-    console.error('Erro ao calcular saldo:', err);
-    throw err;
-  }
-};
-
-const obterGastosPorCategoria = async (usuarioId, periodo = {}) => {
-  try {
-    let condicao = `t.usuario_id = ? AND t.tipo = 'saida'`;
-    const parametros = [usuarioId];
-    
-    if (periodo.data_inicio) {
-      condicao += ` AND t.data >= ?`;
-      parametros.push(periodo.data_inicio);
-    }
-    
-    if (periodo.data_fim) {
-      condicao += ` AND t.data <= ?`;
-      parametros.push(periodo.data_fim);
-    }
-    
-    const sql = `
-      SELECT 
-        c.id,
-        c.nome,
-        SUM(t.valor) as total,
-        COUNT(t.id) as quantidade
-      FROM transacoes t
-      JOIN categorias c ON t.categoria_id = c.id
-      WHERE ${condicao}
-      GROUP BY c.id, c.nome
-      ORDER BY total DESC
-    `;
-    
-    return await query(sql, parametros);
-  } catch (err) {
-    console.error('Erro ao obter gastos por categoria: ', err);
-    throw err;
-  }
-};
-
 export {
   criarTransacao,
   listarTransacoes,
-  buscarTransacaoPorId,
   buscarTransacoesPorUsuario,
   buscarTransacoesPorCategoria,
-  buscarTransacoesPorTipo,
-  atualizarTransacao,
-  excluirTransacao,
-  calcularSaldo,
-  obterGastosPorCategoria
+  buscarTransacoesPorTipo
 };

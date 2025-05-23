@@ -141,12 +141,9 @@ function Categorias() {
     e.preventDefault();
     try {
       setError(null);
-      const url = categoriaAtual 
-        ? `http://localhost:3001/categorias/${categoriaAtual.id}?userId=${user.id}`
-        : 'http://localhost:3001/categorias';
+      const url = categoriaAtual ? `http://localhost:3001/categorias/${categoriaAtual.id}?userId=${user.id}`: 'http://localhost:3001/categorias';
       
-      const response = await authFetch(url, {
-        method: categoriaAtual ? 'PUT' : 'POST',
+      const response = await authFetch(url, { method: categoriaAtual ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -169,12 +166,6 @@ function Categorias() {
     }
   };
 
-  // Adicione este estado
-  const [excluindoId, setExcluindoId] = useState(null);
-  
-  // Na função excluirCategoria
-
-  
   // Cores para os cards de categoria - foco em tons de verde
   const coresCategorias = [
     'from-green-600 to-green-400',

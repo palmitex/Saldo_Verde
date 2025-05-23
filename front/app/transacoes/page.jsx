@@ -119,11 +119,8 @@ function Transacoes() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    
-    // Se o campo alterado for meta_id, vamos preencher a descrição automaticamente
-    // e também selecionar a categoria associada à meta
     if (name === 'meta_id' && value) {
-      // Encontrar a meta selecionada
+      // Encontra a meta selecionada
       const metaSelecionada = metas.find(meta => meta.id == value);
       if (metaSelecionada) {
         // Preencher a descrição com o nome da meta

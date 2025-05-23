@@ -1,13 +1,5 @@
 import express from 'express';
-import { 
-  registrarTransacao, 
-  listarTransacoesController, 
-  obterTransacao, 
-  atualizarTransacaoController, 
-  excluirTransacaoController, 
-  obterSaldo,
-  obterGastosPorPeriodo
-} from '../controllers/TransacaoController.js';
+import { registrarTransacao, listarTransacoesController, obterGastosPorPeriodo } from '../controllers/TransacaoController.js';
 
 const router = express.Router();
 
@@ -24,9 +16,5 @@ router.get('/usuario/:id', (req, res, next) => {
   next();
 }, listarTransacoesController);
 router.get('/analise', obterGastosPorPeriodo);
-router.get('/saldo', obterSaldo);
-router.get('/:id', obterTransacao);
-router.put('/:id', atualizarTransacaoController);
-router.delete('/:id', excluirTransacaoController);
 
 export default router;

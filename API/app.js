@@ -4,7 +4,6 @@ const port = 3001;
 import cors from 'cors';
 
 import categoriaRotas from './routes/categoria.js';
-import historicoRotas from './routes/historico.js';
 import metaRotas from './routes/meta.js';
 import transicaoRotas from './routes/transacao.js';
 import usuarioRotas from './routes/usuario.js';
@@ -20,9 +19,7 @@ app.use((req, res, next) => {
     }
     next();
 });
-
 app.use('/categorias', categoriaRotas);
-app.use('/historico', historicoRotas);
 app.use('/metas', metaRotas);
 app.use('/transacoes', transicaoRotas);
 app.use('/usuarios', usuarioRotas);

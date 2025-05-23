@@ -159,16 +159,6 @@ export default function Registro() {
       return;
     }
 
-    // Preparar dados para o registro
-    const userData = {
-      nome: formData.nome,
-      email: formData.email,
-      telefone: formData.telefone.replace(/\D/g, ''), // Remove não-dígitos
-      cpf: formData.cpf.replace(/\D/g, ''), // Remove não-dígitos
-      senha: formData.senha,
-      pergunta_secreta: formData.pergunta_secreta,
-      resposta_secreta: formData.resposta_secreta
-    };
 
     // Tenta registrar o usuário usando a função do contexto de autenticação
     const result = await auth.register(formData.nome, formData.email, formData.senha);

@@ -1002,31 +1002,6 @@ function Metas() {
             })}
           </div>
         )}
-        {metas.length > 0 && !mostrarForm && (
-          <div className="fixed bottom-8 right-8 z-10">
-            <button 
-              onClick={() => {
-                setFormData({
-                  nome: '',
-                  valor_objetivo: '',
-                  valor_inicial: '',
-                  prazo: new Date().toISOString().split('T')[0],
-                  categoria_id: '',
-                  usuario_id: auth?.user?.id || null
-                });
-                setEditando(null);
-                setMostrarForm(true);
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-              }}
-              className="bg-emerald-600 text-white p-4 rounded-full shadow-lg hover:bg-emerald-700 hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center"
-              title="Nova Meta"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

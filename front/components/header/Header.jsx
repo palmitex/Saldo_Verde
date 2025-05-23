@@ -49,9 +49,10 @@ export default function Header() {
 
     const toggleActive = () => {
         setIsActive(!isActive);
-        // Fechar o menu do usuário quando fechar o menu responsivo
+        // Fechar os outros menus quando fechar o menu responsivo
         if (!isActive === false) {
             setShowUserMenu(false);
+            setShowDropdown(false);
         }
     };
 
@@ -77,8 +78,9 @@ export default function Header() {
         <div 
             ref={isMobile ? null : userMenuRef}
             className={`${isMobile ? 'mobile-dropdown' : 'desktop-dropdown absolute right-0'} mt-2 w-48 bg-white shadow-lg rounded-md py-2 z-50 transition-all duration-300 ease-out transform origin-top ${
-            showUserMenu ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'
-        }`}>
+                isMobile ? 'block' : // Sempre visível no modo móvel
+                (showUserMenu ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none')
+            }`}>
             <div className="px-4 py-2 border-b border-gray-100">
                 <p className="text-sm font-semibold text-gray-800">Olá, {auth.user.nome?.split(' ')[0] || 'Usuário'}</p>
                 <p className="text-xs text-gray-500 truncate">{auth.user.email}</p>
@@ -133,7 +135,7 @@ export default function Header() {
                             </button>
                             <div
                                 ref={dropdownRef}
-                                className={` w-45 absolute mt-2 bg-white shadow-lg rounded-md py-2 px-4 z-50 transition-all duration-300 ease-out transform origin-top ${showDropdown ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'
+                                className={`w-45 absolute mt-2 bg-white shadow-lg rounded-md py-2 px-4 z-50 transition-all duration-300 ease-out transform origin-top ${showDropdown ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible pointer-events-none'
                                     }`}
                             >
                                 <Link href="/metas" className="block text-gray-700 hover:text-green-700 py-1">
@@ -179,12 +181,28 @@ export default function Header() {
                     {/* Componente de autenticação dentro do menu responsivo */}
                     <div className="auth-mobile-container">
                         {auth?.user ? (
-                            <div className="relative py-3">
-                                <div className="flex items-center gap-2">
+                            <div className="mobile-user-menu">
+                                <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
                                     <UserAvatar />
                                     <span className="user-greeting">Olá, {auth.user.nome?.split(' ')[0] || 'Usuário'}</span>
                                 </div>
-                                <UserDropdownMenu isMobile={true} />
+                                
+                                {/* Links diretos para mobile */}
+                                <Link href="/perfil">
+                                    <div className="mobile-menu-item">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-600">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                        </svg>
+                                        <span className="text-sm text-gray-700">Meu Perfil</span>
+                                    </div>
+                                </Link>
+                                
+                                <div onClick={handleLogout} className="mobile-menu-item">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 text-gray-600">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15" />
+                                    </svg>
+                                    <span className="text-sm text-gray-700">Sair</span>
+                                </div>
                             </div>
                         ) : (
                             <div className="login-mobile py-3">

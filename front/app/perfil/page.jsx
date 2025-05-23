@@ -19,6 +19,7 @@ export default function Perfil() {
     confirmarSenha: '',
   });
   const [trocandoSenha, setTrocandoSenha] = useState(false);
+  const [excluindoConta, setExcluindoConta] = useState(false);
 
   useEffect(() => {
     if (auth?.user) {
@@ -137,6 +138,37 @@ export default function Perfil() {
       setError(error.message || 'Erro ao atualizar o perfil. Tente novamente mais tarde.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleExcluirConta = async () => {
+    if (!confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.')) {
+      return;
+    }
+    
+    setExcluindoConta(true);
+    setError(null);
+
+    try {
+      const response = await auth.authFetch('http://localhost:3001/usuarios/conta', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Erro ao excluir a conta');
+      }
+
+      // Faz logout após exclusão bem-sucedida
+      auth.logout();
+      router.push('/');
+    } catch (error) {
+      console.error('Erro ao excluir conta:', error);
+      setError(error.message || 'Erro ao excluir a conta. Tente novamente mais tarde.');
+      setExcluindoConta(false);
     }
   };
 
@@ -269,31 +301,42 @@ export default function Perfil() {
                   </div>
                 </div>
                 
-                <div className="flex justify-end pt-6">
+                <div className="flex justify-between pt-6">
                   <button
                     type="button"
-                    onClick={() => router.back()}
-                    className="px-6 py-3 mr-4 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    onClick={handleExcluirConta}
+                    className="px-6 py-3 bg-red-800 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-70"
+                    disabled={excluindoConta}
                   >
-                    Cancelar
+                    {excluindoConta ? 'Excluindo...' : 'Excluir conta'}
                   </button>
-                  <button
-                    type="submit"
-                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-70"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Salvando...
-                      </span>
-                    ) : (
-                      'Salvar alterações'
-                    )}
-                  </button>
+
+                  <div className="space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => router.back()}
+                      className="px-6 py-3 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-70"
+                      disabled={isLoading}
+                    >
+                      {isLoading ? (
+                        <span className="flex items-center justify-center">
+                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Salvando...
+                        </span>
+                      ) : (
+                        'Salvar alterações'
+                      )}
+                    </button>
+                  </div>
                 </div>
               </form>
             </div>
