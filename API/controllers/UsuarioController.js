@@ -40,7 +40,6 @@ const cadastrarUsuarioController = async (req, res) => {
       senha_hash: senhaHash,
       pergunta_secreta,
       resposta_hash: respostaHash
-      // Remover a linha com criado_em
     };
 
     // Inserir usuário no banco

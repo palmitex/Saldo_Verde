@@ -1,12 +1,14 @@
 import mysql from "mysql2/promise";
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv'
 
+dotenv.config()
 //importação do banco de dados
 const pool = mysql.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'saldo_verde',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10, 
     queueLimit: 0
@@ -110,23 +112,22 @@ async function compare(senha, hash) {
 }
 
 // Função para registrar log de atividade
-async function logActivity(userId, acao, descricao) {
+async function logActivity(req, userId, acao, descricao) {
     try {
-        // Preparar dados para o log
         const logData = {
             usuario_id: userId,
             acao,
             descricao,
+            ip: req.ip,
             criado_em: new Date()
         };
-        
-        // Inserir registro de log
+
         return await create('logs', logData);
     } catch (err) {
         console.error('Erro ao registrar log de atividade: ', err);
-        // Não lança exceção para não interromper o fluxo principal
     }
 }
+
 
 // Função para executar consultas SQL personalizadas
 async function query(sql, params = []) {
