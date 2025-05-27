@@ -68,7 +68,7 @@ export default function Footer() {
                             </li>
                             <li className="mb-2">
                                 <a 
-                                  href="#" 
+                                  href="/termos" 
                                   className="relative text-white font-medium no-underline transition-colors transition-transform duration-300 ease-in-out hover:text-[#0da740] hover:-translate-y-0.5"
                                 >
                                     Termos e Privacidade

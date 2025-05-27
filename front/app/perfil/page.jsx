@@ -301,7 +301,7 @@ export default function Perfil() {
                   </div>
                 </div>
                 
-                <div className="flex justify-between pt-6">
+                <div className="flex flex-col-reverse sm:flex sm:flex-row justify-between pt-6">
                   <button
                     type="button"
                     onClick={handleExcluirConta}
