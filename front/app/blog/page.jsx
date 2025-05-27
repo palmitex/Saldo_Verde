@@ -11,10 +11,10 @@ export default function Blog() {
                 <div className="flex flex-col md:flex-row items-center justify-between gap-10 max-w-7xl mx-auto px-1">
                     <div className="w-full md:w-1/2 max-w-7xl mx-auto px-1">
                         <h1 className="text-3xl md:text-5xl font-bold mb-4 leading-tight font-size-20">
-                            Como Funciona o Pix por Aproximação?
+                            Seja Muito Bem-vindo Ao Nosso Blog!!
                         </h1>
                         <p className="text-base md:text-lg text-white/80 mb-6">
-                            Entenda o que é Pix por aproximação, suas características e como utilizar no cotidiano.
+                            Esse blog foi feito especialmente para adolescentes curiosos, que querem entender melhor o mundo real — sem enrolação e com uma linguagem jovem e direta. Aqui, você vai descobrir assuntos que quase ninguém te ensina na escola: como funciona o Imposto de Renda, o que é o CPF, como cuidar do dinheiro, se preparar para o primeiro emprego, entender seus direitos e deveres e muito mais.
                         </p>
                     </div>
 

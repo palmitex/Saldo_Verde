@@ -8,12 +8,15 @@ export default function ArtigoPage(promiseParams) {
   const { id } = use(promiseParams.params);
   const artigo = artigos.find((item) => item.id.toString() === id);
 
+
   if (!artigo) return notFound();
 
   return (
     <main>
+      {/* Banner */}
       <section className="bg-[#014038] text-white px-6 py-12 md:py-20 md:px-24">
         <div className="max-w-5xl mx-auto">
+
           {/* Categorias */}
           <div className="flex gap-2 mb-4">
             <span className="bg-black/60 text-white text-xs font-semibold px-7 py-2 rounded-full">
@@ -42,7 +45,7 @@ export default function ArtigoPage(promiseParams) {
             </div>
 
             <div className='flex items-center gap-2'>
-            <hr className="block my-2 mx-auto overflow-hidden border-inset border border-gray-400 h-3" />
+              <hr className="block my-2 mx-auto overflow-hidden border-inset border border-gray-400 h-3" />
             </div>
 
             <div className="flex items-center gap-2">
@@ -56,6 +59,52 @@ export default function ArtigoPage(promiseParams) {
 
           <img src={artigo.img} alt={artigo.titulo} className='my-6 rounded-lg w-full h-140 object-cover max-w-7xl mx-auto'></img>
         </div>
+      </section>
+
+      <section className='max-w-5xl mx-auto mt-20 mb-20'>
+        <div className=''>
+          <p className='text-lg mb-10'>{artigo.paragrafo1}</p>
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo1}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo2}</p>
+          <div className='flex gap-10'>
+            <img className='w-120 h-auto mb-8 rounded-lg' src={artigo.img7}></img>
+            <img className='w-120 h-auto mb-8 rounded-lg' src={artigo.img8}></img>
+          </div>
+          <p className='text-lg mb-10'>{artigo.paragrafo3}</p>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo2}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo4}</p>
+          <img className='w-220 h-auto mb-8' src={artigo.img6}></img>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo3}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo5}</p>
+          <p className='text-lg mb-4'>{artigo.paragrafo6}</p>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo4}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo7}</p>
+          <img className='w-220 h-auto mb-4' src={artigo.img2}></img>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo5}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo8}</p>
+          <p className='text-lg mb-4'>{artigo.paragrafo9}</p>
+          <img className='w-220 h-auto mb-4' src={artigo.img3}></img>
+
+          <h1 className='text-2xl mb-5 font-bold'>{artigo.titulo6}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo10}</p>
+          <img className='w-220 h-auto mb-4 rounded-lg' src={artigo.img4}></img>
+          <img className='w-220 h-auto mb-4 rounded-lg' src={artigo.img5}></img>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo7}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo11}</p>
+          <p className='text-lg mb-5'>{artigo.paragrafo12}</p>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo8}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo13}</p>
+          <p className='text-lg mb-4'>{artigo.paragrafo14}</p>
+          <p className='text-lg mb-4'>{artigo.paragrafo15}</p>
+
+        </div>
+
       </section>
     </main>
   );
