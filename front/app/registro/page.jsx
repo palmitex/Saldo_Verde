@@ -161,14 +161,21 @@ export default function Registro() {
 
 
     // Tenta registrar o usuário usando a função do contexto de autenticação
-    const result = await auth.register(formData.nome, formData.email, formData.senha);
+    const result = await auth.register(
+      formData.nome,
+      formData.email,
+      formData.telefone.replace(/\D/g, ''), // Remove caracteres não numéricos
+      formData.cpf.replace(/\D/g, ''), // Remove caracteres não numéricos
+      formData.senha,
+      formData.pergunta_secreta,
+      formData.resposta_secreta
+    );
     
     if (result.success) {
       // Registro e login bem-sucedidos
       router.push('/');
     } else {
       // Exibir mensagem de erro
-      alert(result.message);
       setError(result.message);
     }
     

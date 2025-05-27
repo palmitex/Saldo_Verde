@@ -13,38 +13,41 @@ const listarTransacoes = async (filtros = {}) => {
   try {
     const { usuario_id, tipo, categoria_id, data_inicio, data_fim, meta_id } = filtros;
     
-    let condicao = '1=1';
+    let condicao = [];
     const parametros = [];
+    let paramCount = 1;
 
     if (usuario_id) {
-      condicao += ' AND t.usuario_id = ?';
+      condicao.push(`t.usuario_id = $${paramCount++}`);
       parametros.push(parseInt(usuario_id));
     }
 
     if (tipo) {
-      condicao += ' AND t.tipo = ?';
+      condicao.push(`t.tipo = $${paramCount++}`);
       parametros.push(tipo);
     }
 
     if (categoria_id) {
-      condicao += ' AND t.categoria_id = ?';
+      condicao.push(`t.categoria_id = $${paramCount++}`);
       parametros.push(parseInt(categoria_id));
     }
     
     if (meta_id) {
-      condicao += ' AND t.meta_id = ?';
+      condicao.push(`t.meta_id = $${paramCount++}`);
       parametros.push(parseInt(meta_id));
     }
 
     if (data_inicio) {
-      condicao += ' AND DATE(t.data) >= ?';
+      condicao.push(`DATE(t.data) >= $${paramCount++}`);
       parametros.push(data_inicio);
     }
 
     if (data_fim) {
-      condicao += ' AND DATE(t.data) <= ?';
+      condicao.push(`DATE(t.data) <= $${paramCount++}`);
       parametros.push(data_fim);
     }
+
+    const whereClause = condicao.length > 0 ? `WHERE ${condicao.join(' AND ')}` : '';
 
     const sql = `
       SELECT 
@@ -54,7 +57,7 @@ const listarTransacoes = async (filtros = {}) => {
       FROM transacoes t
       LEFT JOIN categorias c ON t.categoria_id = c.id
       LEFT JOIN metas m ON t.meta_id = m.id
-      WHERE ${condicao}
+      ${whereClause}
       ORDER BY t.data DESC, t.id DESC
     `;
 

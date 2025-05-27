@@ -1,107 +1,104 @@
-import mysql from "mysql2/promise";
+import pkg from 'pg';
 import bcrypt from 'bcryptjs';
-import dotenv from 'dotenv'
+import dotenv from 'dotenv';
 
-dotenv.config()
-//importação do banco de dados
-const pool = mysql.createPool({
+dotenv.config();
+
+const { Pool } = pkg;
+
+const pool = new Pool({
     host: process.env.DB_HOST,
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    waitForConnections: true,
-    connectionLimit: 10, 
-    queueLimit: 0
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
-async function getConnection(){
-    return pool.getConnection();
-}
-
-//Função genérica para ler todos os registros de uma tabela
 async function readAll(table, where = null) {
-    const connection = await getConnection();
+    const client = await pool.connect();
     try {
         let sql = `SELECT * FROM ${table}`;
         if (where) {
             sql += ` WHERE ${where}`;
         }
-        const [rows] = await connection.execute(sql);
-        return rows;
+        const result = await client.query(sql);
+        return result.rows;
     } catch (err) {
         console.error('Erro ao ler registros: ', err);
         throw err;
     } finally {
-        connection.release();
+        client.release();
     }
 }
 
-// Função para ler um registro específico
-async function read(table, where) {
-    const connection = await getConnection();
+async function read(table, where, params = []) {
+    const client = await pool.connect();
     try {
-        let sql = `SELECT * FROM ${table} WHERE ${where}`;
-        const [rows] = await connection.execute(sql);
-        return rows[0] || null;
+        const sql = `SELECT * FROM ${table} WHERE ${where}`;
+        const result = await client.query(sql, params);
+        return result.rows[0] || null;
     } catch (err) {
         console.error('Erro ao ler registro: ', err);
         throw err;
     } finally {
-        connection.release();
+        client.release();
     }
 }
 
-// Função para inserir dados em qualquer tabela
 async function create(table, data) {
-    const connection = await getConnection();
+    const client = await pool.connect();
     try {
-        const columns = Object.keys(data).join(', ');
-        const placeholders = Array(Object.keys(data).length).fill('?').join(', ');
-        const sql = `INSERT INTO ${table} (${columns}) VALUES (${placeholders})`;
+        const keys = Object.keys(data);
         const values = Object.values(data);
-        const [result] = await connection.execute(sql, values);
-        return result.insertId;
+        const placeholders = keys.map((_, idx) => `$${idx + 1}`).join(', ');
+        const sql = `INSERT INTO ${table} (${keys.join(', ')}) VALUES (${placeholders}) RETURNING id`;
+        const result = await client.query(sql, values);
+        return result.rows[0].id;
     } catch (err) {
         console.error('Erro ao inserir registro: ', err);
         throw err;
     } finally {
-        connection.release();
+        client.release();
     }
 }
 
-// Função para atualizar dados
-async function update(table, data, where) {
-    const connection = await getConnection();
+async function update(table, data, where, whereParams = []) {
+    const client = await pool.connect();
     try {
-        const set = Object.keys(data).map(key => `${key} = ?`).join(', ');
+        const keys = Object.keys(data);
         const values = Object.values(data);
-        const sql = `UPDATE ${table} SET ${set} WHERE ${where}`;
-        const [result] = await connection.execute(sql, values);
-        return result.affectedRows;
+        const setClause = keys.map((key, idx) => `${key} = $${idx + 1}`).join(', ');
+        const sql = `UPDATE ${table} SET ${setClause} WHERE ${where}`;
+        const result = await client.query(sql, [...values, ...whereParams]);
+        return result.rowCount;
     } catch (err) {
         console.error('Erro ao atualizar registro: ', err);
         throw err;
     } finally {
-        connection.release();
+        client.release();
     }
 }
 
-// Função para excluir um registro
 async function deleteRecord(table, where) {
-    const connection = await getConnection();
+    const client = await pool.connect();
     try {
         const sql = `DELETE FROM ${table} WHERE ${where}`;
-        const [result] = await connection.execute(sql);
-        return result.affectedRows;
+        const result = await client.query(sql);
+        return result.rowCount;
     } catch (err) {
         console.error('Erro ao excluir registro: ', err);
         throw err;
     } finally {
-        connection.release();
+        client.release();
     }
 }
 
-// Função para comparar senhas com hash
 async function compare(senha, hash) {
     try {
         return await bcrypt.compare(senha, hash);
@@ -111,37 +108,31 @@ async function compare(senha, hash) {
     }
 }
 
-// Função para registrar log de atividade
-async function logActivity(req, userId, acao, descricao) {
+async function logActivity(userId, acao, descricao) {
     try {
         const logData = {
-            usuario_id: userId,
-            acao,
-            descricao,
-            ip: req.ip,
+            usuario_id: userId ?? null,
+            acao: acao ?? null,
+            descricao: descricao ?? null,
             criado_em: new Date()
         };
-
         return await create('logs', logData);
     } catch (err) {
         console.error('Erro ao registrar log de atividade: ', err);
     }
 }
 
-
-// Função para executar consultas SQL personalizadas
 async function query(sql, params = []) {
-    const connection = await getConnection();
+    const client = await pool.connect();
     try {
-        const [rows] = await connection.execute(sql, params);
-        return rows;
+        const result = await client.query(sql, params);
+        return result.rows;
     } catch (err) {
         console.error('Erro ao executar consulta: ', err);
         throw err;
     } finally {
-        connection.release();
+        client.release();
     }
 }
 
-// Exportações
 export { create, readAll, read, update, deleteRecord, compare, logActivity, query };

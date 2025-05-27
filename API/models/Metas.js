@@ -33,14 +33,25 @@ const criarMeta = async (metaDados) => {
       valor_inicial: metaDados.valor_inicial,
       prazo: metaDados.prazo,
       categoria_id: metaDados.categoria_id || null,
-      criado_em: metaDados.criado_em
+      criado_em: new Date()
     };
 
     console.log('Dados completos para inserção:', dadosCompletos);
 
-    const result = await create('metas', dadosCompletos);
+    // Usar query direta em vez da função create
+    const keys = Object.keys(dadosCompletos);
+    const values = Object.values(dadosCompletos);
+    const placeholders = keys.map((_, idx) => `$${idx + 1}`).join(', ');
+    
+    const sql = `
+      INSERT INTO metas (${keys.join(', ')})
+      VALUES (${placeholders})
+      RETURNING id, nome, valor_objetivo, valor_inicial, prazo, categoria_id, criado_em
+    `;
+
+    const result = await query(sql, values);
     console.log('Resultado da criação:', result);
-    return result;
+    return result[0];
   } catch (err) {
     console.error('Erro detalhado ao criar meta: ', err);
     throw err;
@@ -60,9 +71,12 @@ const buscarMetaPorId = async (id) => {
   try {
     console.log('Buscando meta por ID:', id);
     const sql = `
-      SELECT * FROM metas 
-      WHERE id = ? 
-      LIMIT 1
+      SELECT m.*, c.nome as categoria_nome 
+      FROM metas m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.id = $1
+      ORDER BY m.id
+      FETCH FIRST 1 ROW ONLY
     `;
     
     const resultado = await query(sql, [id]);
@@ -80,34 +94,13 @@ const buscarMetasPorUsuario = async (userId) => {
   try {
     console.log('Buscando metas para usuário:', userId);
     
-    const verificarColuna = await query(
-      `SELECT COLUMN_NAME 
-       FROM INFORMATION_SCHEMA.COLUMNS 
-       WHERE TABLE_SCHEMA = DATABASE() 
-       AND TABLE_NAME = 'metas' 
-       AND COLUMN_NAME = ?`, 
-      ['categoria_id']
-    );
-    
-    let sql;
-    if (verificarColuna.length > 0) {
-      // Se a coluna existir, use o JOIN normal
-      sql = `
-        SELECT m.*, c.nome as categoria_nome 
-        FROM metas m
-        LEFT JOIN categorias c ON m.categoria_id = c.id
-        WHERE m.usuario_id = ? 
-        ORDER BY m.criado_em DESC
-      `;
-    } else {
-      // Se a coluna não existir, busque apenas as metas sem o JOIN
-      sql = `
-        SELECT m.* 
-        FROM metas m
-        WHERE m.usuario_id = ? 
-        ORDER BY m.criado_em DESC
-      `;
-    }
+    const sql = `
+      SELECT m.*, c.nome as categoria_nome 
+      FROM metas m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.usuario_id = $1 
+      ORDER BY m.criado_em DESC
+    `;
     
     const metas = await query(sql, [userId]);
     console.log('Metas encontradas no banco:', metas);
@@ -121,7 +114,14 @@ const buscarMetasPorUsuario = async (userId) => {
 
 const buscarMetasPorCategoria = async (categoriaId) => {
   try {
-    return await read('metas', `categoria_id = ${categoriaId}`);
+    const sql = `
+      SELECT m.*, c.nome as categoria_nome 
+      FROM metas m
+      LEFT JOIN categorias c ON m.categoria_id = c.id
+      WHERE m.categoria_id = $1
+      ORDER BY m.criado_em DESC
+    `;
+    return await query(sql, [categoriaId]);
   } catch (err) {
     console.error('Erro ao buscar metas por categoria: ', err);
     throw err;
@@ -130,7 +130,19 @@ const buscarMetasPorCategoria = async (categoriaId) => {
 
 const atualizarMeta = async (id, dadosAtualizados) => {
   try {
-    return await update('metas', dadosAtualizados, `id = ${id}`);
+    const keys = Object.keys(dadosAtualizados);
+    const values = Object.values(dadosAtualizados);
+    const setClause = keys.map((key, index) => `${key} = $${index + 1}`).join(', ');
+    
+    const sql = `
+      UPDATE metas 
+      SET ${setClause} 
+      WHERE id = $${keys.length + 1}
+      RETURNING *
+    `;
+    
+    const result = await query(sql, [...values, id]);
+    return result[0];
   } catch (err) {
     console.error('Erro ao atualizar meta: ', err);
     throw err;
@@ -139,9 +151,13 @@ const atualizarMeta = async (id, dadosAtualizados) => {
 
 const excluirMeta = async (id) => {
   try {
-    await query('UPDATE transacoes SET meta_id = NULL WHERE meta_id = ?', [id]);
+    // Primeiro, atualizar as transações relacionadas
+    await query('UPDATE transacoes SET meta_id = NULL WHERE meta_id = $1', [id]);
+    
     // Depois, excluir a meta
-    return await deleteRecord('metas', `id = ${id}`);
+    const sql = 'DELETE FROM metas WHERE id = $1 RETURNING *';
+    const result = await query(sql, [id]);
+    return result[0];
   } catch (err) {
     console.error('Erro ao excluir meta: ', err);
     throw err;

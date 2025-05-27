@@ -17,7 +17,7 @@ const registrarTransacao = async (req, res) => {
 
     // Verificar se categoria existe (se fornecida)
     if (categoria_id) {
-      const categoria = await read('categorias', `id = ${categoria_id} AND usuario_id = ${userId}`);
+      const categoria = await read('categorias', 'id = $1 AND usuario_id = $2', [categoria_id, userId]);
       if (!categoria) {
         return res.status(404).json({
           status: 'error',
@@ -71,16 +71,13 @@ const registrarTransacao = async (req, res) => {
       let valorAtual = parseFloat(metaAtual.valor_inicial || 0);
       
       if (tipo === 'entrada') {
-        // Para entradas, aumentar o valor da meta
         valorAtual += parseFloat(valor);
       } else if (tipo === 'saida') {
-        // Para saídas, diminuir o valor da meta
         valorAtual -= parseFloat(valor);
       }
       
-      await update('metas', { valor_inicial: valorAtual }, `id = ${meta_id}`);
+      await update('metas', { valor_inicial: valorAtual }, 'id = $1', [meta_id]);
       
-      // Registrar log de atividade específico para atualização de meta
       await logActivity(userId, 'atualizar_meta', `Usuário atualizou progresso da meta "${metaAtual.nome}" com uma ${tipo} de ${valor}`);
     }
     
@@ -219,15 +216,18 @@ const obterGastosPorPeriodo = async (req, res) => {
       // Gastos por período para uma categoria específica
       sql = `
         SELECT 
-          DATE(data) as data,
-          SUM(CASE WHEN tipo = 'saida' THEN valor ELSE 0 END) as total_saidas,
-          SUM(CASE WHEN tipo = 'entrada' THEN valor ELSE 0 END) as total_entradas
-        FROM transacoes
-        WHERE usuario_id = ? 
-          AND data BETWEEN ? AND ?
-          AND categoria_id = ?
-        GROUP BY DATE(data)
-        ORDER BY data
+          c.id,
+          c.nome,
+          SUM(CASE WHEN t.tipo = 'saida' THEN t.valor ELSE 0 END) as total_saidas,
+          SUM(CASE WHEN t.tipo = 'entrada' THEN t.valor ELSE 0 END) as total_entradas,
+          COUNT(t.id) as quantidade
+        FROM transacoes t
+        LEFT JOIN categorias c ON t.categoria_id = c.id
+        WHERE t.usuario_id = $1 
+          AND t.data BETWEEN $2 AND $3
+          AND t.categoria_id = $4
+        GROUP BY c.id, c.nome
+        ORDER BY c.nome
       `;
       params.push(categoria_id);
     } else {
@@ -241,8 +241,8 @@ const obterGastosPorPeriodo = async (req, res) => {
           COUNT(t.id) as quantidade
         FROM transacoes t
         LEFT JOIN categorias c ON t.categoria_id = c.id
-        WHERE t.usuario_id = ? 
-          AND t.data BETWEEN ? AND ?
+        WHERE t.usuario_id = $1 
+          AND t.data BETWEEN $2 AND $3
         GROUP BY c.id, c.nome
         ORDER BY total_saidas DESC
       `;

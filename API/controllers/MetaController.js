@@ -47,7 +47,7 @@ const criarMetaController = async (req, res) => {
 
     // Verificar se a categoria existe (se fornecida)
     if (categoria_id) {
-      const categoria = await query('SELECT * FROM categorias WHERE id = ? AND usuario_id = ?', [categoria_id, userId]);
+      const categoria = await query('SELECT * FROM categorias WHERE id = $1 AND usuario_id = $2', [categoria_id, userId]);
       if (!categoria || categoria.length === 0) {
         return res.status(404).json({
           status: 'error',
@@ -172,7 +172,7 @@ const obterMetaController = async (req, res) => {
     // Buscar informações da categoria se existir
     let categoria = null;
     if (meta.categoria_id) {
-      const categoriaResult = await query('SELECT * FROM categorias WHERE id = ?', [meta.categoria_id]);
+      const categoriaResult = await query('SELECT * FROM categorias WHERE id = $1', [meta.categoria_id]);
       if (categoriaResult && categoriaResult.length > 0) {
         categoria = categoriaResult[0];
       }
@@ -182,10 +182,10 @@ const obterMetaController = async (req, res) => {
     const sqlEntradas = `
       SELECT SUM(valor) as total 
       FROM transacoes 
-      WHERE usuario_id = ? 
+      WHERE usuario_id = $1 
         AND tipo = 'entrada' 
         AND data <= CURRENT_DATE 
-        AND data >= ?
+        AND data >= $2
     `;
     const resultadoEntradas = await query(sqlEntradas, [userId, meta.criado_em]);
     const totalEntradas = parseFloat(resultadoEntradas[0].total || 0);
@@ -265,7 +265,7 @@ const atualizarMetaController = async (req, res) => {
 
     // Verificar se a categoria existe (se fornecida)
     if (categoria_id) {
-      const categoria = await query('SELECT * FROM categorias WHERE id = ? AND usuario_id = ?', [categoria_id, userId]);
+      const categoria = await query('SELECT * FROM categorias WHERE id = $1 AND usuario_id = $2', [categoria_id, userId]);
       if (!categoria || categoria.length === 0) {
         return res.status(404).json({
           status: 'error',
@@ -365,10 +365,10 @@ const verificarProgressoMetasController = async (req, res) => {
       const sqlEntradas = `
         SELECT SUM(valor) as total 
         FROM transacoes 
-        WHERE usuario_id = ? 
+        WHERE usuario_id = $1 
           AND tipo = 'entrada' 
           AND data <= CURRENT_DATE 
-          AND data >= ?
+          AND data >= $2
       `;
       const resultadoEntradas = await query(sqlEntradas, [userId, meta.criado_em]);
       const totalEntradas = parseFloat(resultadoEntradas[0].total || 0);

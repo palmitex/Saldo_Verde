@@ -6,7 +6,37 @@ import { criarUsuario, buscarUsuarioPorEmail, buscarUsuarioPorCPF, buscarUsuario
 // Cadastrar novo usuário
 const cadastrarUsuarioController = async (req, res) => {
   try {
+    // Log do corpo da requisição
+    console.log('Dados recebidos:', req.body);
+
     const { nome, email, telefone, cpf, senha, pergunta_secreta, resposta_secreta } = req.body;
+
+    // Validação dos campos obrigatórios
+    if (!nome || !email || !telefone || !cpf || !senha || !pergunta_secreta || !resposta_secreta) {
+      console.log('Campos faltando:', {
+        nome: !!nome,
+        email: !!email,
+        telefone: !!telefone,
+        cpf: !!cpf,
+        senha: !!senha,
+        pergunta_secreta: !!pergunta_secreta,
+        resposta_secreta: !!resposta_secreta
+      });
+      
+      return res.status(400).json({
+        status: 'error',
+        message: 'Todos os campos são obrigatórios',
+        missing_fields: {
+          nome: !nome,
+          email: !email,
+          telefone: !telefone,
+          cpf: !cpf,
+          senha: !senha,
+          pergunta_secreta: !pergunta_secreta,
+          resposta_secreta: !resposta_secreta
+        }
+      });
+    }
 
     // Verificar se e-mail já existe
     const usuarioExistente = await buscarUsuarioPorEmail(email);
@@ -26,6 +56,8 @@ const cadastrarUsuarioController = async (req, res) => {
       });
     }
 
+    console.log('Gerando hash para senha:', !!senha); // Log para debug
+
     // Gerar hash da senha
     const salt = await bcrypt.genSalt(10);
     const senhaHash = await bcrypt.hash(senha, salt);
@@ -42,6 +74,12 @@ const cadastrarUsuarioController = async (req, res) => {
       resposta_hash: respostaHash
     };
 
+    console.log('Dados preparados para inserção:', {
+      ...dadosUsuario,
+      senha_hash: '[PROTEGIDO]',
+      resposta_hash: '[PROTEGIDO]'
+    });
+
     // Inserir usuário no banco
     const userId = await criarUsuario(dadosUsuario);
     
@@ -57,7 +95,8 @@ const cadastrarUsuarioController = async (req, res) => {
     console.error('Erro ao cadastrar usuário:', error);
     res.status(500).json({ 
       status: 'error', 
-      message: 'Erro ao cadastrar usuário' 
+      message: 'Erro ao cadastrar usuário',
+      details: error.message
     });
   }
 };

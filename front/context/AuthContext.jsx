@@ -115,14 +115,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Função de registro
-  const register = async (nome, email, password) => {
+  const register = async (nome, email, telefone, cpf, senha, pergunta_secreta, resposta_secreta) => {
     try {
       const response = await fetch('http://localhost:3001/usuarios/cadastrar', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ nome, email, senha: password }),
+        body: JSON.stringify({ 
+          nome, 
+          email, 
+          telefone,
+          cpf,
+          senha,
+          pergunta_secreta,
+          resposta_secreta
+        }),
       });
 
       if (!response.ok) {
@@ -134,8 +142,9 @@ export const AuthProvider = ({ children }) => {
       }
 
       // Login após registro bem-sucedido
-      return login(email, password);
+      return login(email, senha);
     } catch (error) {
+      console.error('Erro no registro:', error);
       return { 
         success: false, 
         message: 'Erro ao processar seu registro. Tente novamente.' 
