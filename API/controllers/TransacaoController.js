@@ -76,7 +76,7 @@ const registrarTransacao = async (req, res) => {
         valorAtual -= parseFloat(valor);
       }
       
-      await update('metas', { valor_inicial: valorAtual }, 'id = $1', [meta_id]);
+      await update('metas', { valor_inicial: valorAtual }, 'id = $2', [meta_id]);
       
       await logActivity(userId, 'atualizar_meta', `Usuário atualizou progresso da meta "${metaAtual.nome}" com uma ${tipo} de ${valor}`);
     }
