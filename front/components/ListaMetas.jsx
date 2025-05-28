@@ -24,7 +24,7 @@ export default function ListaMetas() {
         return;
       }
       
-      const response = await fetch(`http://localhost:3001/metas/usuario/${user.id}`);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/metas/usuario/${user.id}`);
       if (response.ok) {
         const data = await response.json();
         setMetas(data);

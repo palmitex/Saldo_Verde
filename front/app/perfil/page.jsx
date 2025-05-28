@@ -104,7 +104,7 @@ export default function Perfil() {
       }
 
       // Chama a API para atualizar o perfil
-      const response = await auth.authFetch('http://localhost:3001/usuarios/perfil', {
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/perfil`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -150,7 +150,7 @@ export default function Perfil() {
     setError(null);
 
     try {
-      const response = await auth.authFetch('http://localhost:3001/usuarios/conta', {
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/conta`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

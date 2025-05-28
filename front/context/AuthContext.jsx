@@ -37,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     let response;
     
     try {
-      response = await fetch('http://localhost:3001/usuarios/login', {
+      response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,7 +117,7 @@ export const AuthProvider = ({ children }) => {
   // Função de registro
   const register = async (nome, email, telefone, cpf, senha, pergunta_secreta, resposta_secreta) => {
     try {
-      const response = await fetch('http://localhost:3001/usuarios/cadastrar', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/cadastrar`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }) => {
 
     // Garantir que a URL começa com http:// ou https://
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      url = `http://localhost:3001${url.startsWith('/') ? '' : '/'}${url}`;
+      url = `${process.env.NEXT_PUBLIC_API_URL}${url.startsWith('/') ? '' : '/'}${url}`;
     }
     
     try {

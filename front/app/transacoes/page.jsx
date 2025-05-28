@@ -48,7 +48,7 @@ function Transacoes() {
         return;
       }
       
-      const response = await auth.authFetch(`http://localhost:3001/transacoes?userId=${auth.user.id}`);
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/transacoes?userId=${auth.user.id}`);
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && data.data && Array.isArray(data.data.transacoes)) {
@@ -75,7 +75,7 @@ function Transacoes() {
         return;
       }
       
-      const response = await auth.authFetch('http://localhost:3001/categorias');
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias`);
       if (response.ok) {
         const data = await response.json();
         setCategorias(Array.isArray(data) ? data : (data.status === 'success' && Array.isArray(data.data) ? data.data : []));
@@ -96,7 +96,7 @@ function Transacoes() {
         return;
       }
       
-      const response = await auth.authFetch(`http://localhost:3001/metas`);
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas`);
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && Array.isArray(data.data)) {
@@ -152,7 +152,7 @@ function Transacoes() {
         return;
       }
       
-      const response = await auth.authFetch('http://localhost:3001/transacoes', {
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/transacoes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

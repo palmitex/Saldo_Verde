@@ -31,7 +31,7 @@ export default function RecuperarSenha() {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:3001/usuarios/pergunta-secreta?email=${formData.email}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/pergunta-secreta?email=${formData.email}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export default function RecuperarSenha() {
     }
 
     try {
-      const response = await fetch('http://localhost:3001/usuarios/recuperar-senha', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/recuperar-senha`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

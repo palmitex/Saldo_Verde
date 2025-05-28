@@ -37,7 +37,7 @@ const Analise = () => {
 
   const buscarCategorias = async () => {
     try {
-      const response = await authFetch('http://localhost:3001/categorias');
+      const response = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias`);
       if (response.ok) {
         const data = await response.json();
         if (Array.isArray(data)) {
@@ -58,7 +58,7 @@ const Analise = () => {
       setLoading(true);
       setError(null);
 
-      let url = `http://localhost:3001/transacoes/analise?periodo=${periodo}`;
+      let url = `${process.env.NEXT_PUBLIC_API_URL}/transacoes/analise?periodo=${periodo}`;
       if (categoriaId) {
         url += `&categoria_id=${categoriaId}`;
       }

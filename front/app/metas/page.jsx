@@ -45,7 +45,7 @@ function Metas() {
         return;
       }
       
-      const response = await auth.authFetch('http://localhost:3001/categorias');
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias`);
       if (response.ok) {
         const data = await response.json();
         // Garantir que data seja sempre um array
@@ -70,7 +70,7 @@ function Metas() {
       console.log('Buscando metas para usuário:', auth.user.id);
       
       // Usar o endpoint correto
-      const response = await auth.authFetch('http://localhost:3001/metas');
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas`);
       console.log('Resposta da API:', response);
       
       if (response.ok) {
@@ -89,11 +89,15 @@ function Metas() {
           setMetas([]);
         }
       } else {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Erro na resposta:', errorData);
+        const errorText = await response.text();
+        console.error('Erro na resposta:', errorText);
+        try {
+          const errorData = JSON.parse(errorText);
+          console.error(`Erro ao buscar metas: ${errorData.message || 'Erro desconhecido'}`);
+        } catch (parseError) {
+          console.error(`Erro ao buscar metas: ${errorText || 'Erro desconhecido'}`);
+        }
         setMetas([]);
-        // Remover o alerta para evitar mensagens irritantes para o usuário
-        console.error(`Erro ao buscar metas: ${errorData.message || 'Erro desconhecido'}`);
       }
     } catch (error) {
       console.error('Erro ao buscar metas:', error);
@@ -197,7 +201,7 @@ function Metas() {
           };
           
           // Endpoint com parâmetro userId explícito
-          const url = `http://localhost:3001/metas/${editando}?userId=${auth.user.id}`;
+          const url = `${process.env.NEXT_PUBLIC_API_URL}/metas/${editando}?userId=${auth.user.id}`;
           
           response = await auth.authFetch(url, {
             method: 'PUT',
@@ -212,7 +216,7 @@ function Metas() {
           return;
         }
       } else {
-        response = await auth.authFetch('http://localhost:3001/metas', {
+        response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -276,7 +280,7 @@ function Metas() {
           return;
         }
         
-        const response = await auth.authFetch(`http://localhost:3001/metas/${id}`, {
+        const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas/${id}`, {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'
@@ -334,7 +338,7 @@ function Metas() {
       // Mostra notificação de carregamento
       mostrarNotificacao('sucesso', 'Buscando transações da meta...');
       
-      const response = await auth.authFetch(`http://localhost:3001/transacoes?meta_id=${metaId}&userId=${auth.user.id}`);
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/transacoes?meta_id=${metaId}&userId=${auth.user.id}`);
       
       if (response.ok) {
         const data = await response.json();

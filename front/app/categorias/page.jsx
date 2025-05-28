@@ -34,7 +34,7 @@ function Categorias() {
     try {
       setLoading(true);
       setError(null);
-      const response = await authFetch('http://localhost:3001/categorias');
+      const response = await authFetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias`);
       
       if (response.ok) {
         const data = await response.json();
@@ -141,7 +141,7 @@ function Categorias() {
     e.preventDefault();
     try {
       setError(null);
-      const url = categoriaAtual ? `http://localhost:3001/categorias/${categoriaAtual.id}?userId=${user.id}`: 'http://localhost:3001/categorias';
+      const url = categoriaAtual ? `${process.env.NEXT_PUBLIC_API_URL}/categorias/${categoriaAtual.id}?userId=${user.id}`: `${process.env.NEXT_PUBLIC_API_URL}/categorias`;
       
       const response = await authFetch(url, { method: categoriaAtual ? 'PUT' : 'POST',
         headers: {
