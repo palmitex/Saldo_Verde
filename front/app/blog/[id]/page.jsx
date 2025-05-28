@@ -64,13 +64,14 @@ export default function ArtigoPage(promiseParams) {
       <section className='max-w-5xl mx-auto mt-20 mb-20'>
         <div className=''>
           <p className='text-lg mb-10'>{artigo.paragrafo1}</p>
+          
           <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo1}</h1>
           <p className='text-lg mb-4'>{artigo.paragrafo2}</p>
+          <p className='text-lg mb-4'>{artigo.paragrafo3}</p>
           <div className='flex gap-10'>
-            <img className='w-120 h-auto mb-8 rounded-lg' src={artigo.img7}></img>
-            <img className='w-120 h-auto mb-8 rounded-lg' src={artigo.img8}></img>
+            <img className='w-120 h-auto mb-4 rounded-lg' src={artigo.img7}></img>
+            <img className='w-120 h-auto mb-4 rounded-lg' src={artigo.img8}></img>
           </div>
-          <p className='text-lg mb-10'>{artigo.paragrafo3}</p>
 
           <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo2}</h1>
           <p className='text-lg mb-4'>{artigo.paragrafo4}</p>
@@ -101,7 +102,20 @@ export default function ArtigoPage(promiseParams) {
           <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo8}</h1>
           <p className='text-lg mb-4'>{artigo.paragrafo13}</p>
           <p className='text-lg mb-4'>{artigo.paragrafo14}</p>
-          <p className='text-lg mb-4'>{artigo.paragrafo15}</p>
+          <p className='text-lg mb-5'>{artigo.paragrafo15}</p>
+          <img className='w-200 h-auto mb-4 rounded-lg' src={artigo.img9}></img>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo9}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo16}</p>
+          <p className='text-lg mb-4'>{artigo.paragrafo17}</p>
+          <p className='text-lg mb-8'>{artigo.paragrafo18}</p>
+          <img className='w-200 h-auto mb-4 rounded-lg' src={artigo.img10}></img>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo10}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo19}</p>
+
+          <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo11}</h1>
+          <p className='text-lg mb-4'>{artigo.paragrafo20}</p>
 
         </div>
 
