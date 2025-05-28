@@ -177,6 +177,7 @@ export default function Header() {
                     )}
                     <Link href="/blog">Blog</Link>
                     <Link href="/sobrenos">Sobre Nós</Link>
+                    <Link href="/faq">FAQ</Link>
                     <Link href="/contato">Contato</Link>
                     
                     {/* Componente de autenticação dentro do menu responsivo */}
