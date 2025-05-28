@@ -216,7 +216,7 @@ function Metas() {
           return;
         }
       } else {
-        response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
+        response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
