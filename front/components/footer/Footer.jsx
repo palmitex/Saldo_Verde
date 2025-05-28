@@ -85,7 +85,7 @@ export default function Footer() {
                     <p className="text-lg font-bold mb-2">
                         (35) 3292–8398 <span className="ml-2">🟢</span>
                     </p>
-                    <p className="mb-6">suporte@contasonline.com.br</p>
+                    <p className="mb-6">suportesaldoverde@gmail.com</p>
 
                     <div className="flex gap-4 flex-wrap justify-center mb-6">
                         <a 
