@@ -1,4 +1,4 @@
-import { create, read, readAll, update, deleteRecord } from "../config/database.js";
+import { create, read, readAll, update } from "../config/database.js";
 
 const criarCategoria = async (dadosCategoria) => {
   try {

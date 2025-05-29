@@ -23,7 +23,7 @@ export default function Loading() {
                     <div className="absolute inset-0 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
                 </div>
                 
-                {/* Texto simples */}
+                
                 <span className="text-emerald-700 font-medium">Carregando...</span>
             </div>
         </div>

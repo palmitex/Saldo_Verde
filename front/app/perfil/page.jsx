@@ -181,31 +181,31 @@ export default function Perfil() {
               <div className="absolute inset-0 bg-white opacity-30 shine-effect"></div>
             </div>
             
-            <div className="p-8">
-              <div className="flex flex-col items-center mb-8">
-                <div className="bg-green-100 p-5 rounded-full mb-6">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="p-4 sm:p-6 md:p-8">
+              <div className="flex flex-col items-center mb-6 sm:mb-8">
+                <div className="bg-green-100 p-3 sm:p-5 rounded-full mb-4 sm:mb-6">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 sm:h-16 sm:w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">Meu Perfil</h1>
-                <p className="text-gray-600">Visualize e edite suas informações pessoais</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">Meu Perfil</h1>
+                <p className="text-sm sm:text-base text-gray-600">Visualize e edite suas informações pessoais</p>
               </div>
               
               {error && (
-                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
                   <p>{error}</p>
                 </div>
               )}
               
               {success && (
-                <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded">
+                <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded">
                   <p>{success}</p>
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">
                       Nome completo
@@ -216,7 +216,7 @@ export default function Perfil() {
                       name="nome"
                       value={perfilData.nome}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder="Seu nome completo"
                     />
                   </div>
@@ -231,7 +231,7 @@ export default function Perfil() {
                       name="email"
                       value={perfilData.email}
                       disabled
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-50 cursor-not-allowed"
+                      className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-gray-300 bg-gray-50 cursor-not-allowed"
                       placeholder="Seu email"
                     />
                     <p className="text-xs text-gray-500 mt-1">O email não pode ser alterado</p>
@@ -247,15 +247,15 @@ export default function Perfil() {
                       name="telefone"
                       value={perfilData.telefone}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                      className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       placeholder="(00) 00000-0000"
                       maxLength={15}
                     />
                   </div>
                   
-                  <div className="pt-4 border-t border-gray-200">
+                  <div className="pt-3 sm:pt-4 border-t border-gray-200">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-800">Alterar senha</h3>
+                      <h3 className="text-base sm:text-lg font-medium text-gray-800">Alterar senha</h3>
                       <button 
                         type="button" 
                         onClick={() => setTrocandoSenha(!trocandoSenha)}
@@ -266,7 +266,7 @@ export default function Perfil() {
                     </div>
                     
                     {trocandoSenha && (
-                      <div className="mt-4 space-y-4">
+                      <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
                         <div>
                           <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-1">
                             Nova senha
@@ -277,7 +277,7 @@ export default function Perfil() {
                             name="senha"
                             value={perfilData.senha}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             placeholder="Mínimo de 6 caracteres"
                           />
                         </div>
@@ -292,7 +292,7 @@ export default function Perfil() {
                             name="confirmarSenha"
                             value={perfilData.confirmarSenha}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                            className="w-full px-3 py-2 sm:px-4 sm:py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-green-500 focus:border-transparent"
                             placeholder="Confirme a nova senha"
                           />
                         </div>
@@ -301,27 +301,27 @@ export default function Perfil() {
                   </div>
                 </div>
                 
-                <div className="flex flex-col-reverse sm:flex sm:flex-row justify-between pt-6">
+                <div className="flex flex-col sm:flex-row justify-between pt-4 sm:pt-6 space-y-3 sm:space-y-0">
                   <button
                     type="button"
                     onClick={handleExcluirConta}
-                    className="px-6 py-3 bg-red-800 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-70"
+                    className="sm:order-1 px-4 py-2 sm:px-6 sm:py-3   bg-red-800 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-70 w-full sm:w-auto"
                     disabled={excluindoConta}
                   >
                     {excluindoConta ? 'Excluindo...' : 'Excluir conta'}
                   </button>
 
-                  <div className="space-x-3">
+                  <div className="order-2 sm:order-2 flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
                     <button
                       type="button"
                       onClick={() => router.back()}
-                      className="px-6 py-3 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
+                      className="px-4 py-2 sm:px-6 sm:py-3 bg-white text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 w-full sm:w-auto"
                     >
                       Cancelar
                     </button>
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-70"
+                      className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg shadow-md hover:shadow-lg disabled:opacity-70 w-full sm:w-auto"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -345,4 +345,4 @@ export default function Perfil() {
       </div>
     </ProtectedRoute>
   );
-} 
+}
