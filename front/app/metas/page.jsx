@@ -30,6 +30,7 @@ function Metas() {
   const [categorias, setCategorias] = useState([]);
   const [metaAtiva, setMetaAtiva] = useState(null);
   const [notificacao, setNotificacao] = useState({ visivel: false, tipo: '', mensagem: '' });
+  const [loading, setLoading] = useState(true); // Adicionar estado de loading
 
   useEffect(() => {
     if (auth?.user) {
@@ -62,6 +63,7 @@ function Metas() {
 
   const buscarMetas = async () => {
     try {
+      setLoading(true); // Ativar loading antes de buscar dados
       if (!auth?.user) {
         console.error('Usuário não autenticado');
         router.push('/login');
@@ -104,6 +106,8 @@ function Metas() {
       setMetas([]);
       // Remover o alerta para evitar mensagens irritantes para o usuário
       console.error(`Erro ao buscar metas: ${error.message || 'Erro desconhecido'}`);
+    } finally {
+      setLoading(false); // Desativar loading após buscar dados
     }
   };
 
@@ -396,8 +400,8 @@ function Metas() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen font-sans max-w-7xl mx-auto ">
-      <div className="container mx-auto px-4 py-10 max-w-7xl">
+    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen py-8">
+      <div className="container mx-auto px-4">
         {/* Componente de Notificação */}
         {notificacao.visivel && (
           <div className={`fixed top-5 right-5 p-4 rounded-lg shadow-lg z-50 flex items-center animate-fadeIn ${
@@ -472,8 +476,22 @@ function Metas() {
           </button>
         </div>
         
-        {/* Resumo das metas - Design aprimorado */}
-        {metas.length > 0 && (
+        {loading ? (
+          <div className="bg-white rounded-2xl shadow-md p-12 text-center border border-gray-200 animate-pulse">
+            <div className="flex justify-center mb-6">
+              <div className="bg-emerald-50 p-5 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-emerald-400 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Carregando suas metas</h3>
+            <p className="text-gray-500 max-w-md mx-auto">Aguarde enquanto buscamos suas metas financeiras...</p>
+          </div>
+        ) : (
+          <>
+            {/* Resumo das metas - Design aprimorado */}
+            {metas.length > 0 && (
           <div className="bg-white rounded-2xl shadow-md p-8 mb-10 border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-xl p-6 border-l-4 border-emerald-600 transition-transform hover:scale-105">
@@ -1005,6 +1023,8 @@ function Metas() {
               );
             })}
           </div>
+        )}
+          </>
         )}
       </div>
     </div>
