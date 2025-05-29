@@ -62,7 +62,7 @@ export default function ArtigoPage(promiseParams) {
       </section>
 
       <section className='max-w-5xl mx-auto mt-20 mb-20'>
-        <div className=''>
+        <div className='  '>
           <p className='text-lg mb-10'>{artigo.paragrafo1}</p>
           
           <h1 className='text-2xl mb-4 font-bold'>{artigo.titulo1}</h1>

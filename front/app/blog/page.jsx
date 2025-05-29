@@ -32,11 +32,11 @@ export default function Blog() {
             <section className="py-10 px-4 sm:px-8 lg:px-16 max-w-7xl mx-auto px-1">
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-3xl font-bold">Últimos artigos</h2>
-                    <a href="#" className="text-sm text-yellow-600 hover:underline font-medium"> Ver Todos →</a>
+                    <Link href="/blog/Articles" className="text-sm text-yellow-600 hover:underline font-medium"> Ver Todos →</Link>
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto px-1">
-                    {artigos.map((artigo) => {
+                    {artigos.filter((artigo) => artigo.pagina === 'Página 1').map((artigo,) => {
                         return (
 
                             <Link href={`/blog/${artigo.id}`} key={artigo.id} className="w-88 bg-white rounded-xl rounded-b-lg overflow-hidden hover: transition flex flex-col group" >
@@ -54,8 +54,9 @@ export default function Blog() {
                                 </div>
                             </Link>
                         )
-
                     })}
+
+                    
                 </div>
             </section>
         </main >
