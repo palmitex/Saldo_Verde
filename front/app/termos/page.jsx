@@ -1,41 +1,45 @@
-import termos from '../../data/termos.js'
+import termos from '../../data/termos.js';
 
 export default function Termos() {
-
     return (
         <>
-            <main className="max-w-7xl mx-auto m-40 flex flex-col sm:flex-row gap-10">
-                <div className="ml-2 sm:flex hidden flex-col text-sm gap-4 h-min border border-transparent shadow-inner rounded-xl p-6 bg-gray-300">
-                    <h1 className="text-lg font-bold">Navegue pelos termos</h1>
+            <main className="flex flex-col items-center mt-20">
+                <h1 className="ml-5 text-4xl md:text-5xl font-extrabold text-gray-900">Confira nossos Termos e Política de Privacidade</h1>
+                <div className="max-w-7xl mx-auto py-20 px-6 flex flex-col sm:flex-row gap-12 scroll-smooth">
 
-                    <a href="#1" className="text-green-700 font-bold">1. Coleta de Dados Pessoais</a>
-                    <a href="#2" className="text-green-700 font-bold">2. Uso das Informações</a>
-                    <a href="#3" className="text-green-700 font-bold">3. Compartilhamento com Terceiros</a>
-                    <a href="#4" className="text-green-700 font-bold">4. Dados de Navegação</a>
-                    <a href="#5" className="text-green-700 font-bold">5. Segurança das Informações</a>
-                    <a href="#6" className="text-green-700 font-bold">6. Direitos do Usuário</a>
-                    <a href="#7" className="text-green-700 font-bold">7. Consentimento</a>
-                    <a href="#8" className="text-green-700 font-bold">8. Retenção de Dados</a>
-                    <a href="#9" className="text-green-700 font-bold">9. Atualizações da Política</a>
-                    <a href="#10" className="text-green-700 font-bold">10. Canal de Contato</a>
+                    {/* Navegação lateral */}
+                    <aside className="hidden sm:flex flex-col w-72 text-sm gap-4 sticky top-30 self-start border border-gray-300 shadow-md rounded-2xl p-6 bg-white bg-gradient-to-b from-gray-200 to-gray-300">
+                        <h2 className="text-lg font-bold text-gray-800 mb-2">Navegue pelos termos</h2>
+                        {termos.map((termo) => (
+                            <a
+                                key={termo.id}
+                                href={`#${termo.id}`}
+                                className="text-green-700 hover:text-green-900 font-semibold transition-colors"
+                            >
+                                {termo.id}. {termo.titulo}
+                            </a>
+                        ))}
+                    </aside>
 
-                </div>
-
-                <section className="flex flex-col gap-20 sm:max-w-200 max-w-800 mr-10 ml-10">
-                    {termos.map((termo) => {
-                        return (
-                            <div
+                    {/* Conteúdo dos termos */}
+                    <section className="flex flex-col gap-20 w-full">
+                        {termos.map((termo) => (
+                            <article
                                 key={termo.id}
                                 id={termo.id}
-                                className="flex flex-col gap-4 scroll-mt-30"
+                                className="flex flex-col gap-6 scroll-mt-24 bg-gradient-to-r from-gray-200 to-gray-300 p-8 rounded-2xl shadow-lg hover:bg-gradient-to-l hover:shadow-xl border border-gray-300"
                             >
-                                <h1 className="text-3xl font-bold text-yellow-300">{termo.id}. {termo.titulo}</h1>
-                                <hr className="opacity-20" />
-                                <p className="text-lg">{termo.texto}</p>
-                            </div>
-                        );
-                    })}
-                </section>
+                                <header>
+                                    <h3 className="text-2xl sm:text-3xl font-bold text-yellow-300">
+                                        {termo.id}. {termo.titulo}
+                                    </h3>
+                                    <hr className="mt-2 border-gray-300" />
+                                </header>
+                                <p className="text-gray-700 text-lg">{termo.texto}</p>
+                            </article>
+                        ))}
+                    </section>
+                </div>
             </main>
         </>
     );

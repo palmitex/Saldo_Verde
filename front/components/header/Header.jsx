@@ -183,9 +183,6 @@ export default function Header() {
                         </div>
                     )}
                     <Link href="/blog" onClick={handleLinkClick}>Blog</Link>
-                    <Link href="/sobrenos" onClick={handleLinkClick}>Sobre Nós</Link>
-                    <Link href="/faq" onClick={handleLinkClick}>FAQ</Link>
-                    <Link href="/contato" onClick={handleLinkClick}>Contato</Link>
                     
                     {/* Componente de autenticação dentro do menu responsivo */}
                     <div className="auth-mobile-container">
