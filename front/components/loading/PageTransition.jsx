@@ -10,7 +10,6 @@ export default function PageTransition({ children }) {
 
 
   const financeRoutes = [
-    '/financias',
     '/transacoes',
     '/metas',
     '/analise',
@@ -22,15 +21,21 @@ export default function PageTransition({ children }) {
     return financeRoutes.some(route => pathname.startsWith(route));
   };
 
+  // Verifica se é uma página específica de blog
+  const isBlogPostPage = () => {
+    // Verifica se o caminho começa com /blog/ seguido por algo (um ID)
+    return pathname.match(/^\/blog\/[^/]+$/);
+  };
+
   useEffect(() => {
-    // Se o caminho mudou e não é uma rota de finanças, mostrar o loading
-    if (prevPathname !== pathname && prevPathname !== '' && !isFinanceRoute()) {
+    // Se o caminho mudou e não é uma rota de finanças e não é uma página específica de blog, mostrar o loading
+    if (prevPathname !== pathname && prevPathname !== '' && !isFinanceRoute() && !isBlogPostPage()) {
       setIsLoading(true);
       
       // Simular um tempo de carregamento (pode ser ajustado)
       const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 1500); // 1.5 segundos de loading
+      }, 2500); // 2.5 segundos de loading
       
       return () => clearTimeout(timer);
     }
