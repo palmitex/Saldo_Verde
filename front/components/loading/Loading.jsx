@@ -22,7 +22,7 @@ export default function Loading() {
   const [progress, setProgress] = useState(0);
   const [showCoins, setShowCoins] = useState(false);
   const [windowDimensions, setWindowDimensions] = useState(getWindowDimensions());
-
+  
   useEffect(() => {
     // Simula o progresso de carregamento
     const timer = setInterval(() => {

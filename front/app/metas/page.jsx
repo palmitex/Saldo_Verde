@@ -703,7 +703,7 @@ function Metas() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" style={{ gridAutoRows: "min-content" }}>
             {metas.map((meta, index) => {
               const progresso = calcularProgresso(meta);
               const dataAtual = new Date();
@@ -760,7 +760,8 @@ function Metas() {
               }
               
               return (
-                <div key={meta.id} className={`bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 transform hover:-translate-y-2 ${statusBg} bg-opacity-5 animate-fadeIn`} style={{animationDelay: `${index * 0.1}s`}}>
+                <div key={meta.id} className="relative" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+                  <div className={`bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 transform hover:-translate-y-2 ${statusBg} bg-opacity-5 animate-fadeIn`} style={{animationDelay: `${index * 0.1}s`}}>
                   <div className="p-6">
                     <div className="flex justify-between items-start mb-5">
                       <h3 className="text-xl font-semibold text-gray-800 line-clamp-2">{meta.nome}</h3>
@@ -1018,6 +1019,7 @@ function Metas() {
                         </div>
                       </div>
                     )}
+                    </div>
                   </div>
                 </div>
               );
