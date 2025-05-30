@@ -20,11 +20,6 @@ const footer = {
         ],
     },
 
-    contato: [
-        { id: 1, emoji: '🎯', titulo: 'Central de ajuda', link: '/faq' },
-        { id: 2, emoji: '🎧', titulo: 'Falar conosco', link: 'contato' },
-    ],
-
     redes: [
         { id: 1, titulo: 'Facebook', link: 'https://facebook.com', target: '_blank', rel: 'noopener noreferrer' },
         { id: 2, titulo: 'Instagram', link: 'https://instagram.com', target: '_blank', rel: 'noopener noreferrer' },
