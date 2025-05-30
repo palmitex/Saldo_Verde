@@ -2,7 +2,7 @@ const footer = {
     navegacao: {
         navs: [
             { id: 1, titulo: 'Home', link: '/' },
-            { id: 2, titulo: 'Categorias', link: '/categorias' },
+            { id: 2, titulo: 'Contato', link: '/contato' },
             { id: 3, titulo: 'Blog', link: '/blog' },
         ],
 

@@ -53,12 +53,20 @@ export default function Footer() {
                             ))}
                         </ul>
                     </div>
-
-                    <div className="flex flex-col space-y-4">
-                        <h3 className="text-2xl font-bold text-yellow-300">Saldo Verde</h3>
-                        <p className="text-gray-200 text-sm w-60">
-                            Sua plataforma de controle financeiro que ajuda você a economizar e alcançar seus objetivos. Com o sistema, você organiza despesas e receitas, além de ter uma análise completa de gastos
-                        </p>
+                    <div>
+                    <h4 className="text-2xl font-bold mb-4 text-yellow-300">Transparência</h4>
+                        <ul className="space-y-2">
+                            {footer.navegacao.trans.map((tra) => (
+                                <li key={tra.id}>
+                                    <Link 
+                                        href={tra.link}
+                                        className="text-gray-200 hover:text-yellow-300 transition-colors duration-300"
+                                    >
+                                        {tra.titulo}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                     <div>
                     <div>
