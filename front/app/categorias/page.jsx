@@ -343,7 +343,7 @@ function Categorias() {
             <div className="absolute inset-0 bg-gradient-to-br from-black/40 via-black/30 to-black/50 backdrop-blur-sm transition-opacity"
                  onClick={fecharDrawer}></div>
             
-            <div className="absolute inset-y-0 right-0 sm:max-w-md w-full bg-white shadow-xl transform transition-all duration-300">
+            <div className="absolute inset-y-0 ml-185 sm:max-w-md w-full bg-white shadow-xl transform transition-all duration-300">
               <div className="h-full flex flex-col overflow-y-auto py-6 px-6">
                 <div className="flex items-center justify-between border-b border-green-100 pb-4 mb-6">
                   <h2 className="text-2xl font-bold text-gray-800 flex items-center">
