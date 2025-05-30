@@ -2,7 +2,8 @@ import { Inter } from 'next/font/google';
 
 import { AuthProvider } from '../context/AuthContext';
 import Header from '../components/header/Header';
-import Footer from "../components/footer/Footer"
+import Footer from "../components/footer/Footer";
+import PageTransition from '../components/loading/PageTransition';
 
 import "./globals.css";
 
@@ -29,7 +30,9 @@ export default function RootLayout({ children }) {
       <body className={`${inter.variable} font-sans antialiased`}>
         <AuthProvider>
           <Header />
-          <main>{children}</main>
+          <PageTransition>
+            <main>{children}</main>
+          </PageTransition>
           <Footer />
         </AuthProvider>
       </body>

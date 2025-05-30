@@ -1,0 +1,203 @@
+/* Estilos para o componente de loading */
+.loading-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.loading-content {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  width: 80%;
+  max-width: 400px;
+  transition: all 0.3s ease;
+  animation: float 3s infinite ease-in-out;
+}
+
+.loading-logo {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.loading-title {
+  color: #1a8d5f;
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #1a8d5f, #3dd598);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(61, 213, 152, 0.5);
+}
+
+.progress-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60px;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0));
+  z-index: 2;
+}
+
+.loading-text {
+  color: #555;
+  font-size: 0.9rem;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.loading-dots {
+  margin: 0 4px;
+  display: inline-block;
+}
+
+/* Animação de pulso para o logo */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Partículas de fundo */
+.background-particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background-color: rgba(26, 141, 95, 0.2);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(1px);
+}
+
+/* Moedas animadas */
+.coins-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 1.5rem;
+}
+
+.coin {
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #3dd598 0%, #1a8d5f 100%);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(26, 141, 95, 0.3);
+  position: relative;
+  animation: spin 4s infinite linear;
+}
+
+.coin::before {
+  content: '$';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+  .loading-content {
+    padding: 1.5rem;
+    width: 90%;
+  }
+  
+  .loading-logo {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .loading-title {
+    font-size: 1.5rem;
+  }
+}
+
+.loading-logo {
+  animation: pulse 2s infinite ease-in-out;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+}
+
+/* Animação de flutuação para o container */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Animação de rotação para as moedas */
+@keyframes spin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Animação para as partículas */
+@keyframes fadeInOut {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
+}
