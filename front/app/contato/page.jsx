@@ -257,7 +257,7 @@ export default function Contato() {
                     className="border-0 rounded-xl mb-20"
                     allowFullScreen=""
                     loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"
+                    referrerPolicy="no-referrer-when-downgrade"
                 ></iframe>
             </section>
 
