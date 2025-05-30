@@ -137,7 +137,7 @@ export default function Home() {
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-                  <Image src="https://randomuser.me/api/portraits/women/44.jpg" alt="Ana Silva" width={48} height={48} />
+                  <Image src="/user1.jpg" alt="Ana Silva" width={48} height={48} />
                 </div>
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-800">Ana Silva</h4>
@@ -151,7 +151,7 @@ export default function Home() {
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-                  <Image src="https://randomuser.me/api/portraits/men/32.jpg" alt="Carlos Mendes" width={48} height={48} />
+                  <Image src="/user2.jpg" alt="Carlos Mendes" width={48} height={48} />
                 </div>
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-800">Carlos Mendes</h4>
@@ -165,7 +165,7 @@ export default function Home() {
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
-                  <Image src="https://randomuser.me/api/portraits/women/68.jpg" alt="Juliana Costa" width={48} height={48} />
+                  <Image src="/user3.jpg" alt="Juliana Costa" width={48} height={48} />
                 </div>
                 <div className="text-left">
                   <h4 className="font-semibold text-gray-800">Juliana Costa</h4>
