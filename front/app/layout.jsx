@@ -4,8 +4,14 @@ import { AuthProvider } from '../context/AuthContext';
 import Header from '../components/header/Header';
 import Footer from "../components/footer/Footer";
 import PageTransition from '../components/loading/PageTransition';
+import { Roboto_Serif } from 'next/font/google';
 
 import "./globals.css";
+
+const robotoSerif = Roboto_Serif({
+  weight: ['400', '700'],
+  subsets: ['latin'],
+});
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,10 +30,10 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" className={robotoSerif.className} suppressHydrationWarning>
       <head>
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={` antialiased`}>
         <AuthProvider>
           <Header />
           <PageTransition>
