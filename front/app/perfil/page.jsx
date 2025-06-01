@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import CustomAlert from '../../components/CustomAlert';
 import Image from 'next/image';
 import './profile.css';
 
@@ -11,8 +12,6 @@ export default function Perfil() {
   const auth = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
   const [perfilData, setPerfilData] = useState({
     nome: '',
     email: '',
@@ -22,6 +21,16 @@ export default function Perfil() {
   });
   const [trocandoSenha, setTrocandoSenha] = useState(false);
   const [excluindoConta, setExcluindoConta] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: () => {},
+    showConfirmButton: true,
+    confirmText: 'Sim',
+    cancelText: 'Não'
+  });
 
   useEffect(() => {
     if (auth?.user) {
@@ -74,8 +83,6 @@ export default function Perfil() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null);
-    setSuccess(null);
 
     try {
       // Validações básicas
@@ -128,7 +135,19 @@ export default function Perfil() {
         auth.updateUserData(userData);
       }
 
-      setSuccess('Perfil atualizado com sucesso!');
+      setAlertConfig({
+        isOpen: true,
+        title: 'Sucesso!',
+        message: 'Seu perfil foi atualizado com sucesso.',
+        type: 'success',
+        showConfirmButton: true,
+        confirmText: 'OK',
+        onConfirm: () => {
+          router.push('/');
+        },
+        cancelText: null
+      });
+
       setTrocandoSenha(false);
       setPerfilData({
         ...perfilData,
@@ -137,46 +156,69 @@ export default function Perfil() {
       });
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
-      setError(error.message || 'Erro ao atualizar o perfil. Tente novamente mais tarde.');
+      setAlertConfig({
+        isOpen: true,
+        title: 'Erro',
+        message: error.message || 'Erro ao atualizar o perfil. Tente novamente mais tarde.',
+        type: 'error',
+        showConfirmButton: false,
+        confirmText: 'OK'
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleExcluirConta = async () => {
-    if (!confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.')) {
-      return;
-    }
-    
-    setExcluindoConta(true);
-    setError(null);
+    setAlertConfig({
+      isOpen: true,
+      title: 'Excluir Conta',
+      message: 'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.',
+      type: 'warning',
+      onConfirm: async () => {
+        setExcluindoConta(true);
 
-    try {
-      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/conta`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
+        try {
+          const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/perfil`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.message || 'Erro ao excluir a conta');
+          }
+
+          // Faz logout após exclusão bem-sucedida
+          auth.logout();
+          router.push('/');
+        } catch (error) {
+          console.error('Erro ao excluir conta:', error);
+          setExcluindoConta(false);
         }
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.message || 'Erro ao excluir a conta');
-      }
-
-      // Faz logout após exclusão bem-sucedida
-      auth.logout();
-      router.push('/');
-    } catch (error) {
-      console.error('Erro ao excluir conta:', error);
-      setError(error.message || 'Erro ao excluir a conta. Tente novamente mais tarde.');
-      setExcluindoConta(false);
-    }
+      },
+      showConfirmButton: true,
+      confirmText: 'Sim, excluir conta',
+      cancelText: 'Não, manter conta'
+    });
   };
 
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+        <CustomAlert
+          isOpen={alertConfig.isOpen}
+          onClose={() => setAlertConfig(prev => ({ ...prev, isOpen: false }))}
+          onConfirm={alertConfig.onConfirm}
+          title={alertConfig.title}
+          message={alertConfig.message}
+          type={alertConfig.type}
+          showConfirmButton={alertConfig.showConfirmButton}
+          confirmText={alertConfig.confirmText}
+          cancelText={alertConfig.cancelText}
+        />
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 backdrop-blur-sm bg-white/90 profile-card">
             {/* Header with decorative wave */}
@@ -201,24 +243,6 @@ export default function Perfil() {
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2 sm:mb-3">Meu Perfil</h1>
                 <p className="text-sm sm:text-base text-gray-600 max-w-md text-center">Visualize e edite suas informações pessoais</p>
               </div>
-              
-              {error && (
-                <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0 text-red-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                  <p>{error}</p>
-                </div>
-              )}
-              
-              {success && (
-                <div className="mb-6 p-4 bg-[#f0f7f0] border border-[#3A7D44]/30 text-[#3A7D44] rounded-lg flex items-start">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0 text-[#3A7D44]" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <p>{success}</p>
-                </div>
-              )}
 
               <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
                 <div className="space-y-5 sm:space-y-6 bg-white/50 p-5 sm:p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-white/80 transition-all duration-300">

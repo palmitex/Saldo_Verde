@@ -124,6 +124,7 @@ function Categorias() {
   };
 
   const selecionarCor = (cor) => {
+    console.log('Cor selecionada:', cor); // Para debug
     setFormData(prev => ({
       ...prev,
       cor: cor
@@ -166,18 +167,18 @@ function Categorias() {
     }
   };
 
-  // Cores para os cards de categoria - foco em tons de verde
+  // Cores para os cards de categoria - tons de verde
   const coresCategorias = [
-    'from-green-600 to-green-400',
-    'from-emerald-600 to-emerald-400',
-    'from-teal-600 to-teal-400',
-    'from-lime-600 to-lime-400',
-    'from-green-700 to-green-500',
-    'from-emerald-700 to-emerald-500',
-    'from-teal-700 to-teal-500',
-    'from-lime-700 to-lime-500',
-    'from-green-800 to-green-600',
-    'from-emerald-800 to-emerald-600',
+    { cor: '#4CAF50', classe: 'from-green-600 to-green-400' },    // Verde médio
+    { cor: '#2E7D32', classe: 'from-green-700 to-green-500' },    // Verde escuro
+    { cor: '#1B5E20', classe: 'from-green-800 to-green-600' },    // Verde muito escuro
+    { cor: '#66BB6A', classe: 'from-green-500 to-green-300' },    // Verde claro
+    { cor: '#388E3C', classe: 'from-green-600 to-green-400' },    // Verde médio escuro
+    { cor: '#81C784', classe: 'from-green-400 to-green-300' },    // Verde claro médio
+    { cor: '#A5D6A7', classe: 'from-green-300 to-green-200' },    // Verde muito claro
+    { cor: '#43A047', classe: 'from-green-600 to-green-400' },    // Verde médio alternativo
+    { cor: '#558B2F', classe: 'from-green-700 to-green-500' },    // Verde oliva escuro
+    { cor: '#33691E', classe: 'from-green-900 to-green-700' }     // Verde musgo
   ];
   
   // Ícones para categorias
@@ -241,8 +242,7 @@ function Categorias() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {categorias.map((categoria, index) => {
               const corIndex = index % coresCategorias.length;
-              const corClasse = coresCategorias[corIndex];
-              // Use o icone_index armazenado ou o índice como fallback
+              const corConfig = coresCategorias.find(c => c.cor === categoria.cor) || coresCategorias[corIndex];
               const iconIndex = categoria.icone_index !== undefined ? categoria.icone_index : (index % icons.length);
               const isHovered = hoveredId === categoria.id;
               const isAnimated = animatedId === categoria.id;
@@ -256,13 +256,13 @@ function Categorias() {
                   onMouseEnter={() => setHoveredId(categoria.id)}
                   onMouseLeave={() => setHoveredId(null)}
                 >
-                  <div className={`h-2 w-full bg-gradient-to-r ${corClasse} relative overflow-hidden`}>
+                  <div className={`h-2 w-full bg-gradient-to-r ${corConfig.classe} relative overflow-hidden`}>
                     <div className="absolute inset-0 bg-white opacity-30 shine-effect"></div>
                   </div>
                   <div className="p-6">
                     <div className="flex justify-between items-center mb-3">
                       <div className="flex items-center">
-                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${corClasse} flex items-center justify-center text-white mr-3 shadow-md`}>
+                        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${corConfig.classe} flex items-center justify-center text-white mr-3 shadow-md`}>
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={icons[iconIndex]} />
                           </svg>
@@ -397,8 +397,7 @@ function Categorias() {
                         className="h-10 w-10 rounded cursor-pointer"
                       />
                       <div className="ml-4 flex-1 grid grid-cols-5 gap-2">
-                        {['#4CAF50', '#2E7D32', '#81C784', '#388E3C', '#1B5E20',
-                          '#8BC34A', '#43A047', '#66BB6A', '#558B2F', '#33691E'].map(cor => (
+                        {coresCategorias.map(({ cor }) => (
                           <div 
                             key={cor}
                             onClick={() => selecionarCor(cor)}

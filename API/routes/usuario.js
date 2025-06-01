@@ -12,6 +12,6 @@ router.get('/pergunta-secreta', obterPerguntaSecretaController);
 // Rotas protegidas (requerem autenticação)
 router.get('/perfil',  obterPerfilController);
 router.put('/perfil',  atualizarPerfilController);
-router.delete('/conta', excluirContaController);
+router.delete('/perfil', excluirContaController);
 
 export default router; 

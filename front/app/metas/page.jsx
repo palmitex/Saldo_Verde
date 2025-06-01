@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import ProtectedRoute from '../../components/ProtectedRoute';
+import CustomAlert from '../../components/CustomAlert';
 
 export default function MetasPage() {
   return (
@@ -29,9 +30,18 @@ function Metas() {
   const [transacoesPorMeta, setTransacoesPorMeta] = useState({});
   const [categorias, setCategorias] = useState([]);
   const [metaAtiva, setMetaAtiva] = useState(null);
-  const [notificacao, setNotificacao] = useState({ visivel: false, tipo: '', mensagem: '' });
-  const [loading, setLoading] = useState(true); // Adicionar estado de loading
-
+  const [loading, setLoading] = useState(true);
+  const [alertConfig, setAlertConfig] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    showConfirmButton: true,
+    confirmText: 'OK',
+    cancelText: null
+  });
+  const [submitting, setSubmitting] = useState(false);
+  
   useEffect(() => {
     if (auth?.user) {
       buscarMetas();
@@ -122,103 +132,88 @@ function Metas() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    if (submitting) return;
+
     try {
+      setSubmitting(true);
+
       if (!auth?.user) {
         console.error('Usuário não autenticado');
         router.push('/login');
         return;
       }
 
-      // Validar campos obrigatórios
+      // Validações básicas
       if (!formData.nome || !formData.valor_objetivo || !formData.valor_inicial || !formData.prazo) {
-        alert('Por favor, preencha todos os campos obrigatórios: Nome, Valor Objetivo, Valor Inicial e Prazo');
+        setAlertConfig({
+          isOpen: true,
+          title: 'Campos Obrigatórios',
+          message: 'Por favor, preencha todos os campos obrigatórios',
+          type: 'error',
+          showConfirmButton: true,
+          confirmText: 'OK',
+          cancelText: null
+        });
+        setSubmitting(false);
         return;
       }
 
-      // Validar valor objetivo
       const valorObjetivo = parseFloat(formData.valor_objetivo);
-      if (isNaN(valorObjetivo) || valorObjetivo <= 0) {
-        alert('O valor objetivo deve ser um número positivo');
-        return;
-      }
-
-      // Validar valor inicial
       const valorInicial = parseFloat(formData.valor_inicial);
-      if (isNaN(valorInicial) || valorInicial < 0) {
-        alert('O valor inicial deve ser um número não negativo');
-        return;
-      }
-
-      // Validar prazo
       const dataPrazo = new Date(formData.prazo);
       const hoje = new Date();
-      if (dataPrazo < hoje) {
-        alert('O prazo deve ser uma data futura');
+
+      if (isNaN(valorObjetivo) || valorObjetivo <= 0 || isNaN(valorInicial) || valorInicial < 0 || dataPrazo < hoje) {
+        setAlertConfig({
+          isOpen: true,
+          title: 'Valores Inválidos',
+          message: 'Por favor, verifique os valores informados',
+          type: 'error',
+          showConfirmButton: true,
+          confirmText: 'OK',
+          cancelText: null
+        });
+        setSubmitting(false);
         return;
       }
 
-      // Logs para debug de autenticação
-      console.log('Auth user:', auth.user);
-      console.log('Auth user ID:', auth.user.id);
-      
-      // Garantir que o ID do usuário seja um número
-      const userId = parseInt(auth.user.id);
-      
-      // Prepare os dados da meta de acordo com o esperado pela API
+      // Preparar dados da meta
       const metaData = {
         ...formData,
-        usuario_id: userId,
         valor_objetivo: valorObjetivo,
         valor_inicial: valorInicial,
-        nome: formData.nome.trim()
+        nome: formData.nome.trim(),
+        usuario_id: parseInt(auth.user.id)
       };
-      
-      console.log('Dados da meta a ser enviada:', metaData);
-      
+
       let response;
       
       if (editando) {
-        try {
-          // Verificar se a meta pertence ao usuário atual
-          const metaAtual = metas.find(m => m.id === editando);
-          if (!metaAtual) {
-            alert('Meta não encontrada.');
-            return;
-          }
-          
-          // Verificar se o usuário atual é o dono da meta
-          const metaUserId = String(metaAtual.usuario_id);
-          const currentUserId = String(auth.user.id);
-          
-          console.log('ID do usuário da meta:', metaUserId, 'tipo:', typeof metaUserId);
-          console.log('ID do usuário atual:', currentUserId, 'tipo:', typeof currentUserId);
-          
-          if (metaUserId !== currentUserId) {
-            alert('Você não tem permissão para atualizar esta meta. Você só pode atualizar suas próprias metas.');
-            return;
-          }
-          
-          // Garantir que estamos usando o ID do usuário original da meta
-          const updateData = {
-            ...metaData,
-            usuario_id: metaAtual.usuario_id // Mantenha o ID original do criador da meta
-          };
-          
-          // Endpoint com parâmetro userId explícito
-          const url = `${process.env.NEXT_PUBLIC_API_URL}/metas/${editando}?userId=${auth.user.id}`;
-          
-          response = await auth.authFetch(url, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updateData),
+        const metaAtual = metas.find(m => m.id === editando);
+        if (!metaAtual || String(metaAtual.usuario_id) !== String(auth.user.id)) {
+          setAlertConfig({
+            isOpen: true,
+            title: 'Erro',
+            message: 'Você não tem permissão para editar esta meta',
+            type: 'error',
+            showConfirmButton: true,
+            confirmText: 'OK',
+            cancelText: null
           });
-        } catch (error) {
-          console.error('Erro ao verificar permissões ou atualizar meta:', error);
-          alert('Erro ao atualizar meta: ' + error.message);
+          setSubmitting(false);
           return;
         }
+
+        response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas/${editando}?userId=${auth.user.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...metaData,
+            usuario_id: metaAtual.usuario_id
+          }),
+        });
       } else {
         response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas`, {
           method: 'POST',
@@ -229,35 +224,57 @@ function Metas() {
         });
       }
       
-      console.log('Resposta da API:', response);
-      
       if (response.ok) {
-        const responseData = await response.json();
-        console.log('Dados da resposta:', responseData);
-        
+        await buscarMetas();
         setFormData({
           nome: '',
           valor_objetivo: '',
           valor_inicial: '',
           prazo: new Date().toISOString().split('T')[0],
+          categoria_id: '',
           usuario_id: auth.user.id
         });
         setEditando(null);
         setMostrarForm(false);
         
-        // Mostrar notificação de sucesso
-        mostrarNotificacao('sucesso', editando ? 'Meta atualizada com sucesso!' : 'Meta criada com sucesso!');
-        
-        // Buscar metas atualizadas
-        await buscarMetas();
+        setAlertConfig({
+          isOpen: true,
+          title: 'Sucesso!',
+          message: editando ? 'Meta atualizada com sucesso!' : 'Meta criada com sucesso!',
+          type: 'success',
+          showConfirmButton: true,
+          confirmText: 'OK',
+          onConfirm: async () => {
+            await buscarMetas();
+            setAlertConfig(prev => ({ ...prev, isOpen: false }));
+          },
+          cancelText: null
+        });
       } else {
         const errorData = await response.json().catch(() => ({}));
-        console.error(`Erro ao salvar meta: ${response.status} ${response.statusText}`, errorData);
-        mostrarNotificacao('erro', errorData.message || 'Erro ao salvar meta. Por favor, tente novamente.');
+        setAlertConfig({
+          isOpen: true,
+          title: 'Erro',
+          message: errorData.message || 'Erro ao salvar meta',
+          type: 'error',
+          showConfirmButton: true,
+          confirmText: 'OK',
+          cancelText: null
+        });
       }
     } catch (error) {
       console.error('Erro ao salvar meta:', error);
-      alert('Erro ao salvar meta. Por favor, tente novamente.');
+      setAlertConfig({
+        isOpen: true,
+        title: 'Erro',
+        message: 'Erro ao salvar meta',
+        type: 'error',
+        showConfirmButton: true,
+        confirmText: 'OK',
+        cancelText: null
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -276,42 +293,82 @@ function Metas() {
   };
 
   const handleExcluir = async (id) => {
-    if (confirm('Tem certeza que deseja excluir esta meta?')) {
-      try {
-        if (!auth?.user) {
-          console.error('Usuário não autenticado');
-          router.push('/login');
-          return;
-        }
-        
-        const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas/${id}`, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-        
-        if (response.ok) {
-          buscarMetas();
-          mostrarNotificacao('sucesso', 'Meta excluída com sucesso!');
-        } else {
-          // Tratar o erro de forma mais robusta
-          let mensagemErro = 'Erro ao excluir meta';
-          try {
-            const errorData = await response.json();
-            mensagemErro = errorData.message || 'Erro ao excluir meta';
-          } catch (e) {
-            console.error('Erro ao processar resposta:', e);
+    setAlertConfig({
+      isOpen: true,
+      title: 'Confirmar Exclusão',
+      message: 'Tem certeza que deseja excluir esta meta?',
+      type: 'warning',
+      showConfirmButton: true,
+      confirmText: 'Sim, excluir',
+      cancelText: 'Não',
+      onConfirm: async () => {
+        try {
+          if (!auth?.user) {
+            console.error('Usuário não autenticado');
+            router.push('/login');
+            return;
           }
           
-          console.error(`Erro ao excluir meta: ${response.status} ${response.statusText}`);
-          mostrarNotificacao('erro', mensagemErro);
+          const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            await buscarMetas();
+            setAlertConfig({
+              isOpen: true,
+              title: 'Sucesso!',
+              message: 'Meta excluída com sucesso!',
+              type: 'success',
+              showConfirmButton: true,
+              confirmText: 'OK',
+              onConfirm: () => {
+                setAlertConfig(prev => ({ ...prev, isOpen: false }));
+              },
+              cancelText: null
+            });
+          } else {
+            let mensagemErro = 'Erro ao excluir meta';
+            try {
+              const errorData = await response.json();
+              mensagemErro = errorData.message || 'Erro ao excluir meta';
+            } catch (e) {
+              console.error('Erro ao processar resposta:', e);
+            }
+            
+            setAlertConfig({
+              isOpen: true,
+              title: 'Erro',
+              message: mensagemErro,
+              type: 'error',
+              showConfirmButton: true,
+              confirmText: 'OK',
+              onConfirm: () => {
+                setAlertConfig(prev => ({ ...prev, isOpen: false }));
+              },
+              cancelText: null
+            });
+          }
+        } catch (error) {
+          console.error('Erro ao excluir meta:', error);
+          setAlertConfig({
+            isOpen: true,
+            title: 'Erro',
+            message: error.message || 'Erro ao excluir meta',
+            type: 'error',
+            showConfirmButton: true,
+            confirmText: 'OK',
+            onConfirm: () => {
+              setAlertConfig(prev => ({ ...prev, isOpen: false }));
+            },
+            cancelText: null
+          });
         }
-      } catch (error) {
-        console.error('Erro ao excluir meta:', error);
-        alert('Erro ao excluir meta: ' + (error.message || 'Erro desconhecido'));
       }
-    }
+    });
   };
 
   const formatarMoeda = (valor) => {
@@ -339,34 +396,60 @@ function Metas() {
         return;
       }
       
-      // Mostra notificação de carregamento
-      mostrarNotificacao('sucesso', 'Buscando transações da meta...');
+      setAlertConfig({
+        isOpen: true,
+        title: 'Carregando',
+        message: 'Buscando transações da meta...',
+        type: 'info',
+        showConfirmButton: false,
+        confirmText: null,
+        cancelText: null
+      });
       
       const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/transacoes?meta_id=${metaId}&userId=${auth.user.id}`);
       
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && data.data && Array.isArray(data.data.transacoes)) {
-          // Filtrar para garantir que apenas transações desta meta sejam incluídas
           const transacoesFiltradas = data.data.transacoes.filter(
             transacao => transacao.meta_id === metaId || parseInt(transacao.meta_id) === parseInt(metaId)
           );
           
-          // Atualizar o estado com as transações filtradas desta meta
           setTransacoesPorMeta(prev => ({
             ...prev,
             [metaId]: transacoesFiltradas
           }));
           
-          // Mostrar mensagem de sucesso com o número de transações encontradas
-          mostrarNotificacao('sucesso', `${transacoesFiltradas.length} transações encontradas`);
+          setAlertConfig({
+            isOpen: true,
+            title: 'Sucesso',
+            message: `${transacoesFiltradas.length} transações encontradas`,
+            type: 'success',
+            showConfirmButton: true,
+            confirmText: 'OK',
+            onConfirm: () => {
+              setAlertConfig(prev => ({ ...prev, isOpen: false }));
+            },
+            cancelText: null
+          });
         } else {
           console.error('Formato de resposta inválido:', data);
           setTransacoesPorMeta(prev => ({
             ...prev,
             [metaId]: []
           }));
-          mostrarNotificacao('erro', 'Não foi possível obter as transações');
+          setAlertConfig({
+            isOpen: true,
+            title: 'Erro',
+            message: 'Não foi possível obter as transações',
+            type: 'error',
+            showConfirmButton: true,
+            confirmText: 'OK',
+            onConfirm: () => {
+              setAlertConfig(prev => ({ ...prev, isOpen: false }));
+            },
+            cancelText: null
+          });
         }
       } else {
         const errorData = await response.json().catch(() => ({}));
@@ -375,7 +458,18 @@ function Metas() {
           ...prev,
           [metaId]: []
         }));
-        mostrarNotificacao('erro', 'Erro ao buscar transações');
+        setAlertConfig({
+          isOpen: true,
+          title: 'Erro',
+          message: 'Erro ao buscar transações',
+          type: 'error',
+          showConfirmButton: true,
+          confirmText: 'OK',
+          onConfirm: () => {
+            setAlertConfig(prev => ({ ...prev, isOpen: false }));
+          },
+          cancelText: null
+        });
       }
     } catch (error) {
       console.error('Erro ao buscar transações da meta:', error);
@@ -384,50 +478,39 @@ function Metas() {
           ...prev,
           [metaId]: []
         }));
-        mostrarNotificacao('erro', `Erro: ${error.message || 'Falha ao buscar transações'}`);
+        setAlertConfig({
+          isOpen: true,
+          title: 'Erro',
+          message: `Erro: ${error.message || 'Falha ao buscar transações'}`,
+          type: 'error',
+          showConfirmButton: true,
+          confirmText: 'OK',
+          onConfirm: () => {
+            setAlertConfig(prev => ({ ...prev, isOpen: false }));
+          },
+          cancelText: null
+        });
       } catch (stateError) {
         console.error('Erro ao atualizar estado:', stateError);
       }
     }
   };
 
-  // Função para mostrar notificação
-  const mostrarNotificacao = (tipo, mensagem) => {
-    setNotificacao({ visivel: true, tipo, mensagem });
-    setTimeout(() => {
-      setNotificacao({ visivel: false, tipo: '', mensagem: '' });
-    }, 5000);
-  };
-
   return (
-    <div className="bg-gradient-to-b from-gray-50 to-gray-100 min-h-screen py-8">
+    <div className="min-h-screen bg-gray-100 py-12">
+      <CustomAlert
+        isOpen={alertConfig.isOpen}
+        onClose={() => setAlertConfig(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={alertConfig.onConfirm}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        showConfirmButton={alertConfig.showConfirmButton}
+        confirmText={alertConfig.confirmText}
+        cancelText={alertConfig.cancelText}
+      />
+      
       <div className="container mx-auto px-4">
-        {/* Componente de Notificação */}
-        {notificacao.visivel && (
-          <div className={`fixed top-5 right-5 p-4 rounded-lg shadow-lg z-50 flex items-center animate-fadeIn ${
-            notificacao.tipo === 'sucesso' ? 'bg-emerald-100 border-l-4 border-emerald-500 text-emerald-700' : 
-            'bg-red-100 border-l-4 border-red-500 text-red-700'
-          }`}>
-            {notificacao.tipo === 'sucesso' ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            )}
-            <span>{notificacao.mensagem}</span>
-            <button 
-              onClick={() => setNotificacao({ ...notificacao, visivel: false })}
-              className="ml-3 text-gray-500 hover:text-gray-700"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        )}
         {/* Header com design sofisticado */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white p-8 rounded-2xl shadow-lg border-l-4 border-emerald-600 transition-all duration-300 transform hover:shadow-xl">
           <div className="flex items-center">
@@ -668,12 +751,25 @@ function Metas() {
               <div className="md:col-span-2 flex justify-end mt-6">
                 <button 
                   type="submit" 
+                  disabled={submitting}
                   className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-medium px-8 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center transform hover:scale-105"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  {editando ? 'Atualizar Meta' : 'Criar Meta'}
+                  {submitting ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {editando ? 'Atualizando...' : 'Criando...'}
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      {editando ? 'Atualizar Meta' : 'Criar Meta'}
+                    </>
+                  )}
                 </button>
               </div>
             </form>
