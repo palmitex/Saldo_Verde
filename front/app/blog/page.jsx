@@ -35,7 +35,7 @@ export default function Blog() {
                     <Link href="/blog/Articles" className="text-sm text-yellow-600 hover:underline font-medium"> Ver Todos →</Link>
                 </div>
 
-                <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto px-1">
+                <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto px-1 ">
                     {artigos.filter((artigo) => artigo.pagina === 'Página 1').map((artigo,) => {
                         return (
 

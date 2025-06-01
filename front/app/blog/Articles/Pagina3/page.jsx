@@ -3,9 +3,10 @@
 import { use } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import artigos from '../../../data/blog.js';
+import artigos from '../../../../data/blog.js';
 
 export default function Articles() {
+    
     return (
         <main>
             {/* Seção de Destaque */}
@@ -25,7 +26,7 @@ export default function Articles() {
 
             <section className="py-10 px-4 sm:px-8 lg:px-16 max-w-7xl mx-auto px-1 mt-10">
                 <div className="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto px-1">
-                    {artigos.filter((artigo) => artigo.pagina === 'Página 1').map((artigo,) => {
+                    {artigos.filter((artigo) => artigo.pagina === 'Página 3').map((artigo,) => {
                         return (
 
                             <Link href={`/blog/${artigo.id}`} key={artigo.id} className="w-88 bg-white rounded-xl rounded-b-lg overflow-hidden hover: transition flex flex-col group" >
@@ -46,17 +47,11 @@ export default function Articles() {
                     })}
                 </div>
                 <div className='flex justify-center mt-15 mb-15 gap-8'>
-                    <Link href='/blog' className="flex items-center gap-2 bg-yellow-400 text-green-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-300 transition h-13">
+                    <Link href='/blog/Articles/Pagina2' className="flex items-center gap-2 bg-yellow-400 text-green-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-300 transition h-13">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
                         </svg>
 
-                    </Link>
-                    <Link href='/blog/Articles/Pagina2' className="flex items-center gap-2 bg-yellow-400 text-green-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-300 transition h-13">
-                        Página 2
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                        </svg>
                     </Link>
                 </div>
             </section>
