@@ -954,10 +954,6 @@ const artigos = [
     paragrafo20: 'Continue estudando sobre empreendedorismo e administração. Aproveite cursos online, livros e converse com pessoas que já estão nessa jornada. O futuro é seu, e quanto mais você aprender agora, melhor preparado estará para os desafios e oportunidades que virão.'
 }
 
-
-
-
-
 ];
 
 export default artigos;
