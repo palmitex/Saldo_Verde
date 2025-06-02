@@ -55,6 +55,7 @@ const artigos = [
         img4: '../../HoleriteTabela1.jpg',
         img5: '../../HoleriteTabela2.jpg',
         pagina: 'Página 1',
+        featured: true,
     },
     {
         id: 3,
@@ -176,6 +177,7 @@ const artigos = [
         paragrafo19: 'O minimalismo financeiro não é sobre abrir mão de tudo, mas sim sobre fazer escolhas mais inteligentes com o seu dinheiro. Começar agora, mesmo com pouco, pode te ensinar muito sobre responsabilidade, liberdade e felicidade. Gastar menos é ganhar mais: mais controle, mais paz e mais possibilidades.',
         img9: '../../Tabela_Minimalismo.jpg',
         pagina: 'Página 1',
+        featured: true,
     },
     {
         id: 7,
@@ -399,6 +401,7 @@ const artigos = [
         paragrafo18: 'Manter essa prática regularmente garante que suas finanças estejam sempre em ordem, trazendo mais segurança e tranquilidade para o seu dia a dia. Assim, você evita surpresas desagradáveis e consegue planejar melhor seus gastos futuros.',
         paragrafo19: 'Esse é um dos passos mais importantes para manter suas finanças saudáveis: nunca compre algo se não tiver certeza de que poderá pagar depois. Gastar mais do que você ganha pode parecer uma solução momentânea, mas acaba gerando dívidas que se acumulam e se tornam difíceis de controlar, causando estresse e prejudicando seu planejamento financeiro. Por isso, é fundamental sempre avaliar seus gastos, planejar bem e comprar apenas aquilo que realmente cabe no seu orçamento, evitando comprometer seu dinheiro e o seu futuro.',
         paragrafo20: 'Controlar as contas a pagar é uma habilidade super útil que vai ajudar você a se organizar e a tomar melhores decisões com seu dinheiro. Comece agora, anotando tudo direitinho, organizando as datas e fazendo seu dinheiro render mais. Assim, você evita dor de cabeça e ainda cria um futuro financeiro mais tranquilo!',
+        featured: true,
     },
     {
         id: 14,
@@ -501,6 +504,7 @@ const artigos = [
         paragrafo16: 'Empreender pode ser uma aventura empolgante, cheia de desafios e descobertas. É um caminho que exige coragem, dedicação e muita vontade de aprender. Quanto mais cedo você começar a explorar esse mundo, mais experiência vai ganhar, e isso aumenta muito suas chances de sucesso no futuro.',
         paragrafo17: 'Não espere ser adulto ou ter tudo “perfeito” para começar. Muitas vezes, as melhores ideias e projetos surgem justamente quando você é jovem, porque tem energia, criatividade e uma mente aberta para experimentar coisas novas. A idade não é um limite, mas sim uma oportunidade para desenvolver habilidades que vão te acompanhar por toda a vida.',
         paragrafo18: 'Com atitude, responsabilidade e criatividade, você pode dar os primeiros passos agora mesmo. Comece a colocar suas ideias em prática, aprenda com cada experiência e não tenha medo de errar. O importante é não deixar o medo ou a dúvida te pararem. Então, está pronto para transformar suas ideias em realidade?',
+        featured: true,
     },
     {
         id: 17,
@@ -540,6 +544,7 @@ const artigos = [
         id: 18,
         titulo: 'Guia definitivo para fazer renda extra na Páscoa sem estresse',
         categoria: 'Vendas',
+        categoria2: 'Empreendedorismo',
         descricao: 'A Páscoa é uma ótima oportunidade para ganhar dinheiro, mas sem organização tudo vira caos. Aprenda como planejar sua produção e aumentar sua renda sem estresse.',
         img: '../../Páscoa.jpg',
         data: '09.04.2025',
@@ -575,7 +580,8 @@ const artigos = [
         paragrafo17: 'Também é importante conhecer as regras da sua cidade para a venda de alimentos caseiros, para evitar problemas legais.',
         paragrafo18: 'Segurança deve ser prioridade, tanto para você quanto para quem compra seus produtos, garantindo que tudo seja feito com responsabilidade.',
         paragrafo19: 'Fazer renda extra na Páscoa pode ser uma experiência incrível, desde que você se organize e mantenha a calma. Essa é uma oportunidade única para aprender sobre empreendedorismo, ganhar dinheiro e desenvolver novas habilidades que serão úteis para toda a vida.',
-        paragrafo20: 'Agora que você já sabe o passo a passo, é hora de planejar, colocar a mão na massa e se divertir durante o processo. Com foco e dedicação, o sucesso está ao seu alcance. Boa sorte e uma ótima Páscoa!'
+        paragrafo20: 'Agora que você já sabe o passo a passo, é hora de planejar, colocar a mão na massa e se divertir durante o processo. Com foco e dedicação, o sucesso está ao seu alcance. Boa sorte e uma ótima Páscoa!',
+        featured: true,
     },
     {
         id: 19,
@@ -621,7 +627,7 @@ const artigos = [
     {
         id: 20,
         titulo: 'Folha de Pagamento: O que é, como calcular, exemplos',
-        categoria: 'Fiscal e Tributário',
+        categoria: 'Salário',
         descricao: 'Você sabe o que é Folha de Pagamento? Conheça um dos documentos mais importantes de uma empresa, como calculá-lo e suas obrigações legais.',
         img: '../../Folha_de_Pagamento.jpg',
         data: '24.02.2025',
@@ -863,6 +869,7 @@ const artigos = [
         paragrafo18: 'O futuro pertence a quem souber combinar a inteligência das máquinas com a criatividade e o julgamento humano, por isso investir nessas áreas desde jovem é um grande diferencial.',
         paragrafo19: 'Embora as mudanças causadas pela inteligência artificial possam parecer assustadoras para algumas pessoas, elas também trazem muitas possibilidades incríveis. Com curiosidade, dedicação e acesso à educação, qualquer adolescente pode se preparar para as profissões do futuro e se tornar protagonista na Era da IA, aproveitando o melhor que a tecnologia pode oferecer.',
         paragrafo20: 'A inteligência artificial já é uma realidade que está transformando o mundo ao nosso redor, mas o futuro ainda está sendo construído. E a melhor parte é que você pode ser um dos protagonistas dessa transformação. Escolher aprender, se adaptar às mudanças e crescer com as novas tecnologias fará toda a diferença na sua vida pessoal e profissional. O seu futuro começa agora!',
+        featured: true,
     },
     {
         id: 26,

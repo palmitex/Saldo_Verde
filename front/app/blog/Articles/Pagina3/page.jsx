@@ -6,7 +6,7 @@ import Link from 'next/link';
 import artigos from '../../../../data/blog.js';
 
 export default function Articles() {
-    
+
     return (
         <main>
             {/* Seção de Destaque */}
@@ -29,18 +29,16 @@ export default function Articles() {
                     {artigos.filter((artigo) => artigo.pagina === 'Página 3').map((artigo,) => {
                         return (
 
-                            <Link href={`/blog/${artigo.id}`} key={artigo.id} className="w-88 bg-white rounded-xl rounded-b-lg overflow-hidden hover: transition flex flex-col group" >
-
+                            <Link href={`/blog/${artigo.id}`} key={artigo.id} className="bg-white rounded-xl overflow-hidden flex flex-col group shadow-md hover:shadow-lg transition">
                                 <div className="relative w-full h-48">
-                                    <img src={artigo.img} alt={artigo.titulo} className='w-full h-48 rounded-b-lg transform transition-transform hover:scale-105 object-cover' />
+                                    <img src={artigo.img} alt={artigo.titulo} className="w-full h-48 object-cover transform transition-transform group-hover:scale-107" />
                                 </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <span className="text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-1 w-fit mt-3">
+                                <div className="flex flex-col gap-2 p-4">
+                                    <span className="text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-1 w-fit">
                                         {artigo.categoria}
                                     </span>
-                                    <h3 className="text-2xl font-semibold text-gray-800">{artigo.titulo}</h3>
-                                    <p className="text-base text-gray-600 mb-3">{artigo.descricao}</p>
+                                    <h3 className="text-xl font-semibold text-gray-800">{artigo.titulo}</h3>
+                                    <p className="text-sm text-gray-600">{artigo.descricao}</p>
                                 </div>
                             </Link>
                         )
