@@ -179,24 +179,50 @@ export default function Perfil() {
         setExcluindoConta(true);
 
         try {
+          // Preparar a URL com o userId no body em vez de contar apenas com o parâmetro de consulta
           const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/perfil`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
-            }
+            },
+            body: JSON.stringify({
+              userId: auth.user.id
+            })
           });
 
+          // Verificar se a resposta é bem-sucedida
+          const data = await response.json().catch(() => ({}));
           if (!response.ok) {
-            const data = await response.json();
             throw new Error(data.message || 'Erro ao excluir a conta');
           }
 
-          // Faz logout após exclusão bem-sucedida
-          auth.logout();
-          router.push('/');
+          // Mensagem de sucesso
+          setAlertConfig({
+            isOpen: true,
+            title: 'Conta Excluída',
+            message: 'Sua conta foi excluída com sucesso.',
+            type: 'success',
+            onConfirm: () => {
+              // Faz logout após exclusão bem-sucedida
+              auth.logout();
+              router.push('/');
+            },
+            showConfirmButton: true,
+            confirmText: 'OK'
+          });
         } catch (error) {
           console.error('Erro ao excluir conta:', error);
           setExcluindoConta(false);
+          
+          // Mostrar mensagem de erro para o usuário
+          setAlertConfig({
+            isOpen: true,
+            title: 'Erro',
+            message: error.message || 'Ocorreu um erro ao tentar excluir sua conta. Tente novamente mais tarde.',
+            type: 'error',
+            showConfirmButton: true,
+            confirmText: 'OK'
+          });
         }
       },
       showConfirmButton: true,

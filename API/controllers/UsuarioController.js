@@ -1,7 +1,32 @@
 import bcrypt from 'bcryptjs';
-import { compare, logActivity } from '../config/database.js';
+import { compare, logActivity, deleteRecord, query } from '../config/database.js';
 import { criarUsuario, buscarUsuarioPorEmail, buscarUsuarioPorCPF, buscarUsuarioPorId, atualizarUsuario, excluirUsuario } from '../models/Usuario.js';
 
+
+// Função para validar formato de email
+const validarEmail = (email) => {
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return regexEmail.test(email);
+};
+
+// Função para validar formato de CPF (apenas dígitos)
+const validarCPF = (cpf) => {
+  // Remove caracteres não numéricos
+  const cpfLimpo = cpf.replace(/\D/g, '');
+  
+  // Verifica se tem 11 dígitos
+  if (cpfLimpo.length !== 11) return false;
+  
+  // Verifica se todos os dígitos são iguais
+  if (/^(\d)\1{10}$/.test(cpfLimpo)) return false;
+  
+  return true;
+};
+
+// Função para normalizar CPF (remover pontos, traços, etc)
+const normalizarCPF = (cpf) => {
+  return cpf.replace(/\D/g, '');
+};
 
 // Cadastrar novo usuário
 const cadastrarUsuarioController = async (req, res) => {
@@ -37,22 +62,41 @@ const cadastrarUsuarioController = async (req, res) => {
         }
       });
     }
+    
+    // Validar formato do email
+    if (!validarEmail(email)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Formato de e-mail inválido'
+      });
+    }
+    
+    // Validar formato do CPF
+    if (!validarCPF(cpf)) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Formato de CPF inválido. O CPF deve conter 11 dígitos.'
+      });
+    }
+    
+    // Normalizar CPF antes de buscar no banco
+    const cpfNormalizado = normalizarCPF(cpf);
 
     // Verificar se e-mail já existe
-    const usuarioExistente = await buscarUsuarioPorEmail(email);
+    const usuarioExistente = await buscarUsuarioPorEmail(email.trim().toLowerCase());
     if (usuarioExistente) {
       return res.status(400).json({
         status: 'error',
-        message: 'E-mail já cadastrado'
+        message: 'Este e-mail já está cadastrado. Por favor, use outro e-mail ou recupere sua senha.'
       });
     }
 
     // Verificar se CPF já existe
-    const cpfExistente = await buscarUsuarioPorCPF(cpf);
+    const cpfExistente = await buscarUsuarioPorCPF(cpfNormalizado);
     if (cpfExistente) {
       return res.status(400).json({
         status: 'error',
-        message: 'CPF já cadastrado'
+        message: 'Este CPF já está cadastrado. Cada pessoa deve ter sua própria conta.'
       });
     }
 
@@ -63,14 +107,14 @@ const cadastrarUsuarioController = async (req, res) => {
     const senhaHash = await bcrypt.hash(senha, salt);
     const respostaHash = await bcrypt.hash(resposta_secreta, salt);
 
-    // Preparar dados para inserção
+    // Preparar dados para inserção com dados normalizados
     const dadosUsuario = {
-      nome,
-      email,
-      telefone,
-      cpf,
+      nome: nome.trim(),
+      email: email.trim().toLowerCase(),
+      telefone: telefone.replace(/\D/g, ''),
+      cpf: cpfNormalizado,
       senha_hash: senhaHash,
-      pergunta_secreta,
+      pergunta_secreta: pergunta_secreta.trim(),
       resposta_hash: respostaHash
     };
 
@@ -302,7 +346,13 @@ const atualizarPerfilController = async (req, res) => {
 // Excluir conta do usuário
 const excluirContaController = async (req, res) => {
   try {
-    const userId = req.query.userId; // Obter userId da query string
+    // Verificar parâmetro userId na query ou no body
+    let userId = req.query.userId;
+    
+    // Se não estiver na query, tenta buscar no body
+    if (!userId && req.body && req.body.userId) {
+      userId = req.body.userId;
+    }
 
     if (!userId) {
       return res.status(400).json({
@@ -320,25 +370,39 @@ const excluirContaController = async (req, res) => {
       });
     }
     
-    // Excluir usuário
-    await excluirUsuario(userId);
-    
-    // Registrar log de atividade (não será armazenado se a tabela tiver chave estrangeira para usuários)
+    // Verificar e excluir todas as dependências do usuário
     try {
-      await logActivity(userId, 'excluir_conta', 'Usuário excluiu sua conta');
-    } catch (err) {
-      console.info('Não foi possível registrar log para usuário excluído');
-    }
+      console.log(`Excluindo logs do usuário ${userId}...`);
+      await deleteRecord('logs', `usuario_id = ${userId}`);
+      
+      // Verificar se há outras tabelas que dependem do usuário
+      const tabelas = ['transacoes', 'categorias', 'metas'];
+      for (const tabela of tabelas) {
+        try {
+          console.log(`Verificando e excluindo registros da tabela ${tabela} do usuário ${userId}...`);
+          await deleteRecord(tabela, `usuario_id = ${userId}`);
+        } catch (err) {
+          // Se a tabela não existir ou não tiver a coluna usuario_id, apenas ignora
+          console.info(`Não foi possível excluir registros da tabela ${tabela}: ${err.message}`);
+        }
+      }
 
-    res.status(200).json({
-      status: 'success',
-      message: 'Conta excluída com sucesso'
-    });
+      console.log(`Excluindo usuário ${userId}...`);
+      await excluirUsuario(userId);
+      
+      res.status(200).json({
+        status: 'success',
+        message: 'Conta excluída com sucesso'
+      });
+    } catch (err) {
+      console.error('Erro ao excluir dependências do usuário:', err);
+      throw err;
+    }
   } catch (error) {
     console.error('Erro ao excluir conta:', error);
     res.status(500).json({ 
       status: 'error', 
-      message: 'Erro ao excluir conta' 
+      message: error.message || 'Erro ao excluir conta' 
     });
   }
 };

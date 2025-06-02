@@ -43,9 +43,15 @@ export default function RecuperarSenha() {
       if (!response.ok) {
         throw new Error(data.message || 'Email não encontrado');
       }
-
-      setPerguntaSecreta(data.pergunta_secreta);
-      setStep(2);
+      
+      // Verifica se a pergunta secreta está em data.data.pergunta_secreta (formato correto do backend)
+      if (data.data && data.data.pergunta_secreta) {
+        setPerguntaSecreta(data.data.pergunta_secreta);
+        setStep(2);
+      } else {
+        console.error('Formato de resposta inesperado:', data);
+        throw new Error('Não foi possível recuperar a pergunta secreta');
+      }
     } catch (error) {
       console.error('Erro ao buscar pergunta secreta:', error);
       setError(error.message || 'Ocorreu um erro ao buscar a pergunta secreta');

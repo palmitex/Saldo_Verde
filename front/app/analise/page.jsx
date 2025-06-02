@@ -27,13 +27,63 @@ const Analise = () => {
   const [categoriaId, setCategoriaId] = useState('');
   const [categorias, setCategorias] = useState([]);
   const [dadosAnalise, setDadosAnalise] = useState(null);
+  
+  // Estados para o calendário e período personalizado
+  const [tipoSelecao, setTipoSelecao] = useState('predefinido'); // 'predefinido', 'personalizado', 'mesEspecifico'
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
+  const [mesEspecifico, setMesEspecifico] = useState(new Date().getMonth()); // 0-11 (Jan-Dez)
+  const [anoEspecifico, setAnoEspecifico] = useState(new Date().getFullYear());
+  
+  // Array com os meses do ano para exibição
+  const meses = [
+    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+  ];
+  
+  // Array com os anos disponíveis (últimos 5 anos até o atual)
+  const anoAtual = new Date().getFullYear();
+  const anos = Array.from({length: 6}, (_, i) => anoAtual - 5 + i);
 
+  // Define a data de início e fim do mês específico
+  const definirDatasDoMesEspecifico = () => {
+    const primeiroDia = new Date(anoEspecifico, mesEspecifico, 1);
+    const ultimoDia = new Date(anoEspecifico, mesEspecifico + 1, 0); // último dia do mês
+    
+    return {
+      inicio: primeiroDia.toISOString().split('T')[0],
+      fim: ultimoDia.toISOString().split('T')[0]
+    };
+  };
+
+  // Função para formatar a data para o formato ISO (YYYY-MM-DD)
+  const formatarData = (data) => {
+    if (!data) return '';
+    const d = new Date(data);
+    return d.toISOString().split('T')[0];
+  };
+  
+  // Inicializa valores padrão para datas quando componente for montado
+  useEffect(() => {
+    if (!dataInicio) {
+      const hoje = new Date();
+      const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      setDataInicio(formatarData(inicioMes));
+    }
+    
+    if (!dataFim) {
+      const hoje = new Date();
+      setDataFim(formatarData(hoje));
+    }
+  }, []);
+
+  // Buscar dados apenas quando o componente é montado ou quando o usuário muda
   useEffect(() => {
     if (user) {
       buscarCategorias();
-      buscarDadosAnalise();
+      buscarDadosAnalise(); // Busca inicial
     }
-  }, [user, periodo, categoriaId]);
+  }, [user]); // Remover dependências para evitar múltiplas requisições automáticas
 
   const buscarCategorias = async () => {
     try {
@@ -58,10 +108,34 @@ const Analise = () => {
       setLoading(true);
       setError(null);
 
-      let url = `${process.env.NEXT_PUBLIC_API_URL}/transacoes/analise?periodo=${periodo}`;
-      if (categoriaId) {
-        url += `&categoria_id=${categoriaId}`;
+      let url = `${process.env.NEXT_PUBLIC_API_URL}/transacoes/analise?`;
+      const params = new URLSearchParams();
+      
+      // Adicionar os parâmetros de acordo com o tipo de seleção
+      if (tipoSelecao === 'predefinido') {
+        // Períodos predefinidos (semana, mês, ano, etc)
+        params.append('periodo', periodo);
+      } 
+      else if (tipoSelecao === 'mesEspecifico') {
+        // Mês e ano específicos
+        params.append('mes', mesEspecifico + 1); // API espera mês de 1-12, não 0-11
+        params.append('ano', anoEspecifico);
+      } 
+      else if (tipoSelecao === 'personalizado') {
+        // Datas específicas (período personalizado)
+        params.append('data_inicio', dataInicio);
+        params.append('data_fim', dataFim);
       }
+      
+      // Adicionar categoria se selecionada
+      if (categoriaId) {
+        params.append('categoria_id', categoriaId);
+      }
+      
+      // Construir a URL final
+      url += params.toString();
+      
+      console.log('URL da requisição:', url); // Log para depuração
 
       const response = await authFetch(url);
       if (response.ok) {
@@ -193,24 +267,146 @@ const Analise = () => {
             </svg>
             Filtros de Análise
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-gray-700 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {/* Seleção do tipo de período */}
+          <div className="mb-4 border-b pb-4">
+            <p className="text-sm text-gray-600 mb-3">Escolha como deseja visualizar o período:</p>
+            <div className="flex space-x-2 mb-4">
+              <button
+                onClick={() => setTipoSelecao('predefinido')}
+                className={`px-4 py-2 text-sm rounded-lg flex items-center ${tipoSelecao === 'predefinido' 
+                  ? 'bg-emerald-500 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Período
-              </label>
-              <select
-                value={periodo}
-                onChange={(e) => setPeriodo(e.target.value)}
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                Períodos Predefinidos
+              </button>
+              <button
+                onClick={() => setTipoSelecao('mesEspecifico')}
+                className={`px-4 py-2 text-sm rounded-lg flex items-center ${tipoSelecao === 'mesEspecifico' 
+                  ? 'bg-emerald-500 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               >
-                <option value="semana">Última Semana</option>
-                <option value="mes">Mês Atual</option>
-                <option value="ano">Ano Atual</option>
-              </select>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Mês Específico
+              </button>
+              <button
+                onClick={() => setTipoSelecao('personalizado')}
+                className={`px-4 py-2 text-sm rounded-lg flex items-center ${tipoSelecao === 'personalizado' 
+                  ? 'bg-emerald-500 text-white' 
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Período Personalizado
+              </button>
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Períodos predefinidos */}
+            {tipoSelecao === 'predefinido' && (
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700 flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Período
+                </label>
+                <select
+                  value={periodo}
+                  onChange={(e) => setPeriodo(e.target.value)}
+                  className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                >
+                  <option value="dia">Hoje</option>
+                  <option value="semana">Última Semana</option>
+                  <option value="mes">Mês Atual</option>
+                  <option value="trimestre">Últimos 3 Meses</option>
+                  <option value="semestre">Últimos 6 Meses</option>
+                  <option value="ano">Ano Atual</option>
+                </select>
+              </div>
+            )}
+            
+            {/* Seleção de mês específico */}
+            {tipoSelecao === 'mesEspecifico' && (
+              <>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Mês
+                  </label>
+                  <select
+                    value={mesEspecifico}
+                    onChange={(e) => setMesEspecifico(parseInt(e.target.value))}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  >
+                    {meses.map((mes, index) => (
+                      <option key={index} value={index}>{mes}</option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Ano
+                  </label>
+                  <select
+                    value={anoEspecifico}
+                    onChange={(e) => setAnoEspecifico(parseInt(e.target.value))}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  >
+                    {anos.map((ano) => (
+                      <option key={ano} value={ano}>{ano}</option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+            
+            {/* Período personalizado com datas específicas */}
+            {tipoSelecao === 'personalizado' && (
+              <>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Data Inicial
+                  </label>
+                  <input
+                    type="date"
+                    value={dataInicio}
+                    onChange={(e) => setDataInicio(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  />
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Data Final
+                  </label>
+                  <input
+                    type="date"
+                    value={dataFim}
+                    onChange={(e) => setDataFim(e.target.value)}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
+                  />
+                </div>
+              </>
+            )}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -233,13 +429,14 @@ const Analise = () => {
             </div>
             <div className="flex items-end">
               <button 
-                onClick={() => buscarDadosAnalise()}
+                type="button"
+                onClick={buscarDadosAnalise}
                 className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-medium px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 flex items-center transform hover:scale-105 w-full justify-center"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
-                Atualizar Análise
+                Atualizar Análise ({tipoSelecao === 'predefinido' ? periodo : tipoSelecao === 'mesEspecifico' ? `${meses[mesEspecifico]} de ${anoEspecifico}` : `${dataInicio} a ${dataFim}`})
               </button>
             </div>
           </div>

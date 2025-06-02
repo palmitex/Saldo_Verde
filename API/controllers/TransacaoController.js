@@ -172,7 +172,7 @@ const listarTransacoesController = async (req, res) => {
 const obterGastosPorPeriodo = async (req, res) => {
   try {
     const userId = req.query.userId || req.userId;
-    const { periodo, categoria_id } = req.query;
+    const { periodo, categoria_id, data_inicio, data_fim, mes, ano } = req.query;
 
     if (!userId) {
       return res.status(401).json({
@@ -184,25 +184,63 @@ const obterGastosPorPeriodo = async (req, res) => {
     let dataInicio, dataFim;
     const hoje = new Date();
     
-    // Definir período
-    switch(periodo) {
-      case 'semana':
-        dataInicio = new Date(hoje);
-        dataInicio.setDate(hoje.getDate() - 7);
-        dataFim = hoje;
-        break;
-      case 'mes':
-        dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-        dataFim = hoje;
-        break;
-      case 'ano':
-        dataInicio = new Date(hoje.getFullYear(), 0, 1);
-        dataFim = hoje;
-        break;
-      default:
-        dataInicio = new Date(hoje);
-        dataInicio.setDate(hoje.getDate() - 30); // Padrão: últimos 30 dias
-        dataFim = hoje;
+    // Verificar se foram enviadas datas específicas
+    if (data_inicio && data_fim) {
+      // Período personalizado com datas específicas
+      dataInicio = new Date(data_inicio);
+      dataFim = new Date(data_fim);
+    }
+    // Verificar se foi solicitado um mês específico
+    else if (mes && ano) {
+      // Mês específico (Janeiro = 0, Dezembro = 11)
+      const mesInt = parseInt(mes);
+      const anoInt = parseInt(ano);
+      
+      dataInicio = new Date(anoInt, mesInt, 1); // Primeiro dia do mês
+      // Último dia do mês (setando dia 0 do próximo mês = último dia do mês atual)
+      dataFim = new Date(anoInt, mesInt + 1, 0);
+    }
+    // Caso contrário, usar os períodos predefinidos
+    else {
+      switch(periodo) {
+        case 'dia':
+          // Apenas o dia atual
+          dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+          dataFim = hoje;
+          break;
+        case 'semana':
+          // Últimos 7 dias
+          dataInicio = new Date(hoje);
+          dataInicio.setDate(hoje.getDate() - 7);
+          dataFim = hoje;
+          break;
+        case 'mes':
+          // Mês atual
+          dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+          dataFim = hoje;
+          break;
+        case 'trimestre':
+          // Últimos 3 meses
+          dataInicio = new Date(hoje);
+          dataInicio.setMonth(hoje.getMonth() - 3);
+          dataFim = hoje;
+          break;
+        case 'semestre':
+          // Últimos 6 meses
+          dataInicio = new Date(hoje);
+          dataInicio.setMonth(hoje.getMonth() - 6);
+          dataFim = hoje;
+          break;
+        case 'ano':
+          // Ano atual
+          dataInicio = new Date(hoje.getFullYear(), 0, 1);
+          dataFim = hoje;
+          break;
+        default:
+          // Padrão: mês atual
+          dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+          dataFim = hoje;
+      }
     }
 
     // Formatar datas para SQL
