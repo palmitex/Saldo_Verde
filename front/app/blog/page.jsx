@@ -109,7 +109,7 @@ export default function Blog() {
                       <span key={cat} className="text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-1 w-fit">{cat}</span>
                     ))}
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-4">{artigo.titulo}</h3>
+                  <h2 className="font-semibold text-gray-900 mb-7">{artigo.titulo}</h2>
                 </div>
               </Link>
             ))}
@@ -134,8 +134,8 @@ export default function Blog() {
                 <span className="text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-1 w-fit">
                   {artigo.categoria}
                 </span>
-                <h3 className="text-xl font-semibold text-gray-800">{artigo.titulo}</h3>
-                <p className="text-sm text-gray-600">{artigo.descricao}</p>
+                <h3 className="text-2xl font-semibold text-gray-800">{artigo.titulo}</h3>
+                <p className="text-medium text-gray-600">{artigo.descricao}</p>
               </div>
             </Link>
           ))}
