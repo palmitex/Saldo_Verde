@@ -76,3 +76,13 @@ Um site de finanças pessoais desenvolvido para facilitar o controle financeiro 
 ## 📃 Licença
 
 Este projeto é regido pela licença MIT
+
+## 👥 Desenvolvedores
+
+[Victor Cestari](https://github.com/vc-franca)  
+[Lucas Toledo](https://github.com/ToledoP)  
+[Gabriel Palmieri](https://github.com/palmitex)
+
+
+
+
