@@ -37,8 +37,8 @@ export default function Articles() {
                                     <span className="text-xs font-semibold text-gray-500 bg-gray-100 rounded-full px-2 py-1 w-fit">
                                         {artigo.categoria}
                                     </span>
-                                    <h3 className="text-xl font-semibold text-gray-800">{artigo.titulo}</h3>
-                                    <p className="text-sm text-gray-600">{artigo.descricao}</p>
+                                    <h3 className="text-2xl font-semibold text-gray-800">{artigo.titulo}</h3>
+                                    <p className="text-md text-gray-600">{artigo.descricao}</p>
                                 </div>
                             </Link>
                         )
