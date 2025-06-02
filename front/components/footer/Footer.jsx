@@ -2,7 +2,7 @@
 'use client';
 import footer from '../../data/footer.js';
 import Link from 'next/link';
-import { FaFacebook, FaInstagram, FaTwitter, FaArrowUp } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaTwitter, FaArrowUp, FaLinkedin} from 'react-icons/fa';
 
 export default function Footer() {
     const scrollToTop = () => {
@@ -12,7 +12,9 @@ export default function Footer() {
     const socialIcons = {
         'Facebook': <FaFacebook />,
         'Instagram': <FaInstagram />,
-        'Twitter': <FaTwitter />
+        'Twitter': <FaTwitter />, 
+        'Linkedin': <FaLinkedin/>
+        
     };
 
     return (

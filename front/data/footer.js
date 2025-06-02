@@ -24,6 +24,7 @@ const footer = {
         { id: 1, titulo: 'Facebook', link: 'https://facebook.com', target: '_blank', rel: 'noopener noreferrer' },
         { id: 2, titulo: 'Instagram', link: 'https://instagram.com', target: '_blank', rel: 'noopener noreferrer' },
         { id: 3, titulo: 'Twitter', link: 'https://twitter.com', target: '_blank', rel: 'noopener noreferrer' },
+        { id: 4, titulo: 'Linkedin', link: 'https://www.linkedin.com', target: '_blank', rel: 'noopener noreferrer' }
     ],
 };
 

@@ -32,7 +32,7 @@ const normalizarCPF = (cpf) => {
 const cadastrarUsuarioController = async (req, res) => {
   try {
     // Log do corpo da requisição
-    console.log('Dados recebidos:', req.body);
+    console.log('Dados recebidos:');
 
     const { nome, email, telefone, cpf, senha, pergunta_secreta, resposta_secreta } = req.body;
 
