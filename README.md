@@ -1,18 +1,24 @@
-# 💸 Saldo Verde
+# <div align="center">💸 Saldo Verde</div>
 
 <div align="center">
 
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
-[![Next.js](https://img.shields.io/badge/Next.js-13.0-black)](https://nextjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18.x-339933)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18.x-61DAFB)](https://reactjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-38B2AC)](https://tailwindcss.com/)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://choosealicense.com/licenses/mit/)
+[![Stars](https://img.shields.io/github/stars/palmitex/projeto-financias?style=for-the-badge&color=yellow)](https://github.com/palmitex/projeto-financias/stargazers)
+[![Issues](https://img.shields.io/github/issues/palmitex/projeto-financias?style=for-the-badge&color=red)](https://github.com/palmitex/projeto-financias/issues)
 
-<img src="public/principal_home.svg" alt="SaldoVerde Logo" width="200"/>
+<br/>
 
-**Transforme sua relação com o dinheiro de forma simples, intuitiva e divertida.**
+<p align="center">
+  <a href="#-funcionalidades">Funcionalidades</a> •
+  <a href="#-instalação">Instalação</a> •
+  <a href="#%EF%B8%8F-stack-tecnológica">Stack</a> •
+  <a href="#-contribuindo">Contribuir</a> •
+  <a href="#-time">Time</a>
+</p>
 
-[Demo](https://saldoverde.vercel.app) · [Reportar Bug](https://github.com/palmitex/projeto-financias/issues) · [Solicitar Feature](https://github.com/palmitex/projeto-financias/issues)
+<br/>
+
+<img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&weight=500&size=25&duration=3000&pause=1000&color=3A7D44&center=true&vCenter=true&width=435&lines=Controle+Financeiro+Inteligente;Educação+Financeira;Planejamento+de+Metas;Dashboard+Intuitivo" alt="Typing SVG" />
 
 </div>
 
@@ -20,22 +26,57 @@
 
 ## ✨ Funcionalidades
 
-- 📊 **Dashboard Intuitivo**: Visualize suas finanças com gráficos claros e objetivos
-- 🎯 **Metas Financeiras**: Defina e acompanhe objetivos financeiros
-- 💰 **Controle de Gastos**: Categorize e monitore suas despesas
-- 📱 **Responsivo**: Interface adaptável para todos os dispositivos
-- 🔒 **Seguro**: Proteção de dados e privacidade do usuário
-- 📚 **Blog Educativo**: Conteúdo sobre educação financeira
+<table align="center">
+  <tr>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/dashboard-layout.png" alt="Dashboard"/><br>
+      <b>Dashboard<br>Intuitivo</b>
+    </td>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/goal.png" alt="Metas"/><br>
+      <b>Metas<br>Financeiras</b>
+    </td>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/money-bag.png" alt="Controle"/><br>
+      <b>Controle de<br>Gastos</b>
+    </td>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/mobile-payment.png" alt="Responsivo"/><br>
+      <b>Design<br>Responsivo</b>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/security-checked.png" alt="Segurança"/><br>
+      <b>Dados<br>Seguros</b>
+    </td>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/book.png" alt="Blog"/><br>
+      <b>Blog<br>Educativo</b>
+    </td>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/graph.png" alt="Gráficos"/><br>
+      <b>Gráficos<br>Interativos</b>
+    </td>
+    <td align="center">
+      <img width="60" src="https://img.icons8.com/color/96/000000/cloud-sync.png" alt="Backup"/><br>
+      <b>Backup<br>na Nuvem</b>
+    </td>
+  </tr>
+</table>
 
 ## 🚀 Instalação
 
-### Pré-requisitos
+<details>
+<summary>📋 Pré-requisitos</summary>
 
 - Node.js 18.x ou superior
 - NPM ou Yarn
 - Git
+</details>
 
-### Passo a Passo
+<details>
+<summary>⚙️ Configuração</summary>
 
 1. **Clone o repositório**
 ```bash
@@ -50,107 +91,106 @@ cp .env.example .env
 # Na pasta front
 cp .env.example .env.local
 ```
+</details>
 
-3. **Instale as dependências**
+<details>
+<summary>🔧 Instalação</summary>
+
 ```bash
 # Instale as dependências do backend
-cd API
-npm install
+cd API && npm install
 
 # Instale as dependências do frontend
-cd ../front
-npm install
+cd ../front && npm install
 ```
+</details>
 
-4. **Inicie o projeto**
+<details>
+<summary>▶️ Execução</summary>
 
 Em dois terminais separados:
 
 ```bash
 # Terminal 1 - Backend (API)
-cd API
-npm run dev
+cd API && npm run dev
 
 # Terminal 2 - Frontend
-cd front
-npm run dev
+cd front && npm run dev
 ```
 
-Acesse `http://localhost:3000` para ver o projeto rodando.
+📱 Acesse `http://localhost:3000`
+</details>
 
 ## 🛠️ Stack Tecnológica
 
-### Frontend
-- [Next.js](https://nextjs.org/) - Framework React com SSR
-- [React](https://reactjs.org/) - Biblioteca JavaScript para UI
-- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS utilitário
-- [Flowbite](https://flowbite.com/) - Componentes Tailwind
-- [Chart.js](https://www.chartjs.org/) - Biblioteca de gráficos
+<div align="center">
 
-### Backend
-- [Node.js](https://nodejs.org/) - Runtime JavaScript
-- [Express](https://expressjs.com/) - Framework web
-- [MongoDB](https://www.mongodb.com/) - Banco de dados NoSQL
+[![Next.js](https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+
+</div>
 
 ## 📁 Estrutura do Projeto
 
-```
-projeto-financias/
-├── API/                   # Backend
-│   ├── config/           # Configurações do servidor
-│   ├── controllers/      # Controladores da API
-│   ├── models/          # Modelos do banco de dados
-│   ├── routes/          # Rotas da API
-│   └── app.js           # Entrada da aplicação
-└── front/               # Frontend
-    ├── app/            # Páginas e rotas
-    ├── components/     # Componentes React
-    ├── context/        # Contextos React
-    ├── data/          # Dados estáticos
-    └── public/        # Arquivos públicos
+```mermaid
+graph TD
+    A[projeto-financias] --> B[API]
+    A --> C[front]
+    B --> D[config]
+    B --> E[controllers]
+    B --> F[models]
+    B --> G[routes]
+    C --> H[app]
+    C --> I[components]
+    C --> J[context]
+    C --> K[data]
+    C --> L[public]
 ```
 
 ## 🤝 Contribuindo
 
-Contribuições são sempre bem-vindas! Siga estes passos:
+<div align="center">
 
-1. Fork o projeto
-2. Crie sua Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a Branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=for-the-badge)](http://makeapullrequest.com)
 
-## 📝 Licença
+</div>
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+1. 🔱 Fork o projeto
+2. 🔨 Crie sua Feature Branch
+   ```bash
+   git checkout -b feature/RecursoIncrivel
+   ```
+3. ✏️ Commit suas mudanças
+   ```bash
+   git commit -m 'Adiciona um recurso incrível'
+   ```
+4. 📌 Push para a Branch
+   ```bash
+   git push origin feature/RecursoIncrivel
+   ```
+5. 🔃 Abra um Pull Request
 
 ## 👥 Time
 
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/vc-franca">
-        <img src="https://github.com/vc-franca.png" width="100px;" alt="Victor Cestari"/><br>
-        <sub><b>Victor Cestari</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/ToledoP">
-        <img src="https://github.com/ToledoP.png" width="100px;" alt="Lucas Toledo"/><br>
-        <sub><b>Lucas Toledo</b></sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="https://github.com/palmitex">
-        <img src="https://github.com/palmitex.png" width="100px;" alt="Gabriel Palmieri"/><br>
-        <sub><b>Gabriel Palmieri</b></sub>
-      </a>
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+| <img src="https://github.com/vc-franca.png" width="100px" alt="Victor"/><br>[**Victor Cestari**](https://github.com/vc-franca)<br>💻 Full Stack | <img src="https://github.com/ToledoP.png" width="100px" alt="Lucas"/><br>[**Lucas Toledo**](https://github.com/ToledoP)<br>🎨 Frontend | <img src="https://github.com/palmitex.png" width="100px" alt="Gabriel"/><br>[**Gabriel Palmieri**](https://github.com/palmitex)<br>⚙️ Backend |
+|:---:|:---:|:---:|
+
+</div>
 
 ---
 
 <div align="center">
-  Feito com ❤️ pela equipe SaldoVerde
+
+[![Stargazers](https://reporoster.com/stars/palmitex/projeto-financias)](https://github.com/palmitex/projeto-financias/stargazers)
+
+<br/>
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=3A7D44&height=100&section=footer" width="100%"/>
+
 </div>
