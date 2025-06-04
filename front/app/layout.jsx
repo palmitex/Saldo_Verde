@@ -22,9 +22,9 @@ export const metadata = {
   title: "Saldo Verde",
   description: "Seu aplicativo de controle financeiro",
   icons: {
-    icon: '/Porco-logo.png',
-    shortcut: 'Porco-logo.png',
-    apple: 'Porco-logo.png',
+    icon: '/Poco-logo.png',
+    shortcut: 'Poco-logo.png',
+    apple: 'Poco-logo.png',
   },
 };
 

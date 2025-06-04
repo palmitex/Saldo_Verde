@@ -63,47 +63,31 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
-                  <path d="M25 55V35M40 55V25M55 55V45" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M20 60H60" stroke="white" strokeWidth="4" strokeLinecap="round"/>
-                </svg>
+                <img src="/sobre1.svg" alt="Planejamento financeiro" className="w-24 h-24" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Análise financeira</h3>
-              <p className="text-gray-600">Visualize seus gastos e ganhos com gráficos intuitivos e relatórios detalhados</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Planejamento inteligente</h3>
+              <p className="text-gray-600">Organize seu orçamento mensal e planeje seus gastos com antecedência</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
-                  <path d="M40 20V60" stroke="white" strokeWidth="4" strokeLinecap="round"/>
-                  <path d="M25 30L40 20L55 30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M25 50L40 60L55 50" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <img src="/sobre2.svg" alt="Reserva financeira" className="w-24 h-24" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Equilíbrio financeiro</h3>
-              <p className="text-gray-600">Mantenha suas receitas e despesas equilibradas com ferramentas de controle</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Construa sua reserva</h3>
+              <p className="text-gray-600">Acompanhe o crescimento da sua reserva de emergência e investimentos</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
-                  <path d="M30 25H50C55 25 55 35 50 35H30C25 35 25 45 30 45H50C55 45 55 55 50 55H30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M40 20V25M40 55V60" stroke="white" strokeWidth="4" strokeLinecap="round"/>
-                </svg>
+                <img src="/porco_rico.svg" alt="Economizar dinheiro" className="w-24 h-24" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Controle de gastos</h3>
-              <p className="text-gray-600">Acompanhe todas as suas despesas e identifique oportunidades para economizar</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Economize com consciência</h3>
+              <p className="text-gray-600">Identifique padrões de gastos e descubra oportunidades para economizar</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
-                  <path d="M25 40L35 50L55 30" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <img src="/sobre4.svg" alt="Realize seus sonhos" className="w-24 h-24" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Metas alcançáveis</h3>
-              <p className="text-gray-600">Defina objetivos financeiros realistas e acompanhe seu progresso até alcançá-los</p>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Realize seus sonhos</h3>
+              <p className="text-gray-600">Transforme objetivos em realidade com planejamento financeiro estruturado</p>
             </div>
           </div>
         </div>
