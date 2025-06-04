@@ -4,7 +4,7 @@ const sobres = [
         indice: 1,
         titulo: 'Quem Somos Nós?',
         img: '/sobre1.svg',
-        texto: 'Nós somos o SaldoVerde, uma plataforma de finanças pessoais criada especialmente para estudantes que desejam assumir o controle do próprio dinheiro de forma simples, prática e didática. Nosso objetivo é transformar a educação financeira em algo acessível e eficiente para todos.',
+        texto: 'Nós somos o Saldo Verde, uma plataforma de finanças pessoais criada especialmente para estudantes que desejam assumir o controle do próprio dinheiro de forma simples, prática e didática. Nosso objetivo é transformar a educação financeira em algo acessível e eficiente para todos.',
     },
     {
         id: 2,
@@ -16,14 +16,14 @@ const sobres = [
     {
         id: 3,
         indice: 3,
-        titulo: 'Por Que o SaldoVerde é Diferente?',
+        titulo: 'Por Que o Saldo Verde é Diferente?',
         img: '/sobre3.svg',
-        texto: 'O SaldoVerde se destaca por sua abordagem focada na realidade do estudante. Com uma interface amigável, linguagem acessível e funcionalidades intuitivas, oferecemos uma experiência única que facilita o gerenciamento financeiro, mesmo para quem nunca teve contato com planilhas ou aplicativos complexos.',
+        texto: 'O Saldo Verde se destaca por sua abordagem focada na realidade do estudante. Com uma interface amigável, linguagem acessível e funcionalidades intuitivas, oferecemos uma experiência única que facilita o gerenciamento financeiro, mesmo para quem nunca teve contato com planilhas ou aplicativos complexos.',
     },
     {
         id: 4,
         indice: 4,
-        titulo: 'Como Funciona o SaldoVerde?',
+        titulo: 'Como Funciona o Saldo Verde?',
         img: '/sobre4.svg',
         texto: 'Nosso sistema funciona de forma muito simples: você registra suas receitas e despesas, acompanha seu saldo atualizado em tempo real e acessa gráficos que mostram seus hábitos de consumo. Tudo isso em um painel limpo, com foco na organização e no seu progresso financeiro.',
     },
@@ -32,7 +32,7 @@ const sobres = [
         indice: 5,
         titulo: 'Quem Pode Usar?',
         img: '/sobre5.svg',
-        texto: 'O SaldoVerde é ideal para estudantes do ensino médio, técnico, universitário ou qualquer jovem que queira melhorar sua organização financeira. Basta ter disposição para começar — o resto a gente facilita com ferramentas inteligentes e conteúdo educativo.',
+        texto: 'O Saldo Verde é ideal para estudantes do ensino médio, técnico, universitário ou qualquer jovem que queira melhorar sua organização financeira. Basta ter disposição para começar — o resto a gente facilita com ferramentas inteligentes e conteúdo educativo.',
     },
     {
         id: 6,
@@ -46,7 +46,7 @@ const sobres = [
         indice: 7,
         titulo: 'Como Começar?',
         img: '/sobre7.svg',
-        texto: 'É muito simples começar com o SaldoVerde! Crie uma conta gratuita, cadastre suas receitas e despesas, personalize suas categorias e comece a acompanhar sua evolução. Em poucos minutos, você já estará no caminho certo para conquistar sua liberdade financeira.',
+        texto: 'É muito simples começar com o Saldo Verde! Crie uma conta gratuita, cadastre suas receitas e despesas, personalize suas categorias e comece a acompanhar sua evolução. Em poucos minutos, você já estará no caminho certo para conquistar sua liberdade financeira.',
     }
 ];
 

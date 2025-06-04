@@ -45,7 +45,7 @@ export default function Sobrenos() {
             {/* Cabeçalho da página */}
             <div className="max-w-4xl mx-auto text-center mb-16 relative z-10">
                 <h1 className="text-5xl sm:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#3A7D44] to-[#55c065] mb-6">
-                    Conheça o SaldoVerde
+                    Conheça o Saldo Verde
                 </h1>
                 <div className="w-24 h-1 bg-gradient-to-r from-[#3A7D44] to-[#55c065] mx-auto rounded-full mb-6"></div>
                 <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -99,7 +99,7 @@ export default function Sobrenos() {
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-8">
                             <div>
                                 <h2 className="text-2xl sm:text-3xl font-bold mb-3">Pronto para começar?</h2>
-                                <p className="text-green-50 text-lg">Junte-se a milhares de estudantes que já estão transformando suas finanças com o SaldoVerde.</p>
+                                <p className="text-green-50 text-lg">Junte-se a milhares de estudantes que já estão transformando suas finanças com o Saldo Verde.</p>
                             </div>
                             <a href="/registro" className="px-8 py-4 bg-white text-[#3A7D44] rounded-xl font-bold shadow-md hover:shadow-lg transition-all duration-300 whitespace-nowrap flex items-center gap-2 hover:bg-gray-50 transform hover:-translate-y-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

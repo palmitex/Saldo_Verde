@@ -183,7 +183,7 @@ export default function Home() {
             </div>
             <div className="bg-gradient-to-l from-gray-200 to-gray-300 p-6 rounded-xl shadow-md border border-gray-300">
               <p className="text-gray-700 italic mb-6">
-                "Graças ao FinanciAS consegui sair das dívidas e começar a investir. Recomendo a todos!"
+                "Graças ao Saldo Verde consegui sair das dívidas e começar a investir. Recomendo a todos!"
               </p>
               <div className="flex items-center">
                 <div className="w-12 h-12 rounded-full overflow-hidden mr-4">
