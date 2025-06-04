@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { compare, logActivity, deleteRecord, query } from '../config/database.js';
+import { compare, logActivity, deleteRecord} from '../config/database.js';
 import { criarUsuario, buscarUsuarioPorEmail, buscarUsuarioPorCPF, buscarUsuarioPorId, atualizarUsuario, excluirUsuario } from '../models/Usuario.js';
 
 

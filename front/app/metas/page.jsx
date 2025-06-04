@@ -152,7 +152,8 @@ function Metas() {
           type: 'error',
           showConfirmButton: true,
           confirmText: 'OK',
-          cancelText: null
+          cancelText: null,
+          onConfirm: () => setAlertConfig(prev => ({ ...prev, isOpen: false }))
         });
         setSubmitting(false);
         return;
@@ -163,7 +164,7 @@ function Metas() {
       const dataPrazo = new Date(formData.prazo);
       const hoje = new Date();
 
-      if (isNaN(valorObjetivo) || valorObjetivo <= 0 || isNaN(valorInicial) || valorInicial < 0 || dataPrazo < hoje) {
+      if (isNaN(valorObjetivo) || valorObjetivo < 0 || isNaN(valorInicial) || valorInicial < 0 || dataPrazo < hoje) {
         setAlertConfig({
           isOpen: true,
           title: 'Valores Inválidos',
@@ -171,7 +172,8 @@ function Metas() {
           type: 'error',
           showConfirmButton: true,
           confirmText: 'OK',
-          cancelText: null
+          cancelText: null,
+          onConfirm: () => setAlertConfig(prev => ({ ...prev, isOpen: false }))
         });
         setSubmitting(false);
         return;
@@ -259,7 +261,8 @@ function Metas() {
           type: 'error',
           showConfirmButton: true,
           confirmText: 'OK',
-          cancelText: null
+          cancelText: null,
+          onConfirm: () => setAlertConfig(prev => ({ ...prev, isOpen: false }))
         });
       }
     } catch (error) {
@@ -271,7 +274,8 @@ function Metas() {
         type: 'error',
         showConfirmButton: true,
         confirmText: 'OK',
-        cancelText: null
+        cancelText: null,
+        onConfirm: () => setAlertConfig(prev => ({ ...prev, isOpen: false }))
       });
     } finally {
       setSubmitting(false);

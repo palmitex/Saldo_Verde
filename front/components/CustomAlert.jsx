@@ -11,6 +11,7 @@ export default function CustomAlert({
   type = 'info', // 'info', 'success', 'warning', 'error'
   showConfirmButton = true,
   confirmText = 'Sim',
+  confirmDisabled = false,
   cancelText = 'Não'
 }) {
   useEffect(() => {
@@ -106,9 +107,11 @@ export default function CustomAlert({
                     {title}
                   </h3>
                   <div className="mt-2">
-                    <p className="text-sm text-gray-500">
-                      {message}
-                    </p>
+                    {typeof message === 'string' ? (
+                      <p className="text-sm text-gray-500">{message}</p>
+                    ) : (
+                      message
+                    )}
                   </div>
                 </div>
               </div>
@@ -118,7 +121,8 @@ export default function CustomAlert({
                 <button
                   type="button"
                   onClick={onConfirm}
-                  className={`inline-flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm ${colors.button} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm`}
+                  disabled={confirmDisabled}
+                  className={`inline-flex w-full justify-center rounded-md border border-transparent px-4 py-2 text-base font-medium text-white shadow-sm ${colors.button} focus:outline-none focus:ring-2 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm ${confirmDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {confirmText}
                 </button>
@@ -138,4 +142,4 @@ export default function CustomAlert({
       </div>
     </>
   );
-} 
+}

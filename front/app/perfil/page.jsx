@@ -7,6 +7,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import CustomAlert from '../../components/CustomAlert';
 import Image from 'next/image';
 import './profile.css';
+import ConfirmacaoExclusao from '../../components/ConfirmacaoExclusao';
 
 export default function Perfil() {
   const auth = useAuth();
@@ -31,6 +32,7 @@ export default function Perfil() {
     confirmText: 'Sim',
     cancelText: 'Não'
   });
+  const [showConfirmacaoExclusao, setShowConfirmacaoExclusao] = useState(false);
 
   useEffect(() => {
     if (auth?.user) {
@@ -169,66 +171,62 @@ export default function Perfil() {
     }
   };
 
-  const handleExcluirConta = async () => {
-    setAlertConfig({
-      isOpen: true,
-      title: 'Excluir Conta',
-      message: 'Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita e todos os seus dados serão removidos permanentemente.',
-      type: 'warning',
-      onConfirm: async () => {
-        setExcluindoConta(true);
+  const handleExcluirConta = () => {
+    setShowConfirmacaoExclusao(true);
+  };
 
-        try {
-          // Preparar a URL com o userId no body em vez de contar apenas com o parâmetro de consulta
-          const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/perfil`, {
-            method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userId: auth.user.id
-            })
-          });
-
-          // Verificar se a resposta é bem-sucedida
-          const data = await response.json().catch(() => ({}));
-          if (!response.ok) {
-            throw new Error(data.message || 'Erro ao excluir a conta');
-          }
-
-          // Mensagem de sucesso
-          setAlertConfig({
-            isOpen: true,
-            title: 'Conta Excluída',
-            message: 'Sua conta foi excluída com sucesso.',
-            type: 'success',
-            onConfirm: () => {
-              // Faz logout após exclusão bem-sucedida
-              auth.logout();
-              router.push('/');
-            },
-            showConfirmButton: true,
-            confirmText: 'OK'
-          });
-        } catch (error) {
-          console.error('Erro ao excluir conta:', error);
-          setExcluindoConta(false);
-          
-          // Mostrar mensagem de erro para o usuário
-          setAlertConfig({
-            isOpen: true,
-            title: 'Erro',
-            message: error.message || 'Ocorreu um erro ao tentar excluir sua conta. Tente novamente mais tarde.',
-            type: 'error',
-            showConfirmButton: true,
-            confirmText: 'OK'
-          });
-        }
-      },
-      showConfirmButton: true,
-      confirmText: 'Sim, excluir conta',
-      cancelText: 'Não, manter conta'
-    });
+  const handleConfirmarExclusao = async () => {
+    setExcluindoConta(true);
+    // Fechar o modal de confirmação imediatamente
+    setShowConfirmacaoExclusao(false);
+    
+    try {
+      // Preparar a URL com o userId no body em vez de contar apenas com o parâmetro de consulta
+      const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/usuarios/perfil`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: auth.user.id
+        })
+      });
+  
+      // Verificar se a resposta é bem-sucedida
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro ao excluir a conta');
+      }
+  
+      // Mensagem de sucesso
+      setAlertConfig({
+        isOpen: true,
+        title: 'Conta Excluída',
+        message: 'Sua conta foi excluída com sucesso.',
+        type: 'success',
+        onConfirm: () => {
+          // Faz logout após exclusão bem-sucedida
+          auth.logout();
+          router.push('/');
+        },
+        showConfirmButton: true,
+        confirmText: 'OK',
+        cancelText: null
+      });
+    } catch (error) {
+      console.error('Erro ao excluir conta:', error);
+      setExcluindoConta(false);
+      
+      // Mostrar mensagem de erro para o usuário
+      setAlertConfig({
+        isOpen: true,
+        title: 'Erro',
+        message: error.message || 'Ocorreu um erro ao tentar excluir sua conta. Tente novamente mais tarde.',
+        type: 'error',
+        showConfirmButton: true,
+        confirmText: 'OK'
+      });
+    }
   };
 
   return (
@@ -245,6 +243,11 @@ export default function Perfil() {
           confirmText={alertConfig.confirmText}
           cancelText={alertConfig.cancelText}
         />
+        <ConfirmacaoExclusao 
+        isOpen={showConfirmacaoExclusao}
+        onClose={() => setShowConfirmacaoExclusao(false)}
+        onConfirm={handleConfirmarExclusao}
+      />
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 backdrop-blur-sm bg-white/90 profile-card">
             {/* Header with decorative wave */}
@@ -451,3 +454,6 @@ export default function Perfil() {
     </ProtectedRoute>
   );
 }
+
+
+
