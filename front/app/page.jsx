@@ -137,7 +137,7 @@ export default function Home() {
               { valor: '95%', descricao: 'Taxa de satisfação dos usuários' }
             ].map((item, idx) => (
               <div key={idx} className="p-6 bg-white rounded-xl border border-gray-300 shadow-sm">
-                <div className="text-4xl font-bold text-green-700 mb-2">{item.valor}</div>
+                <div className="text-2xl font-bold text-green-700 mb-2">{item.valor}</div>
                 <p className="text-gray-700">{item.descricao}</p>
               </div>
             ))}
