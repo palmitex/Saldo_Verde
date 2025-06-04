@@ -62,24 +62,48 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
-              <div className="text-5xl mb-4 flex justify-center"><img src="/grafico_home.svg" alt="" className="w-45" /></div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Visão clara das suas finanças</h3>
-              <p className="text-gray-600">Acompanhe entradas e saídas com gráficos intuitivos e relatórios detalhados</p>
+              <div className="text-5xl mb-4 flex justify-center">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
+                  <path d="M25 55V35M40 55V25M55 55V45" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M20 60H60" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Análise financeira</h3>
+              <p className="text-gray-600">Visualize seus gastos e ganhos com gráficos intuitivos e relatórios detalhados</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
-              <div className="text-5xl mb-4 flex justify-center"><img src="/alvo_home.svg" alt="" className="h-35" /></div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Defina e alcance metas</h3>
-              <p className="text-gray-600">Estabeleça objetivos financeiros e acompanhe seu progresso em tempo real</p>
+              <div className="text-5xl mb-4 flex justify-center">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
+                  <path d="M40 20V60" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+                  <path d="M25 30L40 20L55 30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M25 50L40 60L55 50" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Equilíbrio financeiro</h3>
+              <p className="text-gray-600">Mantenha suas receitas e despesas equilibradas com ferramentas de controle</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
-              <div className="text-5xl mb-4 flex justify-center"><img src="/celular_home.svg" alt="" className="w-45" /></div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Acesse de qualquer lugar</h3>
-              <p className="text-gray-600">Gerencie suas finanças pelo computador ou dispositivo móvel</p>
+              <div className="text-5xl mb-4 flex justify-center">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
+                  <path d="M30 25H50C55 25 55 35 50 35H30C25 35 25 45 30 45H50C55 45 55 55 50 55H30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M40 20V25M40 55V60" stroke="white" strokeWidth="4" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Controle de gastos</h3>
+              <p className="text-gray-600">Acompanhe todas as suas despesas e identifique oportunidades para economizar</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
-              <div className="text-5xl mb-4 flex justify-center"><img src="/seguranca_home.svg" alt="" className="w-50" /></div>
-              <h3 className="text-xl font-semibold text-gray-700 mb-3">Segurança em primeiro lugar</h3>
-              <p className="text-gray-600">Seus dados financeiros protegidos com as mais avançadas tecnologias</p>
+              <div className="text-5xl mb-4 flex justify-center">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="40" cy="40" r="38" fill="#3A7D44" stroke="#55c065" strokeWidth="4"/>
+                  <path d="M25 40L35 50L55 30" stroke="white" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">Metas alcançáveis</h3>
+              <p className="text-gray-600">Defina objetivos financeiros realistas e acompanhe seu progresso até alcançá-los</p>
             </div>
           </div>
         </div>
