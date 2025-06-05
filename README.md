@@ -4,7 +4,7 @@
 
 ### 💰 Controle financeiro simplificado para sua vida
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=flat&logo=license)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-13.4+-000000?style=flat&logo=next.js)](https://nextjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=flat&logo=node.js)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/React-18.x-61DAFB?style=flat&logo=react)](https://reactjs.org/)
@@ -105,8 +105,7 @@ O aplicativo frontend estará disponível em `http://localhost:3000`.
 ### Backend
 - [Node.js](https://nodejs.org/) - Ambiente de execução JavaScript
 - [Express](https://expressjs.com/) - Framework web para Node.js
-- [MySQL](https://www.mysql.com/) - Sistema de gerenciamento de banco de dados
-- [JWT](https://jwt.io/) - JSON Web Token para autenticação
+- [PostgreSQL](https://postgresqlstudio.org/) - Sistema de gerenciamento de banco de dados
 
 ### Frontend
 - [Next.js](https://nextjs.org/) - Framework React com renderização do lado do servidor
