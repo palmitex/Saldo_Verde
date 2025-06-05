@@ -83,10 +83,6 @@ export default function Error({ error, reset }) {
             </div>
           </div>
         </div>
-        
-        <div className="p-5 bg-gray-50 border-t border-gray-100 text-center text-gray-500 text-sm">
-          Caso o problema persista, entre em contato com nossa equipe de suporte
-        </div>
       </div>
     </div>
   );

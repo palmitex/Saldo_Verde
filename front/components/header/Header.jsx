@@ -71,6 +71,19 @@ export default function Header() {
     return (
         <header className="bg-gradient-to-r from-[#3A7D44] to-[#55c065] shadow-md sticky top-0 z-50">
             <div className="container mx-auto py-3 px-3 flex items-center justify-between">
+                {/* Botão do menu mobile - Movido para a esquerda */}
+                <button 
+                    className="menu-toggle md:hidden" 
+                    onClick={toggleActive}
+                    aria-label="Menu"
+                >
+                    <div className={`hamburger ${isActive ? 'active' : ''}`}>
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </button>
+                
                 <Link 
                     href="/" 
                     onClick={handleLinkClick}
@@ -237,18 +250,7 @@ export default function Header() {
                     )}
                 </div>
 
-                {/* Botão do menu mobile */}
-                <button 
-                    className="menu-toggle md:hidden" 
-                    onClick={toggleActive}
-                    aria-label="Menu"
-                >
-                    <div className={`hamburger ${isActive ? 'active' : ''}`}>
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </button>
+                {/* O botão do menu mobile foi movido para o início do container */}
             </div>
         </header>
     );

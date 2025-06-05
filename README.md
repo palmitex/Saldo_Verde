@@ -1,106 +1,174 @@
-# 💸 Saldo Verde
+<div align="center">
 
-Um site de finanças pessoais desenvolvido para facilitar o controle financeiro do usuário de forma simples, intuitiva e divertida.
+# <img src="front/public/Porco-logo.png" alt="Logo SaldoVerde" width="40"> SaldoVerde
 
----
+### 💰 Controle financeiro simplificado para sua vida
 
-## 🚀 Instalação
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Next.js](https://img.shields.io/badge/Next.js-13.4+-000000?style=flat&logo=next.js)](https://nextjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-339933?style=flat&logo=node.js)](https://nodejs.org/)
+[![React](https://img.shields.io/badge/React-18.x-61DAFB?style=flat&logo=react)](https://reactjs.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=flat&logo=tailwind-css)](https://tailwindcss.com/)
+
+</div>
+
+## 📋 Sobre o Projeto
+
+O **SaldoVerde** é uma plataforma de finanças pessoais desenvolvida para facilitar o controle financeiro do usuário de forma simples, intuitiva e divertida. Nosso objetivo é ajudar as pessoas a organizarem suas finanças, estabelecerem metas e acompanharem seu progresso financeiro com facilidade.
+
+### ✨ Principais Funcionalidades
+
+- **Controle de Transações**: Registre receitas e despesas de forma organizada
+- **Categorias Personalizadas**: Crie e gerencie categorias com cores e ícones personalizados
+- **Metas Financeiras**: Estabeleça objetivos claros para suas economias e investimentos
+- **Análises e Gráficos**: Visualize suas finanças com gráficos e relatórios detalhados
+- **Planejamento Inteligente**: Organize seu orçamento mensal e planeje seus gastos
+
+## 🖼️ Capturas de Tela
+
+<div align="center">
+<table>
+  <tr>
+    <td><img src="front/public/principal_home.jpeg" alt="Tela Inicial" width="300"/></td>
+    <td><img src="front/public/grafico.jpeg" alt="Análises" width="300"/></td>
+  </tr>
+  <tr>
+    <td><img src="front/public/metas.png" alt="Metas" width="300"/></td>
+  </tr>
+</table>
+</div>
+
+## 🚀 Começando
+
+### Pré-requisitos
+
+- [Node.js](https://nodejs.org/) (versão 18.x ou superior)
+- [npm](https://www.npmjs.com/) (normalmente instalado com o Node.js)
+- [Git](https://git-scm.com/) para clonar o repositório
+
+### Instalação
 
 1. Clone o repositório:
-    ```bash
-    git clone https://github.com/palmitex/projeto-financias
-    ```
+   ```bash
+   git clone https://github.com/palmitex/projeto-financias.git
+   cd projeto-financias
+   ```
 
-2. Instale as dependências:
-    ```bash
-    npm install
-    ```
+2. Instale as dependências do backend:
+   ```bash
+   cd API
+   npm install
+   ```
 
-3. Rode o projeto localmente em **dois terminais separados**:
+3. Configure o arquivo `.env` na pasta API com suas credenciais de banco de dados:
+   ```
+   DB_HOST=seu_host
+   DB_USER=seu_usuario
+   DB_PASSWORD=sua_senha
+   DB_NAME=saldoverde
+   JWT_SECRET=sua_chave_secreta
+   ```
 
-    #### 🖥️ Backend (API)
-    No primeiro terminal, execute:
-    ```bash
-    node app.js
-    ```
+4. Instale as dependências do frontend:
+   ```bash
+   cd ../front
+   npm install
+   ```
 
-    #### 🌐 Frontend (cliente)
-    No segundo terminal, execute:
-    ```bash
-    npm run dev
-    ```
----
+5. Configure o arquivo `.env.local` na pasta front com a URL da API:
+   ```
+   NEXT_PUBLIC_API_URL=http://localhost:3001
+   ```
+
+### Executando o Projeto
+
+Você precisará executar o backend e o frontend em terminais separados:
+
+#### Backend (API)
+
+```bash
+cd API
+node app.js
+```
+O servidor backend estará disponível em `http://localhost:3001`.
+
+#### Frontend
+
+```bash
+cd front
+npm run dev
+```
+O aplicativo frontend estará disponível em `http://localhost:3000`.
 
 ## 📦 Tecnologias Utilizadas
 
-- [Node.js](https://nodejs.org/pt-br/)
-- [Next.js](https://nextjs.org/)
-- [JavaScript (ECMAScript)](https://tc39.es/ecma262/)
-- [Flowbite](https://flowbite.com/)
-- [React](https://reactjs.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
-- [CSS](https://developer.mozilla.org/pt-BR/docs/Web/CSS)
-- [Chart.js](https://www.chartjs.org/)
----
+### Backend
+- [Node.js](https://nodejs.org/) - Ambiente de execução JavaScript
+- [Express](https://expressjs.com/) - Framework web para Node.js
+- [MySQL](https://www.mysql.com/) - Sistema de gerenciamento de banco de dados
+- [JWT](https://jwt.io/) - JSON Web Token para autenticação
 
-## 🗂 Estrutura de Pastas
+### Frontend
+- [Next.js](https://nextjs.org/) - Framework React com renderização do lado do servidor
+- [React](https://reactjs.org/) - Biblioteca JavaScript para construção de interfaces
+- [Tailwind CSS](https://tailwindcss.com/) - Framework CSS utilitário
+- [Flowbite](https://flowbite.com/) - Biblioteca de componentes para Tailwind CSS
+- [Chart.js](https://www.chartjs.org/) - Biblioteca para criação de gráficos
+
+## 🗂️ Estrutura do Projeto
 
 ```
 .
 └── projeto-financias/
-    ├── API/
-    │   ├── config/
-    │   ├── controllers/
-    │   ├── models/
-    │   ├── routes/
-    │   ├── .env
-    │   ├── app.js
-    │   ├── package-lock.json
-    │   └── package.json
-    └── front/
-        ├── .flowbite-react/
-        ├── .next/
-        ├── .vscode/
-        ├── app/
-        ├── components/
-        ├── context/
-        ├── data/
-        ├── public/
-        ├── .env.local
-        ├── package-lock.json
-        └── package.json
+    ├── API/                   # Backend da aplicação
+    │   ├── config/           # Configurações (banco de dados, etc)
+    │   ├── controllers/      # Controladores da API
+    │   ├── models/           # Modelos de dados
+    │   ├── routes/           # Rotas da API
+    │   ├── .env              # Variáveis de ambiente (não versionado)
+    │   └── app.js            # Ponto de entrada do backend
+    │
+    └── front/                # Frontend da aplicação
+        ├── app/              # Páginas e componentes Next.js
+        ├── components/       # Componentes React reutilizáveis
+        ├── context/          # Contextos React (autenticação, etc)
+        ├── data/             # Dados estáticos
+        ├── public/           # Arquivos públicos (imagens, etc)
+        └── .env.local        # Variáveis de ambiente (não versionado)
 ```
 
----
 
 ## 📃 Licença
 
-Este projeto é regido pela licença MIT:
-
-MIT License
-
-Copyright (c) 2025 palmitex
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Este projeto está licenciado sob a Licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes.
 
 ## 👥 Desenvolvedores
 
-[Victor Cestari](https://github.com/vc-franca)  
-[Lucas Toledo](https://github.com/ToledoP)  
-[Gabriel Palmieri](https://github.com/palmitex)
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/vc-franca">
+        <img src="https://github.com/vc-franca.png" width="100px;" alt="Victor Cestari"/><br>
+        <sub><b>Victor Cestari</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/ToledoP">
+        <img src="https://github.com/ToledoP.png" width="100px;" alt="Lucas Toledo"/><br>
+        <sub><b>Lucas Toledo</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/palmitex">
+        <img src="https://github.com/palmitex.png" width="100px;" alt="Gabriel Palmieri"/><br>
+        <sub><b>Gabriel Palmieri</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+---
+
+<div align="center">
+  <p>Desenvolvido com 💚 pelo time SaldoVerde</p>
+</div>

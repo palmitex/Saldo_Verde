@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- Fundo circular com gradiente suave -->
+  <circle cx="100" cy="100" r="90" fill="#f8f9fa" stroke="#e9ecef" stroke-width="2"/>
+  
+  <!-- Corpo do cofrinho -->
+  <ellipse cx="100" cy="110" rx="55" ry="45" fill="#7ece5d" stroke="#2b8a3e" stroke-width="3"/>
+  
+  <!-- Pernas do cofrinho -->
+  <rect x="65" y="145" width="10" height="15" rx="5" ry="5" fill="#7ece5d" stroke="#2b8a3e" stroke-width="2"/>
+  <rect x="125" y="145" width="10" height="15" rx="5" ry="5" fill="#7ece5d" stroke="#2b8a3e" stroke-width="2"/>
+  
+  <!-- Orelhas do cofrinho -->
+  <ellipse cx="65" cy="85" rx="10" ry="15" fill="#7ece5d" stroke="#2b8a3e" stroke-width="2" transform="rotate(-20, 65, 85)"/>
+  <ellipse cx="135" cy="85" rx="10" ry="15" fill="#7ece5d" stroke="#2b8a3e" stroke-width="2" transform="rotate(20, 135, 85)"/>
+  
+  <!-- Olhos do cofrinho -->
+  <circle cx="80" cy="100" r="5" fill="white" stroke="#2b8a3e" stroke-width="1"/>
+  <circle cx="120" cy="100" r="5" fill="white" stroke="#2b8a3e" stroke-width="1"/>
+  <circle cx="82" cy="100" r="2" fill="#343a40"/>
+  <circle cx="122" cy="100" r="2" fill="#343a40"/>
+  
+  <!-- Nariz do cofrinho -->
+  <ellipse cx="100" cy="115" rx="10" ry="7" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="1"/>
+  <circle cx="95" cy="113" r="2" fill="white"/>
+  
+  <!-- Fenda para moedas -->
+  <rect x="90" y="80" width="20" height="5" rx="2" ry="2" fill="#2b8a3e" stroke="#2b8a3e" stroke-width="1"/>
+  
+  <!-- Moeda caindo -->
+  <circle cx="100" cy="50" r="12" fill="#ffd43b" stroke="#f08c00" stroke-width="1"/>
+  <text x="100" y="54" font-family="Arial" font-size="12" font-weight="bold" fill="#f08c00" text-anchor="middle">$</text>
+  
+  <!-- Linhas tracejadas indicando o caminho da moeda -->
+  <line x1="100" y1="62" x2="100" y2="75" stroke="#adb5bd" stroke-width="2" stroke-dasharray="3,3"/>
+  
+  <!-- Símbolo de economia/consciência -->
+  <path d="M150 60 A 50 50 0 0 1 100 110" fill="none" stroke="#495057" stroke-width="2" stroke-dasharray="5,3"/>
+  <polygon points="150,60 145,70 155,70" fill="#495057"/>
+  
+  <!-- Símbolo de lâmpada (ideia/consciência) -->
+  <circle cx="150" cy="40" r="15" fill="#ffd43b" stroke="#f08c00" stroke-width="1"/>
+  <path d="M150 30 L150 50 M140 35 L160 45 M140 45 L160 35" fill="none" stroke="#f08c00" stroke-width="2"/>
+</svg>

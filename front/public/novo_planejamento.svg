@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <!-- Fundo circular com gradiente suave -->
+  <circle cx="100" cy="100" r="90" fill="#f8f9fa" stroke="#e9ecef" stroke-width="2"/>
+  
+  <!-- Calendário base -->
+  <rect x="40" y="50" width="120" height="110" rx="8" ry="8" fill="white" stroke="#495057" stroke-width="3"/>
+  
+  <!-- Topo do calendário -->
+  <rect x="40" y="50" width="120" height="25" rx="8" ry="8" fill="#7ece5d" stroke="#7ece5d" stroke-width="1"/>
+  
+  <!-- Linhas do calendário -->
+  <line x1="40" y1="75" x2="160" y2="75" stroke="#495057" stroke-width="3"/>
+  <line x1="70" y1="75" x2="70" y2="160" stroke="#dee2e6" stroke-width="2"/>
+  <line x1="100" y1="75" x2="100" y2="160" stroke="#dee2e6" stroke-width="2"/>
+  <line x1="130" y1="75" x2="130" y2="160" stroke="#dee2e6" stroke-width="2"/>
+  
+  <line x1="40" y1="95" x2="160" y2="95" stroke="#dee2e6" stroke-width="2"/>
+  <line x1="40" y1="115" x2="160" y2="115" stroke="#dee2e6" stroke-width="2"/>
+  <line x1="40" y1="135" x2="160" y2="135" stroke="#dee2e6" stroke-width="2"/>
+  
+  <!-- Marcações de planejamento -->
+  <circle cx="85" cy="105" r="8" fill="#7ece5d" opacity="0.7"/>
+  <circle cx="115" cy="125" r="8" fill="#7ece5d" opacity="0.7"/>
+  <circle cx="55" cy="145" r="8" fill="#7ece5d" opacity="0.7"/>
+  
+  <!-- Caneta de planejamento -->
+  <path d="M150 40 L165 25 L175 35 L160 50 Z" fill="#7ece5d" stroke="#495057" stroke-width="2"/>
+  <line x1="150" y1="40" x2="130" y2="60" stroke="#495057" stroke-width="2"/>
+  <path d="M175 35 L177 33 L167 23 L165 25 Z" fill="#adb5bd"/>
+  
+  <!-- Texto do calendário -->
+  <text x="55" y="67" font-family="Arial" font-size="12" font-weight="bold" fill="white" text-anchor="middle">S</text>
+  <text x="85" y="67" font-family="Arial" font-size="12" font-weight="bold" fill="white" text-anchor="middle">T</text>
+  <text x="115" y="67" font-family="Arial" font-size="12" font-weight="bold" fill="white" text-anchor="middle">Q</text>
+  <text x="145" y="67" font-family="Arial" font-size="12" font-weight="bold" fill="white" text-anchor="middle">S</text>
+</svg>

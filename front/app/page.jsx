@@ -63,28 +63,28 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <img src="/sobre1.svg" alt="Planejamento financeiro" className="w-24 h-24" />
+                <img src="/novo_planejamento.svg" alt="Planejamento financeiro" className="w-24 h-24" />
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-3">Planejamento inteligente</h3>
               <p className="text-gray-600">Organize seu orçamento mensal e planeje seus gastos com antecedência</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <img src="/sobre2.svg" alt="Reserva financeira" className="w-24 h-24" />
+                <img src="/nova_reserva.svg" alt="Reserva financeira" className="w-24 h-24" />
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-3">Construa sua reserva</h3>
               <p className="text-gray-600">Acompanhe o crescimento da sua reserva de emergência e investimentos</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <img src="/porco_rico.svg" alt="Economizar dinheiro" className="w-24 h-24" />
+                <img src="/nova_economia.svg" alt="Economizar dinheiro" className="w-24 h-24" />
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-3">Economize com consciência</h3>
               <p className="text-gray-600">Identifique padrões de gastos e descubra oportunidades para economizar</p>
             </div>
             <div className="bg-gradient-to-b from-gray-200 to-gray-300 p-8 rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-3 duration-300 border border-gray-300">
               <div className="text-5xl mb-4 flex justify-center">
-                <img src="/sobre4.svg" alt="Realize seus sonhos" className="w-24 h-24" />
+                <img src="/novos_sonhos.svg" alt="Realize seus sonhos" className="w-24 h-24" />
               </div>
               <h3 className="text-xl font-semibold text-gray-700 mb-3">Realize seus sonhos</h3>
               <p className="text-gray-600">Transforme objetivos em realidade com planejamento financeiro estruturado</p>
@@ -121,16 +121,15 @@ export default function Home() {
                 Criar Metas
               </Link>
             </div>
-            <div className="md:w-1/2 bg-gray-100 p-8 flex justify-center items-center">
-              <div className="relative w-full h-64 md:h-80">
-                <Image
-                  src="/alvo_home.svg"
-                  alt="Metas Financeiras"
-                  layout="fill"
-                  objectFit="contain"
-                  className="p-4"
-                />
-              </div>
+            <div className="md:w-1/2 bg-gray-100 p-8 flex justify-center items-center h-64 md:h-auto">
+              <Image
+                src="/alvo_home.svg"
+                alt="Metas Financeiras"
+                width={300}
+                height={300}
+                className="w-full max-w-[300px] h-auto object-contain"
+                priority
+              />
             </div>
           </div>
           
@@ -152,16 +151,15 @@ export default function Home() {
                 Gerenciar Categorias
               </Link>
             </div>
-            <div className="md:w-1/2 bg-gray-100 p-8 flex justify-center items-center">
-              <div className="relative w-full h-64 md:h-80">
-                <Image
-                  src="/porco_rico.svg"
-                  alt="Categorias Personalizadas"
-                  layout="fill"
-                  objectFit="contain"
-                  className="p-4"
-                />
-              </div>
+            <div className="md:w-1/2 bg-gray-100 p-8 flex justify-center items-center h-64 md:h-auto">
+              <Image
+                src="/porco_rico.svg"
+                alt="Categorias Personalizadas"
+                width={300}
+                height={300}
+                className="w-full max-w-[300px] h-auto object-contain"
+                priority
+              />
             </div>
           </div>
           
@@ -183,16 +181,15 @@ export default function Home() {
                 Ver Análises
               </Link>
             </div>
-            <div className="md:w-1/2 bg-gray-100 p-8 flex justify-center items-center">
-              <div className="relative w-full h-64 md:h-80">
-                <Image
-                  src="/grafico_home.svg"
-                  alt="Análises e Gráficos"
-                  layout="fill"
-                  objectFit="contain"
-                  className="p-4"
-                />
-              </div>
+            <div className="md:w-1/2 bg-gray-100 p-8 flex justify-center items-center h-64 md:h-auto">
+              <Image
+                src="/grafico_home.svg"
+                alt="Análises e Gráficos"
+                width={300}
+                height={300}
+                className="w-full max-w-[300px] h-auto object-contain"
+                priority
+              />
             </div>
           </div>
         </div>

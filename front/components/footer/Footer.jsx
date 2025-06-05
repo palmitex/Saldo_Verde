@@ -3,8 +3,35 @@
 import footer from '../../data/footer.js';
 import Link from 'next/link';
 import { FaFacebook, FaInstagram, FaTwitter, FaArrowUp, FaLinkedin} from 'react-icons/fa';
+import { usePathname } from 'next/navigation';
 
 export default function Footer() {
+    const pathname = usePathname();
+    
+    // Lista de rotas onde o footer não deve aparecer
+    const hideFooterRoutes = [
+        '/login',
+        '/registro',
+        '/recuperar-senha',
+        '/transacoes',
+        '/categorias',
+        '/metas',
+        '/perfil'
+    ];
+    
+    // Verifica se a rota atual está na lista de rotas sem footer
+    const shouldHideFooter = hideFooterRoutes.some(route => 
+        pathname === route || pathname.startsWith(`${route}/`)
+    );
+    
+    // Se estiver na página de análise, mostrar o footer
+    const isAnalysisPage = pathname === '/analise' || pathname.startsWith('/analise/');
+    
+    // Se deve esconder o footer e não é a página de análise, retorna null (não renderiza nada)
+    if (shouldHideFooter && !isAnalysisPage) {
+        return null;
+    }
+    
     const scrollToTop = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
