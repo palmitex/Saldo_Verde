@@ -13,6 +13,7 @@ import {
   Cpu
 } from 'lucide-react';
 
+// essa const tem a função de trazer as opcoes dos filtros de pesquisas que se baseiam nas categorias do array
 const filters = [
   { nome: 'Todos', icone: Filter },
   { nome: 'Finanças', icone: DollarSign },
@@ -26,18 +27,22 @@ const filters = [
 export default function Blog() {
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('Todos');
 
+  // aqui acontece a parte do filtro dos artigos pela categoria, 
+  //que so vai mostrar aqueles cards de categoria igual e tamnbem ele limita a somente 5 cards.
   const artigosFiltrados = artigos
     .filter(artigo =>
       categoriaSelecionada === 'Todos' || artigo.categoria?.includes(categoriaSelecionada)
     )
     .slice(0, 5);
 
+  // Esse aqui faz que todos os itens do array que tiverem o featured: true, sejam mostrados em um tamanho especial, como se fosse o card principal 
   const artigoDestaque = artigosFiltrados.find(a => a.featured);
+  // E esse é o completo oposto já que os que nao tiveram o featured: true seram considerados secundários
   const artigosSecundarios = artigosFiltrados.filter(a => !a.featured);
 
   return (
     <main>
-      {/* Seção de Destaque */}
+      {/* Seção do Bannner da Pagina do blog */}
       <section className="bg-[#014038] text-white px-6 py-12 md:py-20 md:px-24">
         <div className="flex flex-col md:flex-row items-center justify-between gap-10 max-w-7xl mx-auto">
           <div className="w-full md:w-1/2">
@@ -63,6 +68,7 @@ export default function Blog() {
       <section className='py-10 px-4 sm:px-8 lg:px-16 max-w-7xl mx-auto'>
         <h2 className="text-3xl font-bold mb-6">Veja nossos artigos mais lidos</h2>
 
+        {/* Essa div mostra os icons ao lado do botão da categoria */}
         <div className="flex gap-6 mb-8 flex-wrap">
           {filters.map(({ nome, icone: Icon }) => (
             <button
@@ -81,6 +87,7 @@ export default function Blog() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Chama as informaçoes dos artigos destaques */}
           {artigoDestaque && (
             <Link href={`/blog/${artigoDestaque.id}`} className="rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition">
               <img src={artigoDestaque.img} alt={artigoDestaque.titulo} className="w-full h-64 object-cover transition-transform group-hover:scale-107" />
@@ -96,7 +103,7 @@ export default function Blog() {
             </Link>
           )}
 
-          {/* Lista de artigos (máx 4 restantes) */}
+          {/* Lista de artigos secundarios (máx 4 restantes) */}
           <div className="flex flex-col gap-4">
             {artigosSecundarios.map((artigo) => (
               <Link href={`/blog/${artigo.id}`} key={artigo.id} className="flex gap-4 shadow-sm hover:shadow-lg transition">
@@ -117,13 +124,15 @@ export default function Blog() {
         </div>
       </section>
 
-      {/* Últimos artigos */}
+      {/* Últimos artigos (contem uns 9 artigos) */}
       <section className="py-10 px-4 sm:px-8 lg:px-16 max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-bold">Últimos artigos</h2>
+          {/* Esse link leva a pagina com todos os outros artigos restantes */}
           <Link href="/blog/Articles" className="text-green-600 hover:text-yellow-300 transition-colors duration-300">Ver Todos →</Link>
         </div>
 
+            {/* Aqui chama os cards que possuem o item pagina identico a Página 1 e tambem com um link para levar para cada artigo */}
         <div className="grid md:grid-cols-3 gap-6">
           {artigos.filter((artigo) => artigo.pagina === 'Página 1').map((artigo) => (
             <Link href={`/blog/${artigo.id}`} key={artigo.id} className="bg-white rounded-xl overflow-hidden flex flex-col group shadow-md hover:shadow-lg transition">

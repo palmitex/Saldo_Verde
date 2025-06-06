@@ -36,6 +36,7 @@ export default function Footer() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    // Traz alguns icons para colocar nas redes socias
     const socialIcons = {
         'Facebook': <FaFacebook />,
         'Instagram': <FaInstagram />,
@@ -50,7 +51,7 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 ml-15">
 
-                    {/* Coluna 2: Navegação */}
+                    {/* Coluna 1: Navegação */}
                     <div>
                         <h4 className="text-2xl font-bold mb-4 text-yellow-300">Navegação</h4>
                         <ul className="space-y-2">
@@ -67,7 +68,7 @@ export default function Footer() {
                         </ul>
                     </div>
 
-                    {/* Coluna 3: Plataforma */}
+                    {/* Coluna 2: Plataforma */}
                     <div>
                         <h4 className="text-2xl font-bold mb-4 text-yellow-300">Plataforma</h4>
                         <ul className="space-y-2">
@@ -83,6 +84,8 @@ export default function Footer() {
                             ))}
                         </ul>
                     </div>
+
+                    {/* Coluna 3: Transparencia */}
                     <div>
                         <h4 className="text-2xl font-bold mb-4 text-yellow-300">Transparência</h4>
                         <ul className="space-y-2">
@@ -98,6 +101,8 @@ export default function Footer() {
                             ))}
                         </ul>
                     </div>
+
+                    {/* Contem os botoes das redes socias */}
                     <div>
                         <div>
                             <h3 className='text-2xl font-bold text-yellow-300'>Acompanhe nas redes</h3>
@@ -127,6 +132,7 @@ export default function Footer() {
                         © {new Date().getFullYear()} Saldo Verde. Todos os direitos reservados.
                     </p>
 
+                    {/* botao com a funçao de voltar para o topo da pagina  */}
                     <button
                         onClick={scrollToTop}
                         className="flex items-center space-x-1 bg-[#3A7D44] hover:bg-[#4a9d54] text-white px-4 py-2 rounded-full text-sm transition-colors duration-300 group"

@@ -57,10 +57,14 @@ export default function ArtigoPage(promiseParams) {
             </div>
           </div>
 
+            {/* Imagem */}
           <img src={artigo.img} alt={artigo.titulo} className='my-6 rounded-lg w-full h-140 object-cover max-w-7xl mx-auto'></img>
         </div>
       </section>
 
+
+
+      {/* Essa section é responsável por fazer com que os textos dos artigos sejam mostrados. Onde é dividida por varios titulos e paragrafos diferentes e algumas img quando necessitado */}
       <section className='max-w-5xl mx-auto mt-20 mb-20 sm:p-0 p-12'>
         <div className='  '>
           <p className='text-lg mb-10'>{artigo.paragrafo1}</p>

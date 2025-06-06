@@ -133,6 +133,7 @@ export default function Header() {
                                 ref={dropdownRef}
                                 className={`finance-dropdown ${showDropdown ? 'show' : ''}`}
                             >
+                                {/* Esses links adiantes são responsáveis por levar as paginas do site como: Metas, Transaçoes, Análise e Categorias */}
                                 <Link href="/metas" className="dropdown-item" onClick={handleLinkClick}>
                                     <FaCoins className="text-green-600" />
                                     <span>Metas</span>
@@ -156,6 +157,7 @@ export default function Header() {
                         </div>
                     )}
                     
+                    {/* esse link leva para o blog */}
                     <Link 
                         href="/blog" 
                         onClick={handleLinkClick}
