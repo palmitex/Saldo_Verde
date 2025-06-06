@@ -12,13 +12,13 @@ export default function Faq() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-white to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            {/* Background decorative elements */}
+            {/* Background */}
             <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-r from-green-50 to-emerald-50 -z-10 opacity-70"></div>
             <div className="absolute top-40 right-10 w-32 h-32 rounded-full bg-green-100 blur-3xl -z-10 opacity-40"></div>
             <div className="absolute bottom-20 left-10 w-40 h-40 rounded-full bg-emerald-100 blur-3xl -z-10 opacity-40"></div>
             
             <main className="max-w-5xl mx-auto mt-8 mb-20 relative z-10">
-                {/* Header section with fancy styling */}
+                {/* Header */}
                 <div className="text-center mb-16 relative">
                     <h1 className="text-5xl sm:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#3A7D44] to-[#55c065] mb-4 animate-fade-in-down">
                         Perguntas Frequentes
@@ -29,7 +29,7 @@ export default function Faq() {
                     </p>
                 </div>
 
-                {/* FAQ accordion section */}
+                {/* FAQ */}
                 <section className="rounded-3xl bg-white shadow-xl border border-gray-100 overflow-hidden">
                     <div className="divide-y divide-gray-100">
                         {faqs.map((faq, index) => (
@@ -63,7 +63,7 @@ export default function Faq() {
                     </div>
                 </section>
 
-                {/* Additional help section */}
+                {/* Seção de ajuda */}
                 <div className="mt-16 bg-gradient-to-r from-[#3A7D44] to-[#55c065] rounded-2xl p-8 sm:p-10 text-white shadow-lg transform transition-all duration-300 hover:scale-[1.01] hover:shadow-xl">
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div>

@@ -17,7 +17,7 @@ export default function Home() {
 
   return (
     <div className={`overflow-hidden transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'}`}>
-      {/* Hero Section */}
+      {/* Banner Principal */}
       <section className="w-screen relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] bg-gradient-to-b from-gray-200 to-gray-300 py-16 px-4 md:px-8 lg:px-16 mb-16 rounded-b-2xl">
         <div className="max-w-7xl mx-auto">
           <div className="container mx-auto flex flex-row md:flex-row items-center max-h-200px">
@@ -93,7 +93,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NOVA SEÇÃO: Conheça Nossas Funcionalidades */}
+      {/* Conheça Nossas Funcionalidades */}
       <section className="py-16 px-4 md:px-8 lg:px-16 bg-gray-50 border-t border-b border-gray-300">
         <div className="container mx-auto text-center max-w-7xl">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
@@ -195,7 +195,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NOVA SEÇÃO: Dicas Financeiras */}
+      {/* Dicas Financeiras */}
       <section className="py-16 px-4 md:px-8 lg:px-16 max-w-7xl mx-auto">
         <div className="container mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
