@@ -29,6 +29,7 @@ export default function Articles() {
                     {artigos.filter((artigo) => artigo.pagina === 'Página 3').map((artigo,) => {
                         return (
 
+                            // Essa aqui seria algo como a pagina 3 trazendo as informacoes do array com o item pagina igual a Página 3
                             <Link href={`/blog/${artigo.id}`} key={artigo.id} className="bg-white rounded-xl overflow-hidden flex flex-col group shadow-md hover:shadow-lg transition">
                                 <div className="relative w-full h-48">
                                     <img src={artigo.img} alt={artigo.titulo} className="w-full h-48 object-cover transform transition-transform group-hover:scale-107" />
@@ -44,6 +45,7 @@ export default function Articles() {
                         )
                     })}
                 </div>
+                {/* botao que leva para a pagina anterior apenas */}
                 <div className='flex justify-center mt-15 mb-15 gap-8'>
                     <Link href='/blog/Articles/Pagina2' className="flex items-center gap-2 bg-yellow-400 text-green-900 font-semibold px-6 py-2 rounded-lg hover:bg-yellow-300 transition h-13">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-6">
