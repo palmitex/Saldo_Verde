@@ -377,7 +377,7 @@ const Analise = () => {
             
             {/* Período personalizado com datas específicas */}
             {tipoSelecao === 'personalizado' && (
-              <>
+              <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <label className="block text-sm font-medium text-gray-700 flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -407,7 +407,7 @@ const Analise = () => {
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200"
                   />
                 </div>
-              </>
+              </div>
             )}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-gray-700 flex items-center">
