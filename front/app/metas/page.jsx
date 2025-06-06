@@ -13,24 +13,34 @@ export default function MetasPage() {
   );
 }
 
+// Componente principal de gerenciamento de metas financeiras
 function Metas() {
+  // Estado para armazenar a lista de metas do usuário
   const [metas, setMetas] = useState([]);
+  // Hook de autenticação para acessar o usuário logado e funções de autenticação
   const auth = useAuth();
+  // Hook de navegação para redirecionamento
   const router = useRouter();
+  
+  // Estado para gerenciar o formulário de criação/edição de metas
   const [formData, setFormData] = useState({
     nome: '',
     valor_objetivo: '',
     valor_inicial: '',
-    prazo: new Date().toISOString().split('T')[0],
+    prazo: new Date().toISOString().split('T')[0], // Data atual como padrão
     categoria_id: '',
     usuario_id: auth?.user?.id || null
   });
-  const [editando, setEditando] = useState(null);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [transacoesPorMeta, setTransacoesPorMeta] = useState({});
-  const [categorias, setCategorias] = useState([]);
-  const [metaAtiva, setMetaAtiva] = useState(null);
-  const [loading, setLoading] = useState(true);
+  
+  // Estados para controle de interface e funcionalidades
+  const [editando, setEditando] = useState(null); // ID da meta sendo editada ou null
+  const [mostrarForm, setMostrarForm] = useState(false); // Controla visibilidade do formulário
+  const [transacoesPorMeta, setTransacoesPorMeta] = useState({}); // Armazena transações relacionadas a cada meta
+  const [categorias, setCategorias] = useState([]); // Lista de categorias disponíveis
+  const [metaAtiva, setMetaAtiva] = useState(null); // ID da meta com detalhes expandidos
+  const [loading, setLoading] = useState(true); // Controla estado de carregamento
+  
+  // Configuração do componente de alerta personalizado
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
     title: '',
@@ -40,8 +50,11 @@ function Metas() {
     confirmText: 'OK',
     cancelText: null
   });
+  
+  // Estado para controlar submissão de formulário e evitar múltiplos envios
   const [submitting, setSubmitting] = useState(false);
   
+  // Efeito para carregar dados iniciais quando o usuário estiver autenticado
   useEffect(() => {
     if (auth?.user) {
       buscarMetas();
@@ -49,6 +62,7 @@ function Metas() {
     }
   }, [auth?.user]);
 
+  // Função para buscar categorias da API
   const buscarCategorias = async () => {
     try {
       if (!auth?.user) {
@@ -56,6 +70,7 @@ function Metas() {
         return;
       }
       
+      // Requisição para obter categorias
       const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias`);
       if (response.ok) {
         const data = await response.json();
@@ -71,6 +86,7 @@ function Metas() {
     }
   };
 
+  // Função para buscar metas do usuário da API
   const buscarMetas = async () => {
     try {
       setLoading(true); // Ativar loading antes de buscar dados
@@ -81,7 +97,7 @@ function Metas() {
       }
       console.log('Buscando metas para usuário:', auth.user.id);
       
-      // Usar o endpoint correto
+      // Requisição para obter metas do usuário
       const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas`);
       console.log('Resposta da API:', response);
       
@@ -89,6 +105,7 @@ function Metas() {
         const data = await response.json();
         console.log('Dados recebidos:', data);
         
+        // Tratamento para diferentes formatos de resposta da API
         if (data.status === 'success' && Array.isArray(data.data)) {
           console.log('Metas encontradas:', data.data);
           setMetas(data.data);
@@ -101,6 +118,7 @@ function Metas() {
           setMetas([]);
         }
       } else {
+        // Tratamento de erro na resposta da API
         const errorText = await response.text();
         console.error('Erro na resposta:', errorText);
         try {
@@ -114,13 +132,13 @@ function Metas() {
     } catch (error) {
       console.error('Erro ao buscar metas:', error);
       setMetas([]);
-      // Remover o alerta para evitar mensagens irritantes para o usuário
       console.error(`Erro ao buscar metas: ${error.message || 'Erro desconhecido'}`);
     } finally {
       setLoading(false); // Desativar loading após buscar dados
     }
   };
 
+  // Função para atualizar o estado do formulário quando o usuário altera os campos
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -129,6 +147,7 @@ function Metas() {
     });
   };
 
+  // Função para processar o envio do formulário (criar ou atualizar meta)
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -143,7 +162,7 @@ function Metas() {
         return;
       }
 
-      // Validações básicas
+      // Validações básicas dos campos do formulário
       if (!formData.nome || !formData.valor_objetivo || !formData.valor_inicial || !formData.prazo) {
         setAlertConfig({
           isOpen: true,
@@ -159,6 +178,7 @@ function Metas() {
         return;
       }
 
+      // Validação de valores numéricos e data
       const valorObjetivo = parseFloat(formData.valor_objetivo);
       const valorInicial = parseFloat(formData.valor_inicial);
       const dataPrazo = new Date(formData.prazo);
@@ -179,7 +199,7 @@ function Metas() {
         return;
       }
 
-      // Preparar dados da meta
+      // Preparar dados da meta para envio
       const metaData = {
         ...formData,
         valor_objetivo: valorObjetivo,
@@ -190,7 +210,9 @@ function Metas() {
 
       let response;
       
+      // Determina se é uma edição ou criação de meta
       if (editando) {
+        // Verificação de permissão para editar a meta
         const metaAtual = metas.find(m => m.id === editando);
         if (!metaAtual || String(metaAtual.usuario_id) !== String(auth.user.id)) {
           setAlertConfig({
@@ -206,6 +228,7 @@ function Metas() {
           return;
         }
 
+        // Requisição para atualizar meta existente
         response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas/${editando}?userId=${auth.user.id}`, {
           method: 'PUT',
           headers: {
@@ -217,6 +240,7 @@ function Metas() {
           }),
         });
       } else {
+        // Requisição para criar nova meta
         response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas`, {
           method: 'POST',
           headers: {
@@ -226,7 +250,9 @@ function Metas() {
         });
       }
       
+      // Tratamento da resposta da API
       if (response.ok) {
+        // Atualiza a lista de metas e limpa o formulário
         await buscarMetas();
         setFormData({
           nome: '',
@@ -239,6 +265,7 @@ function Metas() {
         setEditando(null);
         setMostrarForm(false);
         
+        // Exibe mensagem de sucesso
         setAlertConfig({
           isOpen: true,
           title: 'Sucesso!',
@@ -253,6 +280,7 @@ function Metas() {
           cancelText: null
         });
       } else {
+        // Tratamento de erro na resposta
         const errorData = await response.json().catch(() => ({}));
         setAlertConfig({
           isOpen: true,
@@ -282,6 +310,7 @@ function Metas() {
     }
   };
 
+  // Função para preparar o formulário para edição de uma meta existente
   const handleEditar = (meta) => {
     setFormData({
       nome: meta.nome,
@@ -293,9 +322,10 @@ function Metas() {
     });
     setEditando(meta.id);
     setMostrarForm(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola a página para o topo
   };
 
+  // Função para excluir uma meta com confirmação
   const handleExcluir = async (id) => {
     setAlertConfig({
       isOpen: true,
@@ -313,6 +343,7 @@ function Metas() {
             return;
           }
           
+          // Requisição para excluir meta
           const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/metas/${id}`, {
             method: 'DELETE',
             headers: {
@@ -320,6 +351,7 @@ function Metas() {
             }
           });
           
+          // Tratamento da resposta
           if (response.ok) {
             await buscarMetas();
             setAlertConfig({
@@ -335,6 +367,7 @@ function Metas() {
               cancelText: null
             });
           } else {
+            // Tratamento de erro
             let mensagemErro = 'Erro ao excluir meta';
             try {
               const errorData = await response.json();
@@ -375,6 +408,7 @@ function Metas() {
     });
   };
 
+  // Função para formatar valores monetários no padrão brasileiro
   const formatarMoeda = (valor) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
@@ -382,16 +416,19 @@ function Metas() {
     }).format(valor);
   };
 
+  // Função para calcular o progresso percentual de uma meta
   const calcularProgresso = (meta) => {
     const valorAtual = parseFloat(meta.valor_inicial || 0);
     const valorObjetivo = parseFloat(meta.valor_objetivo || 1);
     return Math.min((valorAtual / valorObjetivo) * 100, 100);
   };
 
+  // Função para expandir/recolher os detalhes de uma meta
   const toggleDetalhes = (metaId) => {
     setMetaAtiva(metaAtiva === metaId ? null : metaId);
   };
 
+  // Função para buscar transações relacionadas a uma meta específica
   const buscarTransacoesDaMeta = async (metaId) => {
     try {
       if (!auth?.user) {
@@ -400,6 +437,7 @@ function Metas() {
         return;
       }
       
+      // Exibe alerta de carregamento
       setAlertConfig({
         isOpen: true,
         title: 'Carregando',
@@ -410,20 +448,24 @@ function Metas() {
         cancelText: null
       });
       
+      // Requisição para buscar transações relacionadas à meta
       const response = await auth.authFetch(`${process.env.NEXT_PUBLIC_API_URL}/transacoes?meta_id=${metaId}&userId=${auth.user.id}`);
       
       if (response.ok) {
         const data = await response.json();
         if (data.status === 'success' && data.data && Array.isArray(data.data.transacoes)) {
+          // Filtra transações relacionadas à meta específica
           const transacoesFiltradas = data.data.transacoes.filter(
             transacao => transacao.meta_id === metaId || parseInt(transacao.meta_id) === parseInt(metaId)
           );
           
+          // Atualiza o estado com as transações encontradas
           setTransacoesPorMeta(prev => ({
             ...prev,
             [metaId]: transacoesFiltradas
           }));
           
+          // Exibe mensagem de sucesso
           setAlertConfig({
             isOpen: true,
             title: 'Sucesso',
@@ -456,6 +498,7 @@ function Metas() {
           });
         }
       } else {
+        // Tratamento de erro na resposta
         const errorData = await response.json().catch(() => ({}));
         console.error(`Erro ao buscar transações da meta: ${errorData.message || response.statusText}`);
         setTransacoesPorMeta(prev => ({

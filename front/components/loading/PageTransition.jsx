@@ -9,6 +9,7 @@ export default function PageTransition({ children }) {
   const [prevPathname, setPrevPathname] = useState('');
 
 
+  //Rotas que não terão o loading
   const financeRoutes = [
     '/transacoes',
     '/metas',

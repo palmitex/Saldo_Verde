@@ -10,9 +10,14 @@ import './profile.css';
 import ConfirmacaoExclusao from '../../components/ConfirmacaoExclusao';
 
 export default function Perfil() {
+  // Hooks de autenticação e navegação
   const auth = useAuth();
   const router = useRouter();
+  
+  // Estado para controlar o carregamento durante operações assíncronas
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Estado para armazenar os dados do perfil do usuário
   const [perfilData, setPerfilData] = useState({
     nome: '',
     email: '',
@@ -20,8 +25,12 @@ export default function Perfil() {
     senha: '',
     confirmarSenha: '',
   });
+  
+  // Estados para controlar a exibição de seções específicas
   const [trocandoSenha, setTrocandoSenha] = useState(false);
   const [excluindoConta, setExcluindoConta] = useState(false);
+  
+  // Estado para configuração do alerta personalizado
   const [alertConfig, setAlertConfig] = useState({
     isOpen: false,
     title: '',
@@ -32,8 +41,14 @@ export default function Perfil() {
     confirmText: 'Sim',
     cancelText: 'Não'
   });
+  
+  // Estado para controlar a exibição do modal de confirmação de exclusão
   const [showConfirmacaoExclusao, setShowConfirmacaoExclusao] = useState(false);
 
+  /**
+   * Efeito para carregar os dados do usuário quando o componente é montado
+   * ou quando o usuário autenticado muda
+   */
   useEffect(() => {
     if (auth?.user) {
       // Preenche os campos com os dados do usuário logado
@@ -47,6 +62,10 @@ export default function Perfil() {
     }
   }, [auth?.user]);
 
+  /*
+   * Função para formatar o número de telefone enquanto o usuário digita
+   * Aplica a máscara (XX) XXXXX-XXXX
+   */
   const formatarTelefone = (value) => {
     // Remove tudo que não é número
     const telefone = value.replace(/\D/g, '');
@@ -66,6 +85,11 @@ export default function Perfil() {
     return `(${telefone.slice(0, 2)}) ${telefone.slice(2, 7)}-${telefone.slice(7, 11)}`;
   };
 
+  /**
+   * Manipula as mudanças nos campos do formulário
+   * Aplica formatação especial para o campo de telefone
+   * 
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -82,6 +106,10 @@ export default function Perfil() {
     }
   };
 
+  /**
+   * Manipula o envio do formulário para atualização do perfil
+   * Realiza validações e envia os dados para a API
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -137,6 +165,7 @@ export default function Perfil() {
         auth.updateUserData(userData);
       }
 
+      // Exibe mensagem de sucesso e redireciona para a página inicial
       setAlertConfig({
         isOpen: true,
         title: 'Sucesso!',
@@ -150,6 +179,7 @@ export default function Perfil() {
         cancelText: null
       });
 
+      // Reseta os campos de senha
       setTrocandoSenha(false);
       setPerfilData({
         ...perfilData,
@@ -158,10 +188,11 @@ export default function Perfil() {
       });
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
+      // Exibe mensagem de erro
       setAlertConfig({
         isOpen: true,
         title: 'Erro',
-        message: error.message || 'Erro ao atualizar o perfil. Tente novamente mais tarde.',
+        message: error.message || 'Erro ao atualizar o perfil. Tente novamente.',
         type: 'error',
         showConfirmButton: false,
         confirmText: 'OK'
@@ -171,10 +202,18 @@ export default function Perfil() {
     }
   };
 
+  /**
+   * Inicia o processo de exclusão da conta
+   * Exibe o modal de confirmação
+   */
   const handleExcluirConta = () => {
     setShowConfirmacaoExclusao(true);
   };
 
+  /**
+   * Confirma a exclusão da conta após confirmação do usuário
+   * Envia requisição para a API e trata o resultado
+   */
   const handleConfirmarExclusao = async () => {
     setExcluindoConta(true);
     // Fechar o modal de confirmação imediatamente
@@ -198,7 +237,7 @@ export default function Perfil() {
         throw new Error(data.message || 'Erro ao excluir a conta');
       }
   
-      // Mensagem de sucesso
+      // Mensagem de sucesso e logout após exclusão
       setAlertConfig({
         isOpen: true,
         title: 'Conta Excluída',
@@ -221,7 +260,7 @@ export default function Perfil() {
       setAlertConfig({
         isOpen: true,
         title: 'Erro',
-        message: error.message || 'Ocorreu um erro ao tentar excluir sua conta. Tente novamente mais tarde.',
+        message: error.message || 'Ocorreu um erro ao tentar excluir sua conta. Tente novamente.',
         type: 'error',
         showConfirmButton: true,
         confirmText: 'OK'
@@ -229,9 +268,12 @@ export default function Perfil() {
     }
   };
 
+  // Renderização do componente
   return (
     <ProtectedRoute>
+      {/* Container principal */}
       <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
+        {/* Componente de alerta para feedback ao usuário */}
         <CustomAlert
           isOpen={alertConfig.isOpen}
           onClose={() => setAlertConfig(prev => ({ ...prev, isOpen: false }))}
@@ -243,14 +285,18 @@ export default function Perfil() {
           confirmText={alertConfig.confirmText}
           cancelText={alertConfig.cancelText}
         />
+        
+        {/* Modal de confirmação para exclusão de conta */}
         <ConfirmacaoExclusao 
-        isOpen={showConfirmacaoExclusao}
-        onClose={() => setShowConfirmacaoExclusao(false)}
-        onConfirm={handleConfirmarExclusao}
-      />
+          isOpen={showConfirmacaoExclusao}
+          onClose={() => setShowConfirmacaoExclusao(false)}
+          onConfirm={handleConfirmarExclusao}
+        />
+        
+        {/* Card do perfil */}
         <div className="max-w-4xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100 backdrop-blur-sm bg-white/90 profile-card">
-            {/* Header with decorative wave */}
+            {/* Header com efeito de onda decorativa */}
             <div className="relative h-32 bg-gradient-to-r from-[#3A7D44] to-[#55c065] overflow-hidden">
               <div className="absolute inset-0 shine-effect"></div>
               <div className="absolute bottom-0 left-0 right-0">
@@ -260,7 +306,9 @@ export default function Perfil() {
               </div>
             </div>
             
+            {/* Conteúdo do card */}
             <div className="p-6 sm:p-8 md:p-10 -mt-10 relative z-10">
+              {/* Cabeçalho com ícone e título */}
               <div className="flex flex-col items-center mb-8 sm:mb-10">
                 <div className="bg-white p-2 rounded-full mb-4 shadow-lg ring-4 ring-[#3A7D44]/20 animate-bounce-slow">
                   <div className="bg-gradient-to-br from-[#3A7D44] to-[#55c065] p-3 sm:p-4 rounded-full">
@@ -273,8 +321,11 @@ export default function Perfil() {
                 <p className="text-sm sm:text-base text-gray-600 max-w-md text-center">Visualize e edite suas informações pessoais</p>
               </div>
 
+              {/* Formulário de perfil */}
               <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
+                {/* Seção de informações pessoais */}
                 <div className="space-y-5 sm:space-y-6 bg-white/50 p-5 sm:p-6 rounded-xl shadow-sm border border-gray-100 hover:bg-white/80 transition-all duration-300">
+                  {/* Campo de nome */}
                   <div className="input-focus-effect">
                     <label htmlFor="nome" className="block text-sm font-medium text-gray-700 mb-1">
                       Nome completo
@@ -290,6 +341,7 @@ export default function Perfil() {
                     />
                   </div>
                   
+                  {/* Campo de email (desabilitado) */}
                   <div className="input-focus-effect">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                       Email
@@ -306,6 +358,7 @@ export default function Perfil() {
                     <p className="text-xs text-gray-500 mt-1">O email não pode ser alterado</p>
                   </div>
                   
+                  {/* Campo de telefone */}
                   <div className="input-focus-effect">
                     <label htmlFor="telefone" className="block text-sm font-medium text-gray-700 mb-1">
                       Telefone
@@ -322,6 +375,7 @@ export default function Perfil() {
                     />
                   </div>
                   
+                  {/* Seção de alteração de senha */}
                   <div className="pt-5 sm:pt-6 mt-4 border-t border-gray-200">
                     <div className="flex items-center justify-between">
                       <h3 className="text-base sm:text-lg font-medium text-gray-800">Alterar senha</h3>
@@ -348,8 +402,10 @@ export default function Perfil() {
                       </button>
                     </div>
                     
+                    {/* Campos de senha (condicionalmente renderizados) */}
                     {trocandoSenha && (
                       <div className="mt-3 sm:mt-4 space-y-3 sm:space-y-4">
+                        {/* Campo de nova senha */}
                         <div className="input-focus-effect">
                           <label htmlFor="senha" className="block text-sm font-medium text-gray-700 mb-1">
                             Nova senha
@@ -365,6 +421,7 @@ export default function Perfil() {
                           />
                         </div>
                         
+                        {/* Campo de confirmação de senha */}
                         <div className="input-focus-effect">
                           <label htmlFor="confirmarSenha" className="block text-sm font-medium text-gray-700 mb-1">
                             Confirmar nova senha
@@ -384,7 +441,9 @@ export default function Perfil() {
                   </div>
                 </div>
                 
+                {/* Botões de ação */}
                 <div className="flex flex-col sm:flex-row justify-between pt-6 sm:pt-8 mt-2 border-t border-gray-100 space-y-3 sm:space-y-0">
+                  {/* Botão de exclusão de conta */}
                   <button
                     type="button"
                     onClick={handleExcluirConta}
@@ -409,7 +468,9 @@ export default function Perfil() {
                     )}
                   </button>
 
+                  {/* Botões de cancelar e salvar */}
                   <div className="order-2 sm:order-2 flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0">
+                    {/* Botão de cancelar */}
                     <button
                       type="button"
                       onClick={() => router.back()}
@@ -422,6 +483,8 @@ export default function Perfil() {
                         Cancelar
                       </>
                     </button>
+                    
+                    {/* Botão de salvar alterações */}
                     <button
                       type="submit"
                       className="px-4 py-2 sm:px-6 sm:py-3 bg-gradient-to-r from-[#3A7D44] to-[#55c065] text-white rounded-lg shadow-md hover:shadow-lg hover:from-[#2e6436] hover:to-[#48a354] disabled:opacity-70 w-full sm:w-auto transition duration-200 ease-in-out flex items-center justify-center gap-2"

@@ -192,8 +192,8 @@ const obterGastosPorPeriodo = async (req, res) => {
     }
     // Verificar se foi solicitado um mês específico
     else if (mes && ano) {
-      // Mês específico (Janeiro = 0, Dezembro = 11)
-      const mesInt = parseInt(mes);
+      // Mês específico (recebido como 1-12, precisa ser ajustado para 0-11 para o JavaScript)
+      const mesInt = parseInt(mes) - 1; // Converter de 1-12 para 0-11
       const anoInt = parseInt(ano);
       
       dataInicio = new Date(anoInt, mesInt, 1); // Primeiro dia do mês
@@ -232,9 +232,9 @@ const obterGastosPorPeriodo = async (req, res) => {
           dataFim = hoje;
           break;
         case 'ano':
-          // Ano atual
-          dataInicio = new Date(hoje.getFullYear(), 0, 1);
-          dataFim = hoje;
+          // Ano atual (do primeiro ao último dia)
+          dataInicio = new Date(hoje.getFullYear(), 0, 1); // 1º de janeiro
+          dataFim = new Date(hoje.getFullYear(), 11, 31); // 31 de dezembro
           break;
         default:
           // Padrão: mês atual

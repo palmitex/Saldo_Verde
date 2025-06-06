@@ -8,7 +8,7 @@ export default function CustomAlert({
   onConfirm, 
   title, 
   message, 
-  type = 'info', // 'info', 'success', 'warning', 'error'
+  type = 'info',
   showConfirmButton = true,
   confirmText = 'Sim',
   confirmDisabled = false,

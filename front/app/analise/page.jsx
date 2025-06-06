@@ -118,8 +118,10 @@ const Analise = () => {
       } 
       else if (tipoSelecao === 'mesEspecifico') {
         // Mês e ano específicos
-        params.append('mes', mesEspecifico + 1); // API espera mês de 1-12, não 0-11
-        params.append('ano', anoEspecifico);
+        // Garantir que o mês seja tratado como número
+        const mesNumerico = parseInt(mesEspecifico) + 1; // API espera mês de 1-12, não 0-11
+        params.append('mes', mesNumerico);
+        params.append('ano', parseInt(anoEspecifico));
       } 
       else if (tipoSelecao === 'personalizado') {
         // Datas específicas (período personalizado)
