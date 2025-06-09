@@ -66,7 +66,7 @@ O **SaldoVerde** é uma plataforma de finanças pessoais desenvolvida para facil
    DB_USER=seu_usuario
    DB_PASSWORD=sua_senha
    DB_NAME=saldoverde
-   JWT_SECRET=sua_chave_secreta
+   DB_PORT:5432
    ```
 
 4. Instale as dependências do frontend:
