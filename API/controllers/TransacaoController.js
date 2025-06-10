@@ -186,58 +186,48 @@ const obterGastosPorPeriodo = async (req, res) => {
     
     // Verificar se foram enviadas datas específicas
     if (data_inicio && data_fim) {
-      // Período personalizado com datas específicas
       dataInicio = new Date(data_inicio);
       dataFim = new Date(data_fim);
     }
     // Verificar se foi solicitado um mês específico
     else if (mes && ano) {
-      // Mês específico (recebido como 1-12, precisa ser ajustado para 0-11 para o JavaScript)
-      const mesInt = parseInt(mes) - 1; // Converter de 1-12 para 0-11
+      const mesInt = parseInt(mes) - 1;
       const anoInt = parseInt(ano);
       
-      dataInicio = new Date(anoInt, mesInt, 1); // Primeiro dia do mês
-      // Último dia do mês (setando dia 0 do próximo mês = último dia do mês atual)
+      dataInicio = new Date(anoInt, mesInt, 1);
       dataFim = new Date(anoInt, mesInt + 1, 0);
     }
     // Caso contrário, usar os períodos predefinidos
     else {
       switch(periodo) {
         case 'dia':
-          // Apenas o dia atual
           dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
           dataFim = hoje;
           break;
         case 'semana':
-          // Últimos 7 dias
           dataInicio = new Date(hoje);
           dataInicio.setDate(hoje.getDate() - 7);
           dataFim = hoje;
           break;
         case 'mes':
-          // Mês atual
           dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
           dataFim = hoje;
           break;
         case 'trimestre':
-          // Últimos 3 meses
           dataInicio = new Date(hoje);
           dataInicio.setMonth(hoje.getMonth() - 3);
           dataFim = hoje;
           break;
         case 'semestre':
-          // Últimos 6 meses
           dataInicio = new Date(hoje);
           dataInicio.setMonth(hoje.getMonth() - 6);
           dataFim = hoje;
           break;
         case 'ano':
-          // Ano atual (do primeiro ao último dia)
-          dataInicio = new Date(hoje.getFullYear(), 0, 1); // 1º de janeiro
-          dataFim = new Date(hoje.getFullYear(), 11, 31); // 31 de dezembro
+          dataInicio = new Date(hoje.getFullYear(), 0, 1);
+          dataFim = new Date(hoje.getFullYear(), 11, 31);
           break;
         default:
-          // Padrão: mês atual
           dataInicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
           dataFim = hoje;
       }
@@ -247,46 +237,17 @@ const obterGastosPorPeriodo = async (req, res) => {
     const dataInicioFormatada = dataInicio.toISOString().split('T')[0];
     const dataFimFormatada = dataFim.toISOString().split('T')[0];
 
-    let sql;
-    let params = [userId, dataInicioFormatada, dataFimFormatada];
-
-    if (categoria_id) {
-      // Gastos por período para uma categoria específica
-      sql = `
-        SELECT 
-          c.id,
-          c.nome,
-          SUM(CASE WHEN t.tipo = 'saida' THEN t.valor ELSE 0 END) as total_saidas,
-          SUM(CASE WHEN t.tipo = 'entrada' THEN t.valor ELSE 0 END) as total_entradas,
-          COUNT(t.id) as quantidade
-        FROM transacoes t
-        LEFT JOIN categorias c ON t.categoria_id = c.id
-        WHERE t.usuario_id = $1 
-          AND t.data BETWEEN $2 AND $3
-          AND t.categoria_id = $4
-        GROUP BY c.id, c.nome
-        ORDER BY c.nome
-      `;
-      params.push(categoria_id);
-    } else {
-      // Gastos por categoria no período
-      sql = `
-        SELECT 
-          c.id,
-          c.nome,
-          SUM(CASE WHEN t.tipo = 'saida' THEN t.valor ELSE 0 END) as total_saidas,
-          SUM(CASE WHEN t.tipo = 'entrada' THEN t.valor ELSE 0 END) as total_entradas,
-          COUNT(t.id) as quantidade
-        FROM transacoes t
-        LEFT JOIN categorias c ON t.categoria_id = c.id
-        WHERE t.usuario_id = $1 
-          AND t.data BETWEEN $2 AND $3
-        GROUP BY c.id, c.nome
-        ORDER BY total_saidas DESC
-      `;
-    }
-
-    const resultado = await query(sql, params);
+    // Usar a função do banco de dados
+    const sql = `
+      SELECT * FROM calcular_totais_por_categoria($1, $2, $3, $4)
+    `;
+    
+    const resultado = await query(sql, [
+      userId, 
+      dataInicioFormatada, 
+      dataFimFormatada, 
+      categoria_id || null
+    ]);
 
     res.status(200).json({
       status: 'success',
