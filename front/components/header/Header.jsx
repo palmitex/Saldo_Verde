@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import './header.css';
 import Link from 'next/link';
 import { useAuth } from '../../context/AuthContext';
-import { FaHome, FaChartLine, FaBlog, FaSignInAlt, FaUserCircle, FaSignOutAlt, FaUserCog, FaCoins, FaChartPie, FaListAlt, FaTags, FaTimes } from 'react-icons/fa';
+import { FaHome, FaChartLine, FaBlog, FaSignInAlt, FaUserCircle, FaSignOutAlt, FaUserCog, FaCoins, FaChartPie, FaListAlt, FaTags, FaTimes, FaCalculator } from 'react-icons/fa';
 
 export default function Header() {
     const [isActive, setIsActive] = useState(false);
@@ -152,6 +152,11 @@ export default function Header() {
                                 <Link href="/categorias" className="dropdown-item" onClick={handleLinkClick}>
                                     <FaTags className="text-green-600" />
                                     <span>Categorias</span>
+                                </Link>
+
+                                <Link href="/calculadora" className="dropdown-item" onClick={handleLinkClick}>
+                                    <FaCalculator className="text-green-600" />
+                                    <span>Calculadora</span>
                                 </Link>
                             </div>
                         </div>

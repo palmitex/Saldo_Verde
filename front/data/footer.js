@@ -11,6 +11,7 @@ const footer = {
             { id: 2, titulo: 'Transações', link: '/transacoes' },
             { id: 3, titulo: 'Análise', link: '/analise' },
             { id: 4, titulo: 'Categorias', link: '/categorias' },
+            { id: 5, titulo: 'Calculadora', link: '/calculadora' },
         ],
 
         trans: [

@@ -16,7 +16,8 @@ export default function Footer() {
         '/transacoes',
         '/categorias',
         '/metas',
-        '/perfil'
+        '/perfil',
+        '/calculadora'
     ];
     
     // Verifica se a rota atual está na lista de rotas sem footer
