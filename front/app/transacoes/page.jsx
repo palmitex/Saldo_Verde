@@ -208,7 +208,9 @@ function Transacoes() {
   const formatarData = (dataString) => {
     if (!dataString) return '-';
     const data = new Date(dataString);
-    return data.toLocaleDateString('pt-BR');
+    // Ajusta o fuso horário para UTC+0
+    const dataAjustada = new Date(data.getTime() + data.getTimezoneOffset() * 60000);
+    return dataAjustada.toLocaleDateString('pt-BR');
   };
 
   return (

@@ -58,7 +58,7 @@ const registrarTransacao = async (req, res) => {
       meta_id: meta_id || null,
       tipo,
       valor,
-      data,
+      data: new Date(data + 'T00:00:00').toISOString(), // Garante que a data seja salva no início do dia
       descricao: descricao || null,
       forma_pagamento: forma_pagamento || null
     };

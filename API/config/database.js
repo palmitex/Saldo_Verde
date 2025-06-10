@@ -1,10 +1,10 @@
-import pkg from 'pg';
+import pg from 'pg';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { Pool } = pkg;
+const { Pool } = pg;
 
 const pool = new Pool({
     host: process.env.DB_HOST,
