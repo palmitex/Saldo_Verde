@@ -1,12 +1,14 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import emailjs from '@emailjs/browser';
 import { emailConfig } from './emailjs-config';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Contato() {
+    const auth = useAuth();
     const [formData, setFormData] = useState({
-        email: '',
-        nome: '',
+        email: auth?.user?.email || '',
+        nome: auth?.user?.nome || '',
         assunto: '',
         mensagem: ''
     });
@@ -75,6 +77,17 @@ export default function Contato() {
             setLoading(false);
         }
     };
+
+    // Atualizar os campos se o usuário logar depois do carregamento inicial
+    useEffect(() => {
+        if (auth?.user) {
+            setFormData(prev => ({
+                ...prev,
+                email: auth.user.email || '',
+                nome: auth.user.nome || ''
+            }));
+        }
+    }, [auth?.user]);
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-emerald-600/5 via-white to-emerald-600/5">

@@ -71,9 +71,9 @@
 }
 
 .input-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   margin-bottom: 2.5rem;
   padding: 1rem;
   background: #f8fafc;
@@ -81,16 +81,14 @@
   border: 1px solid #e2e8f0;
 }
 
-.input-group label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  font-weight: 600;
-  color: #334155;
-  font-size: 0.95rem;
+.input-group label,
+.input-group > div {
+  width: 100%;
 }
 
 .calculadora-input {
+  width: 100%;
+  box-sizing: border-box;
   padding: 1rem;
   border: 2px solid #e2e8f0;
   border-radius: 12px;
@@ -119,6 +117,8 @@
 }
 
 .taxa-juros-container {
+  width: 100%;
+  box-sizing: border-box;
   background: #fff;
   padding: 1.5rem;
   border-radius: 12px;
