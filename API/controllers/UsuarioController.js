@@ -346,58 +346,13 @@ const atualizarPerfilController = async (req, res) => {
 // Excluir conta do usuário
 const excluirContaController = async (req, res) => {
   try {
-    // Verificar parâmetro userId na query ou no body
-    let userId = req.query.userId;
+    const userId = req.userId;
+    await excluirUsuario(userId);
     
-    // Se não estiver na query, tenta buscar no body
-    if (!userId && req.body && req.body.userId) {
-      userId = req.body.userId;
-    }
-
-    if (!userId) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'O parâmetro userId é obrigatório.'
-      });
-    }
-
-    // Verificar se usuário existe
-    const usuario = await buscarUsuarioPorId(userId);
-    if (!usuario) {
-      return res.status(404).json({ 
-        status: 'error', 
-        message: 'Usuário não encontrado' 
-      });
-    }
-    
-    // Verificar e excluir todas as dependências do usuário
-    try {
-      console.log(`Excluindo logs do usuário ${userId}...`);
-      await deleteRecord('logs', `usuario_id = ${userId}`);
-      
-      // Verificar se há outras tabelas que dependem do usuário
-      const tabelas = ['transacoes', 'categorias', 'metas'];
-      for (const tabela of tabelas) {
-        try {
-          console.log(`Verificando e excluindo registros da tabela ${tabela} do usuário ${userId}...`);
-          await deleteRecord(tabela, `usuario_id = ${userId}`);
-        } catch (err) {
-          // Se a tabela não existir ou não tiver a coluna usuario_id, apenas ignora
-          console.info(`Não foi possível excluir registros da tabela ${tabela}: ${err.message}`);
-        }
-      }
-
-      console.log(`Excluindo usuário ${userId}...`);
-      await excluirUsuario(userId);
-      
-      res.status(200).json({
-        status: 'success',
-        message: 'Conta excluída com sucesso'
-      });
-    } catch (err) {
-      console.error('Erro ao excluir dependências do usuário:', err);
-      throw err;
-    }
+    res.status(200).json({
+      status: 'success',
+      message: 'Conta excluída com sucesso'
+    });
   } catch (error) {
     console.error('Erro ao excluir conta:', error);
     res.status(500).json({ 
